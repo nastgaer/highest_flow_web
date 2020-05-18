@@ -4,8 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.common.utils.HttpUtils;
 import highest.flow.taobaolive.security.entity.XHeader;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 
 @SpringBootTest
@@ -47,6 +51,22 @@ class TaobaoliveApplicationTests {
 
         } catch (Exception ex) {
             System.out.println(ex.toString());
+        }
+    }
+
+    @Autowired
+    DataSource dataSource;
+
+    @Test
+    public void testMySQL() {
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            System.out.println(connection);
+            connection.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
