@@ -1,14 +1,10 @@
 package highest.flow.taobaolive.app.dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import highest.flow.taobaolive.app.entity.HFUser;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
 
 @Mapper
-public interface HFUserDao {
+public interface HFUserDao extends BaseMapper<HFUser> {
 
-    public HFUser getUserByUserId(String userId);
-
-    public int insertUser(HFUser user);
 }

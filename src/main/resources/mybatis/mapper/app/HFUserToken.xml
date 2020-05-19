@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="highest.flow.taobaolive.app.dao.HFUserTokenDao">
+
+    <resultMap id="hfUserTokenMap" type="highest.flow.taobaolive.app.entity.HFUserToken">
+        <result property="id" column="id" />
+        <result property="userId" column="user_id" />
+        <result property="token" column="token" />
+        <result property="expireTime" column="expire_time" />
+        <result property="updatedTime" column="updated_time" />
+    </resultMap>
+
+</mapper>

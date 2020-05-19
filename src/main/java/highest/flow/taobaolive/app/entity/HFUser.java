@@ -1,17 +1,21 @@
 package highest.flow.taobaolive.app.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
+@TableName("tbl_users")
 public class HFUser {
 
     private int id;
 
-    private String userId;
+    private String username;
 
     private String password;
+
+    private String salt;
 
     private String machineCode;
 

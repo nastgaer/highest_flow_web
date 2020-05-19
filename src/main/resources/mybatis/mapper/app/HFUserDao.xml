@@ -3,15 +3,31 @@
 
 <mapper namespace="highest.flow.taobaolive.app.dao.HFUserDao">
 
-    <select id="getUserByUserId" resultType="highest.flow.taobaolive.app.entity.HFUser">
-        SELECT * FROM tbl_users WHERE user_id LIKE #{userId}
-    </select>
+    <!--<select id="getUserByUserId" resultType="highest.flow.taobaolive.app.entity.HFUser">-->
+        <!--SELECT * FROM tbl_users WHERE user_id LIKE #{userId}-->
+    <!--</select>-->
 
-    <insert id="insertUser">
-        INSERT INTO tbl_users(user_id, password, machine_code, mobile, weixin,
-            level, service_type, state, service_start_time, service_end_time, created_time, updated_time)
-            VALUES(#{userId}, #{password}, #{machineCode}, #{mobile}, #{weixin}, #{level},
-            #{serviceType}, #{state}, #{serviceStartTime}, #{serviceEndTime}, #{createdTime}, #{updatedTime})
-    </insert>
+    <!--<insert id="insertUser">-->
+        <!--INSERT INTO tbl_users(user_id, password, machine_code, mobile, weixin,-->
+            <!--level, service_type, state, service_start_time, service_end_time, created_time, updated_time)-->
+            <!--VALUES(#{userId}, #{password}, #{machineCode}, #{mobile}, #{weixin}, #{level},-->
+            <!--#{serviceType}, #{state}, #{serviceStartTime}, #{serviceEndTime}, #{createdTime}, #{updatedTime})-->
+    <!--</insert>-->
+
+    <resultMap id="hfUserMap" type="highest.flow.taobaolive.app.entity.HFUser">
+        <result property="id" column="id" />
+        <result property="username" column="username" />
+        <result property="password" column="password" />
+        <result property="machineCode" column="machine_code" />
+        <result property="mobile" column="mobile" />
+        <result property="weixin" column="weixin" />
+        <result property="level" column="level" />
+        <result property="serviceType" column="service_type" />
+        <result property="state" column="state" />
+        <result property="serviceStartTime" column="service_start_time" />
+        <result property="serviceEndTime" column="service_end_time" />
+        <result property="createdTime" column="created_time" />
+        <result property="updatedTime" column="updated_time" />
+    </resultMap>
 
 </mapper>
