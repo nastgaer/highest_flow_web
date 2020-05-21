@@ -1,5 +1,6 @@
 package highest.flow.taobaolive.app.controller;
 
+import highest.flow.taobaolive.app.defines.HFUserLevel;
 import highest.flow.taobaolive.app.entity.HFUser;
 import highest.flow.taobaolive.app.service.HFUserService;
 import highest.flow.taobaolive.app.service.HFUserTokenService;
@@ -54,7 +55,7 @@ public class HFLoginController {
             String machineCode = (String)map.get("machineCode");
             String mobile = (String)map.get("mobile");
             String weixin = (String)map.get("weixin");
-            int level = 0;
+            int level = HFUserLevel.User.getLevel();
             int serviceType = (int)map.get("serviceType");
 
             HFUser hfUser = hfUserService.getById(username);
@@ -64,7 +65,10 @@ public class HFLoginController {
 
             hfUser = hfUserService.register(username, password, machineCode, mobile, weixin, level, serviceType);
 
-            return R.ok();
+            if (hfUser != null) {
+                return R.ok();
+            }
+            return R.error();
 
         } catch (Exception ex) {
             return R.error("注册用户失败");

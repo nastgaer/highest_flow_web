@@ -13,6 +13,15 @@ public class R extends HashMap<String, Object> {
         put("msg", "成功");
     }
 
+    public ErrorCodes getCode() {
+        String codeStr = (String)get("code");
+        return ErrorCodes.valueOf(codeStr);
+    }
+
+    public String getMsg() {
+        return (String)get("msg");
+    }
+
     public static R error(ErrorCodes code, String msg) {
         R r = new R();
         r.put("code", code.toString());

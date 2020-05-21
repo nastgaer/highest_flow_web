@@ -1,5 +1,6 @@
 package highest.flow.taobaolive.app.service.impl;
 
+import highest.flow.taobaolive.app.defines.HFUserState;
 import org.apache.commons.lang.RandomStringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import highest.flow.taobaolive.app.dao.HFUserDao;
@@ -25,6 +26,7 @@ public class HFUserServiceImpl extends ServiceImpl<HFUserDao, HFUser> implements
         hfUser.setWeixin(weixin);
         hfUser.setLevel(level);
         hfUser.setServiceType(serviceType);
+        hfUser.setState(HFUserState.Normal.getState());
         hfUser.setCreatedTime(new Date());
         hfUser.setUpdatedTime(new Date());
 
