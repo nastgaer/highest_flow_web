@@ -5,6 +5,8 @@ import highest.flow.taobaolive.common.utils.HttpUtils;
 import highest.flow.taobaolive.security.service.CryptoService;
 import highest.flow.taobaolive.taobao.entity.XHeader;
 import highest.flow.taobaolive.taobao.service.XSignService;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +25,11 @@ public class XSignServiceImpl implements XSignService {
 
     private String prepareXSign1(XHeader xHeader) {
         try {
-            String plain = xHeader.getUtdid() + "&" + xHeader.getUid() + "&&" + xHeader.getAppkey() + "&" + xHeader.getAes() + "&" +
-                    xHeader.getShortTimestamp() + "&" + xHeader.getUrl() + "&" + xHeader.getUrlVer() + "&" +
-                    xHeader.getSid() + "&" + "600000@taobao_android_7.6.0" + "&" + xHeader.getDevid() + "&" +
-                    "454.451236&1568.459875" + "&" + xHeader.getFeatures();
-
-            String timeMD5 = cryptoService.MD5(String.valueOf(xHeader.getLongTimestamp()));
+            String aes = cryptoService.MD5(xHeader.getData());
+            String plain = xHeader.getUtdid() + "&" + xHeader.getUid() + "&&" + xHeader.getAppkey() + "&" + aes + "&" +
+                    xHeader.getShortTimestamp() + "&" + xHeader.getSubUrl() + "&" + xHeader.getUrlVer() + "&" +
+                    xHeader.getSid() + "&" + xHeader.getTtid() + "&" + xHeader.getDevid() + "&" +
+                    xHeader.getLocation() + "&" + xHeader.getFeatures();
 
             String url = "http://39.100.74.215:2345/x-sign.php?" + plain;
 
@@ -38,9 +39,7 @@ public class XSignServiceImpl implements XSignService {
                 return null;
             }
 
-            respText = HFStringUtils.trim(respText, new char[] {
-                    '\"', '\r', '\n', ' '
-            });
+            respText = StringUtils.strip(respText, "\"\r\n");
 
             if (respText.startsWith("ab2")) {
                 return respText;
@@ -55,10 +54,11 @@ public class XSignServiceImpl implements XSignService {
 
     private String prepareXSign2(XHeader xHeader, int port) {
         try {
-            String plain = xHeader.getUtdid() + "%26" + xHeader.getUid() + "%26%26" + xHeader.getAppkey() + "%26" + xHeader.getAes() + "%26" +
-                    xHeader.getShortTimestamp() + "%26" + xHeader.getUrl() + "%26" + xHeader.getUrlVer() + "%26" +
-                    xHeader.getSid() + "%26" + xHeader.getTtid() + "%26" + xHeader.getDevid() + "%26" +
-                    xHeader.getLocation() + "%26" + xHeader.getFeatures();
+            String aes = cryptoService.MD5(xHeader.getData());
+            String plain = xHeader.getUtdid() + "%26" + xHeader.getUid() + "%26%26" + xHeader.getAppkey() + "%26" + aes + "%26" +
+                    xHeader.getShortTimestamp() + "%26" + xHeader.getSubUrl() + "%26" + xHeader.getUrlVer() + "%26" +
+                    xHeader.getSid() + "%26" + URLEncoder.encode(xHeader.getTtid()) + "%26" + xHeader.getDevid() + "%26" +
+                    URLEncoder.encode(xHeader.getLocation()) + "%26" + xHeader.getFeatures();
 
             String timeMD5 = cryptoService.MD5(String.valueOf(xHeader.getLongTimestamp()));
 
@@ -70,9 +70,7 @@ public class XSignServiceImpl implements XSignService {
                 return null;
             }
 
-            respText = HFStringUtils.trim(respText, new char[] {
-                    '\"', '\r', '\n', ' '
-            });
+            respText = StringUtils.strip(respText, "\"\r\n");
 
             if (respText.startsWith("ab2")) {
                 return respText;

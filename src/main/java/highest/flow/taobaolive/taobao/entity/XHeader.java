@@ -1,11 +1,9 @@
 package highest.flow.taobaolive.taobao.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
-import highest.flow.taobaolive.taobao.service.XSignService;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.DateTimeException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,28 +11,27 @@ import java.util.Map;
 @Data
 public class XHeader {
 
-    @Autowired
-    private XSignService xSignService;
-
     private String utdid;
     private String uid;
     private String appkey = "21646297";
     private String pv = "5.1";
-    private String aes;
-    private Date timestamp = new Date();
-    private String url;
-    private String urlVer;
+    private long timestamp = 0;
     private String sid;
-    private String ttid = "600000%40taobao%5Fandroid%5F7.6.0";
+    private String ttid = "600000@taobao_android_7.6.0"; //"600000%40taobao%5Fandroid%5F7.6.0";
     private String devid;
-    private String location = "1568.459875%2C454.451236";
+    private String location1 = "1568.459875";
+    private String location2 = "454.451236";
     private String features = "27";
+    private String subUrl;
+    private String urlVer;
+    private String data;
+    @JsonIgnore
     private String xsign;
 
-    public XHeader(Date date) {
-        this.timestamp = date;
+    public XHeader() {}
 
-        this.setXsign(xSignService.sign(this));
+    public XHeader(Date date) {
+        this.timestamp = date.getTime();
     }
 
     public XHeader(TaobaoAccount taobaoAccount) {
@@ -43,19 +40,25 @@ public class XHeader {
         this.sid = taobaoAccount.getSid();
         this.uid = taobaoAccount.getAccountId();
 
-        timestamp = new Date();
-
-        this.setXsign(xSignService.sign(this));
+        this.timestamp = new Date().getTime();
     }
 
+    @JsonIgnore
     public long getLongTimestamp() {
-        return timestamp.getTime();
+        return timestamp;
     }
 
+    @JsonIgnore
     public long getShortTimestamp() {
-        return timestamp.getTime() / 1000;
+        return timestamp / 1000;
     }
 
+    @JsonIgnore
+    public String getLocation() {
+        return location2 + "&" + location1; // "454.451236%2C1568.459875";
+    }
+
+    @JsonIgnore
     public Map<String, String> getHeaders() {
         Map<String, String> map = new HashMap<>();
         map.put("x-appkey", appkey);
@@ -63,7 +66,7 @@ public class XHeader {
         map.put("x-pv", pv);
         map.put("x-sign", xsign);
         map.put("x-features", String.valueOf(features));
-        map.put("x-location", location);
+        map.put("x-location", getLocation());
         map.put("x-ttid", ttid);
         if (HFStringUtils.isNullOrEmpty(utdid)) {
             map.put("x-utdid", utdid);

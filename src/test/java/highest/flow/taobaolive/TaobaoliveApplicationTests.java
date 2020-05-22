@@ -5,7 +5,9 @@ import highest.flow.taobaolive.common.http.HttpHelper;
 import highest.flow.taobaolive.common.http.Request;
 import highest.flow.taobaolive.common.http.ResponseType;
 import highest.flow.taobaolive.common.http.response.Response;
+import highest.flow.taobaolive.common.utils.HttpUtils;
 import highest.flow.taobaolive.taobao.entity.XHeader;
+import highest.flow.taobaolive.taobao.service.XSignService;
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
@@ -24,6 +26,9 @@ import java.util.List;
 @SpringBootTest
 class TaobaoliveApplicationTests {
 
+    @Autowired
+    private XSignService xSignService;
+
     @Test
     void contextLoads() {
     }
@@ -35,16 +40,17 @@ class TaobaoliveApplicationTests {
 
             xHeader.setUtdid("utdid");
             xHeader.setUid("uid");
-            xHeader.setAppkey("appkey");
-            xHeader.setAes("aes");
-            xHeader.setTimestamp(new Date());
-            xHeader.setUrl("url");
-            xHeader.setUrlVer("urlVer");
+            xHeader.setAppkey("21646297");
             xHeader.setSid("sid");
-            xHeader.setTtid("ttid");
+            xHeader.setTtid("600000@taobao_android_7.6.0");
+            xHeader.setPv("5.1");
             xHeader.setDevid("devid");
-            xHeader.setLocation("location");
-            xHeader.setFeatures("features");
+            xHeader.setLocation1("1568.459875");
+            xHeader.setLocation2("454.451236");
+            xHeader.setFeatures("27");
+            xHeader.setSubUrl("mtop.user.getUserSimple");
+            xHeader.setUrlVer("1.0");
+            xHeader.setData("{}");
 
             ObjectMapper objectMapper = new ObjectMapper();
             String data = objectMapper.writeValueAsString(xHeader);
@@ -55,16 +61,18 @@ class TaobaoliveApplicationTests {
             paramMap.put("data", data);
             paramMap.put("sign", "");
 
-            Request request = new Request("POST", "http://localhost:8088/xsign", ResponseType.TEXT);
-            request.addParameters(paramMap);
+            System.out.println(data);
 
-            //String xsign = HttpUtils.sendPost("http://localhost:8088/xsign", paramMap);
-            //System.out.println("sign=" + xsign);
+//            Request request = new Request("POST", "http://119.45.148.200:8080/xsign", ResponseType.TEXT);
+//            request.addParameters(paramMap);
 
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
+//            HttpHelper httpHelper = new HttpHelper();
+//            Response<String> response = httpHelper.execute(request);
 
-            System.out.println(response.getResult());
+//            System.out.println(response.getResult());
+
+            String xsign = HttpUtils.sendPost("http://localhost:8088/xsign", paramMap);
+            System.out.println("sign=" + xsign);
 
         } catch (Exception ex) {
             System.out.println(ex.toString());

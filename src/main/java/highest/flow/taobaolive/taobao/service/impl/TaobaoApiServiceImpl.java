@@ -12,11 +12,13 @@ import highest.flow.taobaolive.taobao.entity.TaobaoAccount;
 import highest.flow.taobaolive.taobao.entity.TaobaoReturn;
 import highest.flow.taobaolive.taobao.entity.XHeader;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
+import highest.flow.taobaolive.taobao.service.XSignService;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.cookie.CookieSpec;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,9 @@ import java.util.Map;
 
 @Service("taobaoApiService")
 public class TaobaoApiServiceImpl implements TaobaoApiService {
+
+    @Autowired
+    private XSignService xSignService;
 
     @Override
     public R GetUserSimple(TaobaoAccount taobaoAccount) {
@@ -81,6 +86,10 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/";
 
             XHeader xHeader = new XHeader(taobaoAccount);
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer("1.0");
+            xHeader.setData(jsonText);
+            xHeader.setXsign(xSignService.sign(xHeader));
 
             Request request = new Request("GET", url, ResponseType.TEXT);
             request.setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)");

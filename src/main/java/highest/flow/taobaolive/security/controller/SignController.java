@@ -17,6 +17,9 @@ public class SignController {
     @Autowired
     private CryptoService cryptoService;
 
+    @Autowired
+    private XSignService xSignService;
+
     @PostMapping("/xsign")
     public R xsign(@RequestParam(name = "data") String data, @RequestParam(name = "sign") String sign) {
 
@@ -31,7 +34,7 @@ public class SignController {
             ObjectMapper objectMapper = new ObjectMapper();
             XHeader xHeader = objectMapper.readValue(plain, XHeader.class);
 
-            String xsign = xHeader.getXsign();
+            String xsign = xSignService.sign(xHeader);
             if (!HFStringUtils.isNullOrEmpty(xsign)) {
                 return R.ok("成功").put("xsign", xsign);
             }
@@ -39,6 +42,7 @@ public class SignController {
             return R.error("xsign验证失败");
 
         } catch (Exception ex) {
+            ex.printStackTrace();
             return R.error("参数验证失败");
         }
     }
