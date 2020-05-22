@@ -10,6 +10,4 @@ public interface CryptoService {
     String decrypt(String data);
 
     String encrypt(String data);
-
-    String MD5(String data);
 }

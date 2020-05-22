@@ -36,3 +36,11 @@ spring:
 mybatis:
   mapper-locations: classpath:mybatis/mapper/**/*.xml
   config-location: classpath:mybatis/mybatis-config.xml
+
+sign:
+  prefix: gaoji
+  suffix: yinliu
+  method: md5
+
+secure:
+  key: 1234!@#$

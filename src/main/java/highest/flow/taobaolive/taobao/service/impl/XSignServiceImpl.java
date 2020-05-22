@@ -1,5 +1,6 @@
 package highest.flow.taobaolive.taobao.service.impl;
 
+import highest.flow.taobaolive.common.utils.CryptoUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.HttpUtils;
 import highest.flow.taobaolive.security.service.CryptoService;
@@ -15,9 +16,6 @@ import java.net.URLEncoder;
 @Service("xSignService")
 public class XSignServiceImpl implements XSignService {
 
-    @Autowired
-    private CryptoService cryptoService;
-
     private int[] availablePorts = new int [] {
             59316, 58119, 58114, 58120
     };
@@ -25,7 +23,7 @@ public class XSignServiceImpl implements XSignService {
 
     private String prepareXSign1(XHeader xHeader) {
         try {
-            String aes = cryptoService.MD5(xHeader.getData());
+            String aes = CryptoUtils.MD5(xHeader.getData());
             String plain = xHeader.getUtdid() + "&" + xHeader.getUid() + "&&" + xHeader.getAppkey() + "&" + aes + "&" +
                     xHeader.getShortTimestamp() + "&" + xHeader.getSubUrl() + "&" + xHeader.getUrlVer() + "&" +
                     xHeader.getSid() + "&" + xHeader.getTtid() + "&" + xHeader.getDevid() + "&" +
@@ -54,13 +52,13 @@ public class XSignServiceImpl implements XSignService {
 
     private String prepareXSign2(XHeader xHeader, int port) {
         try {
-            String aes = cryptoService.MD5(xHeader.getData());
+            String aes = CryptoUtils.MD5(xHeader.getData());
             String plain = xHeader.getUtdid() + "%26" + xHeader.getUid() + "%26%26" + xHeader.getAppkey() + "%26" + aes + "%26" +
                     xHeader.getShortTimestamp() + "%26" + xHeader.getSubUrl() + "%26" + xHeader.getUrlVer() + "%26" +
                     xHeader.getSid() + "%26" + URLEncoder.encode(xHeader.getTtid()) + "%26" + xHeader.getDevid() + "%26" +
                     URLEncoder.encode(xHeader.getLocation()) + "%26" + xHeader.getFeatures();
 
-            String timeMD5 = cryptoService.MD5(String.valueOf(xHeader.getLongTimestamp()));
+            String timeMD5 = CryptoUtils.MD5(String.valueOf(xHeader.getLongTimestamp()));
 
             String url = "http://1.192.134.231:" + port + "/xdata?data=" + plain + "&apiKey=&t=&apiSign=" + URLEncoder.encode(timeMD5);;
 
