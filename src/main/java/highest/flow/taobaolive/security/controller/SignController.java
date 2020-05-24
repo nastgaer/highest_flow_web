@@ -41,9 +41,13 @@ public class SignController {
             ObjectMapper objectMapper = new ObjectMapper();
             XHeader xHeader = objectMapper.readValue(plain, XHeader.class);
 
-            String xsign = xSignService.sign(xHeader);
+            String xsign = xSignService.sign1(xHeader);
             if (!HFStringUtils.isNullOrEmpty(xsign)) {
-                return R.ok("成功").put("xsign", xsign);
+                return R.ok("成功").put("xsign", xsign).put("encoded", true);
+            }
+            xsign = xSignService.sign2(xHeader);
+            if (!HFStringUtils.isNullOrEmpty(xsign)) {
+                return R.ok("成功").put("xsign", xsign).put("encoded", false);
             }
 
             return R.error("xsign验证失败");

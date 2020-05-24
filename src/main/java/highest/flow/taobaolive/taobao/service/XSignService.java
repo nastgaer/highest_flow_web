@@ -7,4 +7,8 @@ import org.springframework.stereotype.Service;
 public interface XSignService {
 
     public String sign(XHeader xHeader);
+
+    public String sign1(XHeader xHeader);
+
+    public String sign2(XHeader xHeader);
 }
