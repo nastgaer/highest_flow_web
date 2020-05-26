@@ -46,7 +46,10 @@ public class OAuth2Realm extends AuthorizingRealm {
         }
 
         String username = hfUserToken.getUsername();
-        HFUser hfUser = hfUserService.getById(username);
+        HFUser hfUser = hfUserService.getUserByUsername(username);
+        if (hfUser == null) {
+            throw new DisabledAccountException("账号已被删除,请联系管理员");
+        }
         if (hfUser.getState() == HFUserState.Normal.getState()) {
 
         } else if (hfUser.getState() == HFUserState.Deleted.getState()) {

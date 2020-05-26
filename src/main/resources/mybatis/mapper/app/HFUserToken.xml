@@ -5,10 +5,14 @@
 
     <resultMap id="hfUserTokenMap" type="highest.flow.taobaolive.app.entity.HFUserToken">
         <result property="id" column="id" />
-        <result property="userId" column="user_id" />
+        <result property="username" column="username" />
         <result property="token" column="token" />
         <result property="expireTime" column="expire_time" />
         <result property="updatedTime" column="updated_time" />
     </resultMap>
+
+    <select id="getUserTokenByToken" resultType="hfUserTokenMap">
+        select * from tbl_user_tokens where token = #{token}
+    </select>
 
 </mapper>

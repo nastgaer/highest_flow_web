@@ -1,13 +1,27 @@
 -- Project Name : 高级引流
--- Date/Time    : 2020/5/22 5:31:48
+-- Date/Time    : 2020/5/27 4:53:01
 -- Author       : KKK
 -- RDBMS Type   : MySQL
 -- Application  : A5:SQL Mk-2
 
+-- 用户卡密
+create table tbl_codes (
+  id INT AUTO_INCREMENT comment 'ID'
+  , username VARCHAR(20) not null comment '用户名'
+  , service_type TINYINT comment '服务类型'
+  , hours TINYINT comment '授权时间'
+  , code VARCHAR(48) comment '卡密'
+  , state TINYINT comment '状态'
+  , taobao_nick VARCHAR(32) comment '淘宝会员名'
+  , liveroom VARCHAR(32) comment '直播间信息'
+  , created_time DATETIME comment '创建时间'
+  , accepted_time DATETIME comment '验证时间'
+) comment '用户卡密' ;
+
 -- Token列表
 create table tbl_user_tokens (
   id INT not null AUTO_INCREMENT comment 'ID'
-  , tbl_username VARCHAR(20) not null comment '用户ID'
+  , username VARCHAR(20) not null comment '用户ID'
   , token VARCHAR(32) comment 'Token'
   , expire_time DATETIME comment '过期时间'
   , updated_time DATETIME comment '更新时间'
@@ -25,7 +39,7 @@ create table sys_config (
 -- 操作记录
 create table tbl_logs (
   id INT not null AUTO_INCREMENT comment 'ID'
-  , tbl_user_name VARCHAR(20) not null comment '用户ID'
+  , username VARCHAR(20) not null comment '用户ID'
   , msg VARCHAR(256) comment '内容'
   , created_time DATETIME comment '创建时间'
   , constraint tbl_logs_PKC primary key (id)
@@ -53,7 +67,7 @@ create table tbl_products (
 -- 直播间列表
 create table tbl_liverooms (
   id INT not null AUTO_INCREMENT comment 'ID'
-  , tbl_username VARCHAR(20) not null comment '用户id'
+  , username VARCHAR(20) not null comment '用户id'
   , taobao_user_id VARCHAR(20) not null comment '淘宝用户id'
   , room_title VARCHAR(32) comment '直播间名称'
   , cover_img VARCHAR(256) comment '主封面图'
@@ -94,7 +108,7 @@ create table tbl_accounts (
 create table tbl_users (
   id INT not null AUTO_INCREMENT comment 'id'
   , username VARCHAR(20) not null comment '用户名'
-  , password VARCHAR(50) comment '密码'
+  , password VARCHAR(72) comment '密码'
   , salt VARCHAR(48) comment 'Salt'
   , machine_code VARCHAR(32) comment '机器号'
   , mobile VARCHAR(20) comment '手机号'

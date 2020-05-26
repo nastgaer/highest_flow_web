@@ -40,7 +40,7 @@ public class HFUserController {
 
             String username = (String)map.get("username");
 
-            HFUser hfUser = hfUserService.getById(username);
+            HFUser hfUser = hfUserService.getUserByUsername(username);
             if (hfUser == null) {
                 return R.error(ErrorCodes.NOT_FOUND_USER, "找不到用户");
             }

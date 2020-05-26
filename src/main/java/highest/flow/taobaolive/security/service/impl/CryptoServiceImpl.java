@@ -47,8 +47,6 @@ public class CryptoServiceImpl implements CryptoService {
 
     @Override
     public String encrypt(String data) {
-        byte[] plainBytes = data.getBytes();
-
         // ENCRYPT BY USING AES
         byte[] encryptBytes = CryptoUtils.encryptAES(data, encryptKey);
         return HFStringUtils.byteArrayToHexString(encryptBytes);

@@ -1,5 +1,6 @@
 package highest.flow.taobaolive.app.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import highest.flow.taobaolive.app.defines.HFUserState;
 import org.apache.commons.lang.RandomStringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -37,6 +38,11 @@ public class HFUserServiceImpl extends ServiceImpl<HFUserDao, HFUser> implements
 
         this.save(hfUser);
 
-        return null;
+        return hfUser;
+    }
+
+    @Override
+    public HFUser getUserByUsername(String username) {
+        return baseMapper.selectOne(Wrappers.<HFUser>lambdaQuery().eq(HFUser::getUsername, username));
     }
 }

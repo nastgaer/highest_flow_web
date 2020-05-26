@@ -3,10 +3,6 @@
 
 <mapper namespace="highest.flow.taobaolive.app.dao.HFUserDao">
 
-    <!--<select id="getUserByUserId" resultType="highest.flow.taobaolive.app.entity.HFUser">-->
-        <!--SELECT * FROM tbl_users WHERE user_id LIKE #{userId}-->
-    <!--</select>-->
-
     <!--<insert id="insertUser">-->
         <!--INSERT INTO tbl_users(user_id, password, machine_code, mobile, weixin,-->
             <!--level, service_type, state, service_start_time, service_end_time, created_time, updated_time)-->

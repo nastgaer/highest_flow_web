@@ -1,5 +1,6 @@
 package highest.flow.taobaolive.app.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import highest.flow.taobaolive.app.dao.HFUserTokenDao;
 import highest.flow.taobaolive.app.entity.HFUserToken;
 import highest.flow.taobaolive.app.service.ShiroService;
@@ -14,6 +15,6 @@ public class ShiroServiceImpl implements ShiroService {
 
     @Override
     public HFUserToken getUserTokenByToken(String token) {
-        return hfUserTokenDao.getUserTokenByToken(token);
+        return hfUserTokenDao.selectOne(Wrappers.<HFUserToken>lambdaQuery().eq(HFUserToken::getToken, token));
     }
 }

@@ -1,5 +1,6 @@
 package highest.flow.taobaolive.app.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import highest.flow.taobaolive.app.dao.HFUserTokenDao;
 import highest.flow.taobaolive.app.entity.HFUserToken;
@@ -26,7 +27,7 @@ public class HFUserTokenServiceImpl extends ServiceImpl<HFUserTokenDao, HFUserTo
         // 过期时间
         Date expireTime = new Date(now.getTime() + EXPIRE * 1000);
 
-        HFUserToken userToken = this.getById(username);
+        HFUserToken userToken = baseMapper.selectOne(Wrappers.<HFUserToken>lambdaQuery().eq(HFUserToken::getUsername, username));
         if (userToken == null) {
             userToken = new HFUserToken();
             userToken.setUsername(username);
@@ -50,7 +51,7 @@ public class HFUserTokenServiceImpl extends ServiceImpl<HFUserTokenDao, HFUserTo
         // 生成一个token
         String token = TokenGenerator.generateValue();
 
-        HFUserToken userToken = this.getById(username);
+        HFUserToken userToken = baseMapper.selectOne(Wrappers.<HFUserToken>lambdaQuery().eq(HFUserToken::getUsername, username));
         if (userToken == null) {
             return;
         }

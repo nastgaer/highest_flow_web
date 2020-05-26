@@ -52,13 +52,13 @@ public class HFLoginController {
 
             String username = (String)map.get("username");
             String password = (String)map.get("password");
-            String machineCode = (String)map.get("machineCode");
+            String machineCode = (String)map.get("machine_code");
             String mobile = (String)map.get("mobile");
             String weixin = (String)map.get("weixin");
-            int level = HFUserLevel.User.getLevel();
-            int serviceType = (int)map.get("serviceType");
+            int level = (int)map.get("level");
+            int serviceType = (int)map.get("service_type");
 
-            HFUser hfUser = hfUserService.getById(username);
+            HFUser hfUser = hfUserService.getUserByUsername(username);
             if (hfUser != null) {
                 return R.error(ErrorCodes.ALREADY_REGISTERED_USER, "已经注册好的账号");
             }
@@ -91,15 +91,15 @@ public class HFLoginController {
 
             String username = (String)map.get("username");
             String password = (String)map.get("password");
-            String machineCode = (String)map.get("machineCode");
+            String machineCode = (String)map.get("machine_code");
 
-            HFUser hfUser = hfUserService.getById(username);
+            HFUser hfUser = hfUserService.getUserByUsername(username);
             if (hfUser == null) {
                 return R.error(ErrorCodes.NOT_FOUND_USER, "找不到用户");
             }
 
             if (!hfUser.getPassword().equals(new Sha256Hash(password, hfUser.getSalt()).toHex())) {
-                return R.error(ErrorCodes.UNAUTHORIZED_USER, "账号或密码不正确");
+                return R.error(ErrorCodes.INVALID_PASSWORD, "账号或密码不正确");
             }
             if (!hfUser.getMachineCode().equals(machineCode)) {
                 return R.error(ErrorCodes.UNAUTHORIZED_MACHINE, "机器码不正确");
@@ -130,7 +130,7 @@ public class HFLoginController {
 
             String username = (String)map.get("username");
 
-            HFUser hfUser = hfUserService.getById(username);
+            HFUser hfUser = hfUserService.getUserByUsername(username);
             if (hfUser == null) {
                 return R.error(ErrorCodes.NOT_FOUND_USER, "找不到用户");
             }
