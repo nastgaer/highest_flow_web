@@ -70,8 +70,7 @@ public class LicenseController {
 
     @PostMapping("/accept")
     public R acceptCode(@RequestParam(name = "data") String data,
-                        @RequestParam(name = "sign") String sign,
-                        @RequestHeader("token") String token) {
+                        @RequestParam(name = "sign") String sign) {
         try {
             boolean verify = cryptoService.verify(data, sign);
             if (!verify) {
@@ -79,10 +78,6 @@ public class LicenseController {
             }
 
             String plain = cryptoService.decrypt(data);
-
-            HFUserToken hfUserToken = shiroService.getUserTokenByToken(token);
-            String username = hfUserToken.getUsername();
-            HFUser hfUser = hfUserService.getUserByUsername(username);
 
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(plain);
@@ -99,8 +94,7 @@ public class LicenseController {
 
     @PostMapping("/bind")
     public R bindAccount(@RequestParam(name = "data") String data,
-                         @RequestParam(name = "sign") String sign,
-                         @RequestHeader("token") String token) {
+                         @RequestParam(name = "sign") String sign) {
         try {
             boolean verify = cryptoService.verify(data, sign);
             if (!verify) {
@@ -108,10 +102,6 @@ public class LicenseController {
             }
 
             String plain = cryptoService.decrypt(data);
-
-            HFUserToken hfUserToken = shiroService.getUserTokenByToken(token);
-            String username = hfUserToken.getUsername();
-            HFUser hfUser = hfUserService.getUserByUsername(username);
 
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(plain);

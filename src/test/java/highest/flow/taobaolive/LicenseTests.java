@@ -71,7 +71,7 @@ public class LicenseTests {
         }
     }
 
-    private String getToken() {
+    private String getAdministratorToken() {
         try {
             Map<String, String> paramMap = new HashMap<>();
             paramMap.put("username", "administrator");
@@ -112,7 +112,7 @@ public class LicenseTests {
     @Test
     void generateCode() {
         try {
-            String token = getToken();
+            String token = getAdministratorToken();
 
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("hours", 24);
@@ -134,6 +134,72 @@ public class LicenseTests {
             Request request = new Request("POST", url, ResponseType.TEXT);
             request.addParameters(paramMap1);
             request.addHeader("token", token);
+
+            HttpHelper httpHelper = new HttpHelper();
+            Response<String> response = httpHelper.execute(request);
+
+            System.out.println(response.getResult());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Test
+    void acceptCode() {
+        try {
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("code", "6D504C39BBA68624C3000AABB2186A5D0EFC672E624B2B20C7B4D167FD40003E");
+            paramMap.put("machine_code", "machine_code");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String data = objectMapper.writeValueAsString(paramMap);
+
+            System.out.println("plain=" + data);
+
+            String encryptData = cryptoService.encrypt(data);
+            String sign = CryptoUtils.MD5(prefix + encryptData + suffix);
+
+            Map<String, String> paramMap1 = new HashMap<>();
+            paramMap1.put("data", encryptData);
+            paramMap1.put("sign", sign);
+
+            String url = "http://localhost:8080/license/accept";
+            Request request = new Request("POST", url, ResponseType.TEXT);
+            request.addParameters(paramMap1);
+
+            HttpHelper httpHelper = new HttpHelper();
+            Response<String> response = httpHelper.execute(request);
+
+            System.out.println(response.getResult());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Test
+    void bindCode() {
+        try {
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("code", "6D504C39BBA68624C3000AABB2186A5D0EFC672E624B2B20C7B4D167FD40003E");
+            paramMap.put("taobao_nick", "taobao_nick");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String data = objectMapper.writeValueAsString(paramMap);
+
+            System.out.println("plain=" + data);
+
+            String encryptData = cryptoService.encrypt(data);
+            String sign = CryptoUtils.MD5(prefix + encryptData + suffix);
+
+            Map<String, String> paramMap1 = new HashMap<>();
+            paramMap1.put("data", encryptData);
+            paramMap1.put("sign", sign);
+
+            String url = "http://localhost:8080/license/bind";
+            Request request = new Request("POST", url, ResponseType.TEXT);
+            request.addParameters(paramMap1);
 
             HttpHelper httpHelper = new HttpHelper();
             Response<String> response = httpHelper.execute(request);

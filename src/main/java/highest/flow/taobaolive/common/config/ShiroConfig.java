@@ -38,6 +38,8 @@ public class ShiroConfig {
         filterMap.put("/xsign", "anon");
         filterMap.put("/sys/register", "anon");
         filterMap.put("/sys/login", "anon");
+        filterMap.put("/license/accept", "anon");
+        filterMap.put("/license/bind", "anon");
         filterMap.put("/**", "oauth2");
         shiroFilter.setFilterChainDefinitionMap(filterMap);
 

@@ -90,6 +90,9 @@ public class LicenseServiceImpl extends ServiceImpl<LicenseCodeDao, LicenseCode>
         hfUser.setMachineCode(machineCode);
         hfUserService.update(hfUser, Wrappers.<HFUser>lambdaUpdate().eq(HFUser::getUsername, hfUser.getUsername()));
 
+        licenseCode.setState(LicenseCodeState.Accepted.getState());
+        this.updateById(licenseCode);
+
         return R.ok();
     }
 
@@ -100,13 +103,14 @@ public class LicenseServiceImpl extends ServiceImpl<LicenseCodeDao, LicenseCode>
             return R.error(ErrorCodes.NOT_FOUND_LICENSE_CODE, "找不到卡密");
         }
 
-        HFUser hfUser = hfUserService.getById(licenseCode.getUsername());
+        HFUser hfUser = hfUserService.getUserByUsername(licenseCode.getUsername());
         if (hfUser == null || HFStringUtils.isNullOrEmpty(hfUser.getMachineCode())) {
             return R.error(ErrorCodes.UNAUTHORIZED_MACHINE, "未知的机器");
         }
 
         licenseCode.setTaobaoNick(accountNick);
-        this.update(licenseCode, Wrappers.<LicenseCode>lambdaUpdate().eq(LicenseCode::getUsername, hfUser.getUsername()));
+        licenseCode.setState(LicenseCodeState.Binded.getState());
+        this.updateById(licenseCode);
 
         return R.ok();
     }
