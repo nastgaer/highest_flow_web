@@ -5,13 +5,13 @@
 
     <resultMap id="licenseCodeMap" type="highest.flow.taobaolive.security.entity.LicenseCode">
         <result property="id" column="id" />
-        <result property="username" column="tbl_username" />
         <result property="serviceType" column="service_type" />
         <result property="hours" column="hours" />
         <result property="code" column="code" />
         <result property="state" column="state" />
-        <result property="taobaoNick" column="taobao_nick" />
-        <result property="liveroom" column="liveroom" />
+        <result property="machineCode" column="machine_code" />
+        <result property="serviceStartTime" column="service_start_time" />
+        <result property="serviceEndTime" column="service_end_time" />
         <result property="createdTime" column="created_time" />
         <result property="acceptedTime" column="accepted_time" />
     </resultMap>

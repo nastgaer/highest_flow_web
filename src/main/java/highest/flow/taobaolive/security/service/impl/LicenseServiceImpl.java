@@ -14,6 +14,8 @@ import highest.flow.taobaolive.security.dao.LicenseCodeDao;
 import highest.flow.taobaolive.security.defines.LicenseCodeState;
 import highest.flow.taobaolive.security.entity.LicenseCode;
 import highest.flow.taobaolive.security.service.LicenseService;
+import highest.flow.taobaolive.taobao.entity.TaobaoAccount;
+import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Wrapper;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 @Service("licenseService")
@@ -31,6 +34,9 @@ public class LicenseServiceImpl extends ServiceImpl<LicenseCodeDao, LicenseCode>
 
     @Value("${license.key}")
     private String encryptKey;
+
+    @Autowired
+    private TaobaoAccountService taobaoAccountService;
 
     private String encrypt(String data) {
         // ENCRYPT BY USING AES
@@ -60,8 +66,11 @@ public class LicenseServiceImpl extends ServiceImpl<LicenseCodeDao, LicenseCode>
         licenseCode.setHours(hours);
         licenseCode.setCode(code);
         licenseCode.setState(LicenseCodeState.Created.getState());
-        licenseCode.setTaobaoNick("");
+        licenseCode.setAccountId("");
+        licenseCode.setAccountNick("");
         licenseCode.setLiveroom("");
+        licenseCode.setServiceStartTime(null);
+        licenseCode.setServiceEndTime(null);
         licenseCode.setCreatedTime(new Date());
         licenseCode.setAcceptedTime(null);
 
@@ -71,47 +80,70 @@ public class LicenseServiceImpl extends ServiceImpl<LicenseCodeDao, LicenseCode>
     }
 
     @Override
-    public R bindMachine(String code, String machineCode) {
+    public R acceptCode(String code, String machineCode) {
         LicenseCode licenseCode = baseMapper.selectOne(Wrappers.<LicenseCode>lambdaQuery().eq(LicenseCode::getCode, code));
         if (licenseCode == null) {
             return R.error(ErrorCodes.NOT_FOUND_LICENSE_CODE, "找不到卡密");
         }
 
-        HFUser hfUser = hfUserService.getUserByUsername(licenseCode.getUsername());
-        if (hfUser == null) {
-            hfUser = hfUserService.register("", "", machineCode, "", "",
-                    HFUserLevel.Guest.getLevel(), licenseCode.getServiceType());
+        if (licenseCode.getState() == LicenseCodeState.Created.getState()) {
+            licenseCode.setMachineCode(machineCode);
+            licenseCode.setServiceStartTime(new Date());
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(new Date());
+            calendar.add(Calendar.HOUR, licenseCode.getHours());
+            licenseCode.setServiceEndTime(calendar.getTime());
+
+            licenseCode.setState(LicenseCodeState.Accepted.getState());
+            this.updateById(licenseCode);
         }
 
-        if (hfUser.getMachineCode().equals(machineCode) == false) {
+        if (licenseCode.getMachineCode().equals(machineCode) == false) {
             return R.error(ErrorCodes.UNAUTHORIZED_MACHINE, "未知的机器");
         }
 
-        hfUser.setMachineCode(machineCode);
-        hfUserService.update(hfUser, Wrappers.<HFUser>lambdaUpdate().eq(HFUser::getUsername, hfUser.getUsername()));
+        Date serviceEndTime = licenseCode.getServiceEndTime();
+        if (serviceEndTime.getTime() <= new Date().getTime()) {
+            return R.error(ErrorCodes.EXPIRED_CODE, "过期的卡密");
+        }
 
-        licenseCode.setState(LicenseCodeState.Accepted.getState());
-        this.updateById(licenseCode);
-
-        return R.ok();
+        return R.ok().put("expires", licenseCode.getServiceEndTime().getTime());
     }
 
     @Override
-    public R bindTaobaoAccount(String code, String accountNick) {
+    public R bindAccount(String code, String username, String accountId) {
         LicenseCode licenseCode = baseMapper.selectOne(Wrappers.<LicenseCode>lambdaQuery().eq(LicenseCode::getCode, code));
         if (licenseCode == null) {
             return R.error(ErrorCodes.NOT_FOUND_LICENSE_CODE, "找不到卡密");
         }
 
-        HFUser hfUser = hfUserService.getUserByUsername(licenseCode.getUsername());
+        HFUser hfUser = hfUserService.getUserByUsername(username);
         if (hfUser == null || HFStringUtils.isNullOrEmpty(hfUser.getMachineCode())) {
             return R.error(ErrorCodes.UNAUTHORIZED_MACHINE, "未知的机器");
         }
 
-        licenseCode.setTaobaoNick(accountNick);
-        licenseCode.setState(LicenseCodeState.Binded.getState());
-        this.updateById(licenseCode);
+        if (licenseCode.getState() == LicenseCodeState.Created.getState()) {
+            return R.error(ErrorCodes.UNEXPECTED_CALL, "未知的调用");
+        }
 
-        return R.ok();
+        TaobaoAccount taobaoAccount = taobaoAccountService.getInfo(accountId);
+
+        if (licenseCode.getState() == LicenseCodeState.Accepted.getState()) {
+            hfUser.setCode(licenseCode.getCode());
+
+            if (taobaoAccount == null) {
+                return R.error(ErrorCodes.NOT_FOUND_TAOBAO_ACCOUNT, "找不着淘宝账号，先注册淘宝账号");
+            }
+
+            hfUser.setAccountId(accountId);
+            licenseCode.setState(LicenseCodeState.Binded.getState());
+            this.updateById(licenseCode);
+        }
+
+        if (hfUser.getAccountId().equals(accountId) == false) {
+            return R.error(ErrorCodes.UNAUTHORIZED_LIVEROOM, "未知的账号");
+        }
+
+        return R.ok().put("expires", licenseCode.getServiceEndTime().getTime());
     }
 }

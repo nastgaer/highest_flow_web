@@ -46,9 +46,9 @@ public class HFUserController {
             }
 
             R r = R.ok()
-                    .put("state", hfUser.getState())
-                    .put("service_start", hfUser.getServiceStartTime())
-                    .put("service_end", hfUser.getServiceEndTime());
+                    .put("state", hfUser.getState()); // TEST CODE
+//                    .put("service_start", hfUser.getServiceStartTime())
+//                    .put("service_end", hfUser.getServiceEndTime());
 
             if (hfUser.getServiceType() == ServiceType.刷热度.getServiceType()) {
                 return r;

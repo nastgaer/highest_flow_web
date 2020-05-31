@@ -11,7 +11,7 @@ public interface LicenseService {
 
     String generateCode(HFUser hfUser, ServiceType serviceType, int hours);
 
-    R bindMachine(String code, String machineCode);
+    R acceptCode(String code, String machineCode);
 
-    R bindTaobaoAccount(String code, String accountNick);
+    R bindAccount(String code, String accountId, String accountNick);
 }

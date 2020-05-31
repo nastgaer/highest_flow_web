@@ -14,4 +14,6 @@ public interface TaobaoAccountService extends IService<TaobaoAccount> {
                                   String autoLoginToken,
                                   String cookie,
                                   int expires);
+
+    public TaobaoAccount getInfo(String accountId);
 }

@@ -1,5 +1,6 @@
 package highest.flow.taobaolive.taobao.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import highest.flow.taobaolive.taobao.dao.TaobaoAccountDao;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
@@ -34,5 +35,10 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
 
         this.save(taobaoAccount);
         return taobaoAccount;
+    }
+
+    @Override
+    public TaobaoAccount getInfo(String accountId) {
+        return baseMapper.selectOne(Wrappers.<TaobaoAccount>lambdaQuery().eq(TaobaoAccount::getAccountId, accountId));
     }
 }

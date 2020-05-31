@@ -85,7 +85,7 @@ public class LicenseController {
             String code = (String)map.get("code");
             String machine = (String)map.get("machine_code");
 
-            return licenseService.bindMachine(code, machine);
+            return licenseService.acceptCode(code, machine);
 
         } catch (Exception ex) {
             return R.error("验证卡密失败");
@@ -107,9 +107,11 @@ public class LicenseController {
             Map<String, Object> map = jsonParser.parseMap(plain);
 
             String code = (String)map.get("code");
-            String taobaoNick = (String)map.get("taobao_nick");
+            String username = (String)map.get("username");
+            String accountId = (String)map.get("account_id");
+            String accountNick = (String)map.get("account_nick");
 
-            return licenseService.bindTaobaoAccount(code, taobaoNick);
+            return licenseService.bindAccount(code, username, accountId, accountNick);
 
         } catch (Exception ex) {
             return R.error("绑定卡密失败");

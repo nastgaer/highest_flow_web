@@ -1,21 +1,25 @@
 -- Project Name : 高级引流
--- Date/Time    : 2020/5/27 4:53:01
+-- Date/Time    : 2020/5/29 22:18:59
 -- Author       : KKK
 -- RDBMS Type   : MySQL
 -- Application  : A5:SQL Mk-2
 
 -- 用户卡密
 create table tbl_codes (
-  id INT AUTO_INCREMENT comment 'ID'
+  id INT not null AUTO_INCREMENT comment 'ID'
   , username VARCHAR(20) not null comment '用户名'
   , service_type TINYINT comment '服务类型'
   , hours TINYINT comment '授权时间'
-  , code VARCHAR(48) comment '卡密'
-  , state TINYINT comment '状态'
-  , taobao_nick VARCHAR(32) comment '淘宝会员名'
-  , liveroom VARCHAR(32) comment '直播间信息'
+  , code VARCHAR(72) comment '卡密'
+  , state TINYINT comment '状态:0: 创建，1: 验证，2: 绑定'
+  , account_id VARCHAR(32) comment '淘宝账号名'
+  , account_nick VARCHAR(32) comment '淘宝会员名'
+  , liveroom VARCHAR(32) comment '直播间名称'
+  , service_start_time DATETIME comment '服务开始时间'
+  , service_end_time DATETIME comment '服务结束时间'
   , created_time DATETIME comment '创建时间'
   , accepted_time DATETIME comment '验证时间'
+  , constraint tbl_codes_PKC primary key (id)
 ) comment '用户卡密' ;
 
 -- Token列表
@@ -116,8 +120,6 @@ create table tbl_users (
   , level TINYINT comment '用户等级:99：高级管理员，0：普通会员'
   , service_type TINYINT comment '服务类型:0：热度，1：高级引流，3：真人注入'
   , state TINYINT comment '状态:0: 正常，1: 删除，2：过期'
-  , service_start_time DATETIME comment '服务开始时间'
-  , service_end_time DATETIME comment '服务结束时间'
   , created_time DATETIME comment '创建时间'
   , updated_time DATETIME comment '更新时间'
   , constraint tbl_users_PKC primary key (id)

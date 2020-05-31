@@ -14,8 +14,6 @@ public class LicenseCode {
     @TableId(type = IdType.AUTO)
     private int id;
 
-    private String username;
-
     private int serviceType;
 
     private int hours;
@@ -24,9 +22,11 @@ public class LicenseCode {
 
     private int state;
 
-    private String taobaoNick;
+    private String machineCode;
 
-    private String liveroom;
+    private Date serviceStartTime;
+
+    private Date serviceEndTime;
 
     private Date createdTime;
 

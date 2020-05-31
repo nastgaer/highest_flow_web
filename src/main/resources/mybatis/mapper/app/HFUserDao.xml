@@ -20,8 +20,8 @@
         <result property="level" column="level" />
         <result property="serviceType" column="service_type" />
         <result property="state" column="state" />
-        <result property="serviceStartTime" column="service_start_time" />
-        <result property="serviceEndTime" column="service_end_time" />
+        <result property="code" column="code" />
+        <result property="accountId" column="account_id" />
         <result property="createdTime" column="created_time" />
         <result property="updatedTime" column="updated_time" />
     </resultMap>

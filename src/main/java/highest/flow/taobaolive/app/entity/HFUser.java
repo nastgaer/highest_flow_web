@@ -32,9 +32,9 @@ public class HFUser {
 
     private int state;
 
-    private Date serviceStartTime;
+    private String code;
 
-    private Date serviceEndTime;
+    private String accountId;
 
     private Date createdTime;
 

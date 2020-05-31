@@ -149,7 +149,7 @@ public class LicenseTests {
     void acceptCode() {
         try {
             Map<String, Object> paramMap = new HashMap<>();
-            paramMap.put("code", "6D504C39BBA68624C3000AABB2186A5D0EFC672E624B2B20C7B4D167FD40003E");
+            paramMap.put("code", "BA2A867CC27907C53946FD5EA47DAFB90EFC672E624B2B20C7B4D167FD40003E");
             paramMap.put("machine_code", "machine_code");
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -183,7 +183,8 @@ public class LicenseTests {
         try {
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("code", "6D504C39BBA68624C3000AABB2186A5D0EFC672E624B2B20C7B4D167FD40003E");
-            paramMap.put("taobao_nick", "taobao_nick");
+            paramMap.put("username", "username");
+            paramMap.put("account_id", "account_id");
 
             ObjectMapper objectMapper = new ObjectMapper();
             String data = objectMapper.writeValueAsString(paramMap);
