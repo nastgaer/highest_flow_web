@@ -34,6 +34,9 @@ public class TaobaoAccount {
 
     private Date expires;
 
+    /**
+     * TaobaoAccountState
+     */
     private int state;
 
     private Date createdTime;

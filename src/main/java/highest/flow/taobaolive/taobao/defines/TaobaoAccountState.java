@@ -3,7 +3,8 @@ package highest.flow.taobaolive.taobao.defines;
 public enum TaobaoAccountState {
 
     Normal(0),
-    Expired(1);
+    Expired(1),
+    AutoLoginFailed(2);
 
     private int state = 0;
     TaobaoAccountState(int state) {
