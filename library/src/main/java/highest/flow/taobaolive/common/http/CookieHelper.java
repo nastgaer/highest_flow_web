@@ -96,4 +96,17 @@ public class CookieHelper {
         }
         return null;
     }
+
+    public static String toString(Cookie cookie) {
+        String cookieHeader = "";
+
+        cookieHeader += cookie.getName() + "=" + cookie.getValue() + ";";
+        cookieHeader += "Domain=" + cookie.getDomain() + ";";
+        cookieHeader += "Path=" + cookie.getPath() + ";";
+        cookieHeader += "Expires=" + cookie.getExpiryDate().toString() + ";";
+        if (cookie.isSecure()) {
+            cookieHeader += "Secure;";
+        }
+        return cookieHeader;
+    }
 }

@@ -25,10 +25,7 @@ import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("taobaoApiService")
 public class TaobaoApiServiceImpl implements TaobaoApiService {
@@ -436,24 +433,14 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                 String uid = (String) r.get("uid");
                 String nick = (String) r.get("nick");
 
-                taobaoAccount.setNick(nick);
-                taobaoAccount.setSid(sid);
-                taobaoAccount.setUid(uid);
-                taobaoAccount.setAutoLoginToken(autoLoginToken);
-                taobaoAccount.setExpires(new Date(expires));
-
-                String cookieHeader = "";
-                for (Cookie cookie : lstCookies) {
-                    cookieHeader += CookieHelper.encodeCookie(cookie) + ";";
-                }
-                taobaoAccount.setCookie(cookieHeader);
-
-                taobaoAccount.setState(TaobaoAccountState.Normal.getState());
-
-                return R.ok();
+                return R.ok()
+                        .put("expires", expires)
+                        .put("autoLoginToken", autoLoginToken)
+                        .put("cookie", lstCookies)
+                        .put("sid", sid)
+                        .put("uid", uid)
+                        .put("nick", nick);
             }
-            taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed.getState());
-            return R.ok();
 
         } catch (Exception ex) {
             ex.printStackTrace();
