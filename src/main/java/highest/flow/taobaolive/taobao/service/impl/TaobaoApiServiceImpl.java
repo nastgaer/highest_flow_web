@@ -156,7 +156,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             HttpHelper httpHelper = new HttpHelper();
             Response<String> response = httpHelper.execute(request);
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed);
+                taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed.getState());
                 return R.error();
             }
 
@@ -166,7 +166,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed);
+                taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed.getState());
                 return R.error(taobaoReturn.getErrorMsg());
             }
 
@@ -185,7 +185,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String uid = (String) mapRetData.get("uid");
             String nick = (String) mapRetData.get("nick");
 
-            taobaoAccount.setState(TaobaoAccountState.Normal);
+            taobaoAccount.setState(TaobaoAccountState.Normal.getState());
 
             return R.ok()
                     .put("expires", expires)
@@ -452,11 +452,11 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                 }
                 taobaoAccount.setCookie(cookieHeader);
 
-                taobaoAccount.setState(TaobaoAccountState.Normal);
+                taobaoAccount.setState(TaobaoAccountState.Normal.getState());
 
                 return R.ok();
             }
-            taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed);
+            taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed.getState());
             return R.ok();
 
         } catch (Exception ex) {

@@ -52,7 +52,7 @@ public class LicenseServiceImpl extends ServiceImpl<LicenseCodeDao, LicenseCode>
     }
 
     @Override
-    public String generateCode(HFUser hfUser, ServiceType serviceType, int hours) {
+    public String generateCode(ServiceType serviceType, int hours) {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String plain = sdf.format(new Date());
@@ -61,14 +61,11 @@ public class LicenseServiceImpl extends ServiceImpl<LicenseCodeDao, LicenseCode>
         String code = encrypt(plain);
 
         LicenseCode licenseCode = new LicenseCode();
-        licenseCode.setUsername(hfUser.getUsername());
         licenseCode.setServiceType(serviceType.getServiceType());
         licenseCode.setHours(hours);
         licenseCode.setCode(code);
         licenseCode.setState(LicenseCodeState.Created.getState());
-        licenseCode.setAccountId("");
-        licenseCode.setAccountNick("");
-        licenseCode.setLiveroom("");
+        licenseCode.setMachineCode("");
         licenseCode.setServiceStartTime(null);
         licenseCode.setServiceEndTime(null);
         licenseCode.setCreatedTime(new Date());
@@ -111,7 +108,7 @@ public class LicenseServiceImpl extends ServiceImpl<LicenseCodeDao, LicenseCode>
     }
 
     @Override
-    public R bindAccount(String code, String username, String accountId) {
+    public R bindAccount(String code, String username, String accountId, String accountNick) {
         LicenseCode licenseCode = baseMapper.selectOne(Wrappers.<LicenseCode>lambdaQuery().eq(LicenseCode::getCode, code));
         if (licenseCode == null) {
             return R.error(ErrorCodes.NOT_FOUND_LICENSE_CODE, "找不到卡密");

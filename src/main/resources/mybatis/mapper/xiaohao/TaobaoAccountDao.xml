@@ -8,6 +8,7 @@
         <result property="accountId" column="account_id"/>
         <result property="nick" column="nick"/>
         <result property="sid" column="sid"/>
+        <result property="uid" column="uid"/>
         <result property="utdid" column="utdid"/>
         <result property="devid" column="devid"/>
         <result property="autoLoginToken" column="auto_login_token"/>

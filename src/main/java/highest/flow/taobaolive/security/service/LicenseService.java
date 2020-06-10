@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 @Service
 public interface LicenseService {
 
-    String generateCode(HFUser hfUser, ServiceType serviceType, int hours);
+    String generateCode(ServiceType serviceType, int hours);
 
     R acceptCode(String code, String machineCode);
 
-    R bindAccount(String code, String accountId, String accountNick);
+    R bindAccount(String code, String username, String accountId, String accountNick);
 }

@@ -22,6 +22,8 @@ public class TaobaoAccount {
 
     private String sid;
 
+    private String uid;
+
     private String utdid;
 
     private String devid;

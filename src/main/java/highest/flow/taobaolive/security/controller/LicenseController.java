@@ -59,7 +59,7 @@ public class LicenseController {
             int hours = (int) map.get("hours");
             ServiceType serviceType = ServiceType.fromInt((int) map.get("service_type"));
 
-            String licenseCode = licenseService.generateCode(hfUser, serviceType, hours);
+            String licenseCode = licenseService.generateCode(serviceType, hours);
 
             return R.ok().put("code", licenseCode);
 
