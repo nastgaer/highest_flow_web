@@ -1,9 +1,11 @@
 package highest.flow.taobaolive.taobao.controller;
 
+import highest.flow.taobaolive.common.http.CookieHelper;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.security.service.CryptoService;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccount;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
+import org.apache.http.cookie.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -44,10 +48,19 @@ public class TaobaoAccountController {
             String utdid = (String) map.get("utdid");
             String devid = (String) map.get("devid");
             String autoLoginToken = (String) map.get("auto_login_token");
-            String cookie = (String) map.get("cookie");
+            String cookie1 = (String) map.get("cookie");
             int expires = (int) map.get("expires");
 
-            TaobaoAccount tbAccount = taobaoAccountService.register(accountId, nick, sid, utdid, devid, autoLoginToken, cookie, expires);
+            List<Object> cookieHeaders = jsonParser.parseList(cookie1);
+            List<Cookie> cookies = new ArrayList<>();
+            for (Object cookie : cookieHeaders) {
+                String rawCookie = cookie.toString();
+
+                Cookie cookieObj = CookieHelper.parseString(rawCookie);
+                cookies.add(cookieObj);
+            }
+
+            TaobaoAccount tbAccount = taobaoAccountService.register(accountId, nick, sid, utdid, devid, autoLoginToken, cookies, expires);
             if (tbAccount != null) {
                 return R.ok();
             }
