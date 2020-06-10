@@ -34,10 +34,12 @@ public class AppRunner implements CommandLineRunner {
             scheduleJobEntity.setParams(null);
             scheduleJobEntity.setCronExpression("0 0 0/2 1/1 * ? *");
             scheduleJobEntity.setCreatedTime(new Date());
-            scheduleJobEntity.setState(ScheduleStatus.NORMAL.getValue());
+            scheduleJobEntity.setStatus(ScheduleStatus.NORMAL.getValue());
             scheduleJobEntity.setRemark("延期任务");
 
             ScheduleUtils.createScheduleJob(scheduler, scheduleJobEntity);
+
+            scheduler.start();
 
         } catch (SchedulerException e) {
             e.printStackTrace();

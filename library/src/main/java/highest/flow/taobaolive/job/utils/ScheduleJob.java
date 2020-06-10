@@ -48,10 +48,10 @@ public class ScheduleJob extends QuartzJobBean {
             // 任务状态 0：成功 1：失败
             log.setStatus(0);
 
-            logger.debug("任务执行完毕，任务ID：" + scheduleJob.getJobId() + "  总共耗时：" + times + "毫秒");
+            logger.debug("任务执行完毕，任务ID：" + scheduleJob.getId() + "  总共耗时：" + times + "毫秒");
 
         } catch (Exception ex) {
-            logger.error("任务执行失败，任务ID：" + scheduleJob.getJobId(), e);
+            logger.error("任务执行失败，任务ID：" + scheduleJob.getId(), ex);
 
             // 任务执行总时长
             long times = System.currentTimeMillis() - startTime;
@@ -59,7 +59,7 @@ public class ScheduleJob extends QuartzJobBean {
 
             // 任务状态 0：成功 1：失败
             log.setStatus(1);
-            log.setError(StringUtils.substring(e.toString(), 0, 2000));
+            log.setError(StringUtils.substring(ex.toString(), 0, 2000));
         } finally {
             scheduleJobLogService.save(log);
         }
