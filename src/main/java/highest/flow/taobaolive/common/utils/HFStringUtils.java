@@ -13,9 +13,10 @@ public class HFStringUtils {
 
     /**
      * 获取字符串中介于prefix和suffix之间的字符串
+     *
      * @param content 原字符串
-     * @param prefix 前缀
-     * @param suffix 后缀
+     * @param prefix  前缀
+     * @param suffix  后缀
      * @return 没有找到返回null。
      */
     public static String getMiddleText(String content, String prefix, String suffix) {
@@ -24,9 +25,10 @@ public class HFStringUtils {
 
     /**
      * 获取字符串中介于prefix和suffix之间的字符串
-     * @param content 原字符串
-     * @param prefix 前缀
-     * @param suffix 后缀
+     *
+     * @param content    原字符串
+     * @param prefix     前缀
+     * @param suffix     后缀
      * @param lazyPrefix 是否使用第一次找到的前缀作为截取前缀
      * @param lazySuffix 是否使用第一次找到的后缀作为截取后缀
      * @return 没有找到返回null。
@@ -62,9 +64,10 @@ public class HFStringUtils {
 
     /**
      * 获取字符串中介于prefix和suffix之间的字符串 然后拼接上prefix和suffix返回
-     * @param content 原字符串
-     * @param prefix 前缀
-     * @param suffix 后缀
+     *
+     * @param content    原字符串
+     * @param prefix     前缀
+     * @param suffix     后缀
      * @param lazyPrefix 是否使用第一次找到的前缀作为截取前缀
      * @param lazySuffix 是否使用第一次找到的后缀作为截取后缀
      * @return 没有找到返回null。
@@ -79,9 +82,10 @@ public class HFStringUtils {
 
     /**
      * 获取字符串中介于prefix和suffix之间的字符串 然后拼接上prefix和suffix返回
+     *
      * @param content 原字符串
-     * @param prefix 前缀
-     * @param suffix 后缀
+     * @param prefix  前缀
+     * @param suffix  后缀
      * @return 没有找到返回null。
      */
     public static String getWholeText(String content, String prefix, String suffix) {
@@ -90,6 +94,7 @@ public class HFStringUtils {
 
     /**
      * 获取一个字符串中第一次出现的数字连续字符串
+     *
      * @param text 原字符串
      * @return 没有找到返回null
      */
@@ -99,7 +104,8 @@ public class HFStringUtils {
 
     /**
      * 获取一个字符串中第一次出现的数字连续字符串
-     * @param text 原字符串
+     *
+     * @param text        原字符串
      * @param justNumbers 是否要求纯数字（没有小数点）
      * @return 没有找到返回null
      */
@@ -117,6 +123,7 @@ public class HFStringUtils {
 
     /**
      * 获取uuid
+     *
      * @return uuid
      */
     public static String getUUID() {
@@ -188,7 +195,7 @@ public class HFStringUtils {
      * @param hexString string of hex-encoded values
      * @return decoded byte array
      */
-    public static  byte[] hexStringToByteArray(String hexString) {
+    public static byte[] hexStringToByteArray(String hexString) {
         int len = hexString.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {

@@ -115,7 +115,7 @@ class TaobaoliveApplicationTests {
             HttpHelper httpHelper = new HttpHelper();
             Response<String> response = httpHelper.execute(request);
 
-            List<Cookie> cookies =  response.getCookieStore().getCookies();
+            List<Cookie> cookies = response.getCookieStore().getCookies();
             for (Cookie cookie : cookies) {
                 System.out.println(cookie.toString());
             }

@@ -21,8 +21,7 @@ public class CryptoUtils {
             int j = md.length;
             char str[] = new char[j * 2];
             int k = 0;
-            for (int i = 0; i < j; i++)
-            {
+            for (int i = 0; i < j; i++) {
                 byte byte0 = md[i];
                 str[k++] = hexDigits[byte0 >>> 4 & 0xf];
                 str[k++] = hexDigits[byte0 & 0xf];
@@ -34,8 +33,7 @@ public class CryptoUtils {
         }
     }
 
-    private static SecretKeySpec setInitKey(String myKey)
-    {
+    private static SecretKeySpec setInitKey(String myKey) {
         MessageDigest sha = null;
         try {
             byte[] key = myKey.getBytes("UTF-8");
@@ -43,11 +41,9 @@ public class CryptoUtils {
             key = sha.digest(key);
             key = Arrays.copyOf(key, 16);
             return new SecretKeySpec(key, "AES");
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return null;

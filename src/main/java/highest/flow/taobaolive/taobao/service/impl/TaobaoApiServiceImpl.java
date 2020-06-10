@@ -87,9 +87,15 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
     @Override
     public R autoLogin(TaobaoAccount taobaoAccount) {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         try {
+            R r = this.getUserSimple(taobaoAccount);
+            if (r.getCode() == ErrorCodes.SUCCESS) {
+                taobaoAccount.setState(TaobaoAccountState.Normal.getState());
+                return r;
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+
             Map<String, Object> apiReferMap = new HashMap<>();
             apiReferMap.put("apiName", "mtop.amp.ampService.getRecentContactsOfficialList");
             apiReferMap.put("appBackGround", false);
@@ -150,6 +156,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             HttpHelper httpHelper = new HttpHelper();
             Response<String> response = httpHelper.execute(request);
             if (response.getStatusCode() != HttpStatus.SC_OK) {
+                taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed);
                 return R.error();
             }
 
@@ -159,23 +166,26 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed);
                 return R.error(taobaoReturn.getErrorMsg());
             }
 
-            Map<String, Object> mapData = (Map<String, Object>)map.get("data");
-            Map<String, Object> mapReturnValue = (Map<String, Object>)mapData.get("returnValue");
-            String data = (String)mapReturnValue.get("data");
+            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
+            Map<String, Object> mapReturnValue = (Map<String, Object>) mapData.get("returnValue");
+            String data = (String) mapReturnValue.get("data");
             Map<String, Object> mapRetData = jsonParser.parseMap(data);
 
-            String autoLoginToken = (String)mapRetData.get("autoLoginToken");
-            long expires = (long)mapRetData.get("expires");
-            List<String> lstCookieHeaders = (List<String>)mapRetData.get("cookies");
+            String autoLoginToken = (String) mapRetData.get("autoLoginToken");
+            long expires = (long) mapRetData.get("expires");
+            List<String> lstCookieHeaders = (List<String>) mapRetData.get("cookies");
 
             List<Cookie> lstCookies = CookieHelper.parseCookieHeaders(url, lstCookieHeaders);
 
-            String sid = (String)mapRetData.get("sid");
-            String uid = (String)mapRetData.get("uid");
-            String nick = (String)mapRetData.get("nick");
+            String sid = (String) mapRetData.get("sid");
+            String uid = (String) mapRetData.get("uid");
+            String nick = (String) mapRetData.get("nick");
+
+            taobaoAccount.setState(TaobaoAccountState.Normal);
 
             return R.ok()
                     .put("expires", expires)
@@ -216,9 +226,9 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             QRCode qrCode = new QRCode();
-            String lgToken = (String)map.get("at");
-            String qrCodeUrl = (String)map.get("url");
-            long timestamp = (long)map.get("t");
+            String lgToken = (String) map.get("at");
+            String qrCodeUrl = (String) map.get("url");
+            long timestamp = (long) map.get("t");
 
             qrCode.setTimestamp(timestamp);
             qrCode.setAccessToken(lgToken);
@@ -243,7 +253,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             String url = "https://login.m.taobao.com/qrcodeLogin.htm?";
             for (String key : jsonParams.keySet()) {
-                url += key + "=" + URLEncoder.encode((String)jsonParams.get(key)) + "&";
+                url += key + "=" + URLEncoder.encode((String) jsonParams.get(key)) + "&";
             }
 
             Request request = new Request("GET", url, ResponseType.TEXT);
@@ -360,20 +370,20 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                 return R.error(taobaoReturn.getErrorMsg());
             }
 
-            Map<String, Object> mapData = (Map<String, Object>)map.get("data");
-            Map<String, Object> mapReturnValue = (Map<String, Object>)mapData.get("returnValue");
-            String data = (String)mapReturnValue.get("data");
+            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
+            Map<String, Object> mapReturnValue = (Map<String, Object>) mapData.get("returnValue");
+            String data = (String) mapReturnValue.get("data");
             Map<String, Object> mapRetData = jsonParser.parseMap(data);
 
-            String autoLoginToken = (String)mapRetData.get("autoLoginToken");
-            long expires = (long)mapRetData.get("expires");
-            List<String> lstCookieHeaders = (List<String>)mapRetData.get("cookies");
+            String autoLoginToken = (String) mapRetData.get("autoLoginToken");
+            long expires = (long) mapRetData.get("expires");
+            List<String> lstCookieHeaders = (List<String>) mapRetData.get("cookies");
 
             List<Cookie> lstCookies = CookieHelper.parseCookieHeaders(url, lstCookieHeaders);
 
-            String sid = (String)mapRetData.get("sid");
-            String uid = (String)mapRetData.get("uid");
-            String nick = (String)mapRetData.get("nick");
+            String sid = (String) mapRetData.get("sid");
+            String uid = (String) mapRetData.get("uid");
+            String nick = (String) mapRetData.get("nick");
 
             return R.ok()
                     .put("expires", expires)
@@ -402,9 +412,9 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             if (r.getCode() != ErrorCodes.SUCCESS) {
                 return r;
             }
-            QRCode qrCode = (QRCode)r.get("qrCode");
+            QRCode qrCode = (QRCode) r.get("qrCode");
             r = this.getLoginQRCodeCsrfToken(taobaoAccount, qrCode);
-            String csrfToken = (String)r.get("csrfToken");
+            String csrfToken = (String) r.get("csrfToken");
             if (r.getCode() != ErrorCodes.SUCCESS || HFStringUtils.isNullOrEmpty(csrfToken)) {
                 taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed.getState());
                 return r;
@@ -423,12 +433,12 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     continue;
                 }
 
-                long expires = (long)r.get("expires");
-                String autoLoginToken = (String)r.get("autoLoginToken");
-                List<Cookie> lstCookies = (List<Cookie>)r.get("cookie");
-                String sid = (String)r.get("sid");
-                String uid = (String)r.get("uid");
-                String nick = (String)r.get("nick");
+                long expires = (long) r.get("expires");
+                String autoLoginToken = (String) r.get("autoLoginToken");
+                List<Cookie> lstCookies = (List<Cookie>) r.get("cookie");
+                String sid = (String) r.get("sid");
+                String uid = (String) r.get("uid");
+                String nick = (String) r.get("nick");
 
                 taobaoAccount.setNick(nick);
                 taobaoAccount.setSid(sid);

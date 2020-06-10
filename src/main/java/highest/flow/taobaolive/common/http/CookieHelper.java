@@ -77,14 +77,14 @@ public class CookieHelper {
             ByteArrayInputStream is = new ByteArrayInputStream(bytes);
             ObjectInputStream ois = new ObjectInputStream(is);
 
-            String name = (String)ois.readObject();
-            String value = (String)ois.readObject();
+            String name = (String) ois.readObject();
+            String value = (String) ois.readObject();
 
             BasicClientCookie cookie = new BasicClientCookie(name, value);
-            cookie.setComment((String)ois.readObject());
-            cookie.setDomain((String)ois.readObject());
-            cookie.setExpiryDate((Date)ois.readObject());
-            cookie.setPath((String)ois.readObject());
+            cookie.setComment((String) ois.readObject());
+            cookie.setDomain((String) ois.readObject());
+            cookie.setExpiryDate((Date) ois.readObject());
+            cookie.setPath((String) ois.readObject());
             cookie.setVersion(ois.readInt());
             cookie.setSecure(ois.readBoolean());
 

@@ -7,6 +7,7 @@ public enum ServiceType {
     引流神器(3);
 
     private int serviceType = 0;
+
     ServiceType(int serviceType) {
         this.serviceType = serviceType;
     }

@@ -29,6 +29,7 @@ public enum ErrorCodes {
     FAIL_ALREADY_STARTED_LIVEROOM(307);  // 该用户已经有直播内容
 
     private int code = 0;
+
     ErrorCodes(int code) {
         this.code = code;
     }

@@ -9,8 +9,9 @@ import highest.flow.taobaolive.common.http.ResponseType;
 public class ResponseFactory {
     /**
      * 根据响应类型创建响应实例
+     *
      * @param responseType 响应类型
-     * @param charset 字符集
+     * @param charset      字符集
      * @return 响应实例
      */
     public static Response createResponse(ResponseType responseType, String charset) {

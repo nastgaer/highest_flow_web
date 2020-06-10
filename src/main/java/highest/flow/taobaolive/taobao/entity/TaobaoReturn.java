@@ -13,10 +13,10 @@ public class TaobaoReturn {
 
         String errorCodeStr = "SUCCESS";
         if (respMap.containsKey("httpStatusCode")) { // H5 API
-            errorCodeStr = (String)respMap.get("msgCode");
-            errorMsg = (String)respMap.get("msgInfo");
+            errorCodeStr = (String) respMap.get("msgCode");
+            errorMsg = (String) respMap.get("msgInfo");
         } else { // MOBILE API
-            Map<String, Object> retMap = (Map<String, Object>)respMap.get("ret");
+            Map<String, Object> retMap = (Map<String, Object>) respMap.get("ret");
             if (retMap != null) {
                 for (String key : retMap.keySet()) {
                     String[] words = key.split("::");

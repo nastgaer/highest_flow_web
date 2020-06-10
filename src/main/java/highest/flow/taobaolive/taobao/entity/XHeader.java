@@ -32,9 +32,10 @@ public class XHeader {
     @JsonIgnore
     private boolean encoded = false;
 
-    public XHeader() {}
+    public XHeader() {
+    }
 
-    public XHeader(Date date)  {
+    public XHeader(Date date) {
         this();
 
         Calendar calendar = Calendar.getInstance();

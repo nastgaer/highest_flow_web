@@ -100,7 +100,7 @@ public class LicenseTests {
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> resultMap = jsonParser.parseMap(response.getResult());
 
-            String token = (String)resultMap.get("token");
+            String token = (String) resultMap.get("token");
             return token;
 
         } catch (Exception ex) {

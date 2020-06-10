@@ -29,7 +29,7 @@ public class OAuth2Realm extends AuthorizingRealm {
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        HFUser hfUser = (HFUser)principalCollection.getPrimaryPrincipal();
+        HFUser hfUser = (HFUser) principalCollection.getPrimaryPrincipal();
 
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         // info.setStringPermissions(permsSet);
@@ -38,7 +38,7 @@ public class OAuth2Realm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        String token = (String)authenticationToken.getPrincipal();
+        String token = (String) authenticationToken.getPrincipal();
 
         HFUserToken hfUserToken = shiroService.getUserTokenByToken(token);
         if (token == null || hfUserToken.getExpireTime().getTime() < System.currentTimeMillis()) {

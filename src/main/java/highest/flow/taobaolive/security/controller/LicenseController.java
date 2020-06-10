@@ -56,8 +56,8 @@ public class LicenseController {
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(plain);
 
-            int hours = (int)map.get("hours");
-            ServiceType serviceType = ServiceType.fromInt((int)map.get("service_type"));
+            int hours = (int) map.get("hours");
+            ServiceType serviceType = ServiceType.fromInt((int) map.get("service_type"));
 
             String licenseCode = licenseService.generateCode(hfUser, serviceType, hours);
 
@@ -82,8 +82,8 @@ public class LicenseController {
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(plain);
 
-            String code = (String)map.get("code");
-            String machine = (String)map.get("machine_code");
+            String code = (String) map.get("code");
+            String machine = (String) map.get("machine_code");
 
             return licenseService.acceptCode(code, machine);
 
@@ -106,10 +106,10 @@ public class LicenseController {
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(plain);
 
-            String code = (String)map.get("code");
-            String username = (String)map.get("username");
-            String accountId = (String)map.get("account_id");
-            String accountNick = (String)map.get("account_nick");
+            String code = (String) map.get("code");
+            String username = (String) map.get("username");
+            String accountId = (String) map.get("account_id");
+            String accountNick = (String) map.get("account_nick");
 
             return licenseService.bindAccount(code, username, accountId, accountNick);
 

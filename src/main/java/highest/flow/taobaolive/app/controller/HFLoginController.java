@@ -50,13 +50,13 @@ public class HFLoginController {
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(plain);
 
-            String username = (String)map.get("username");
-            String password = (String)map.get("password");
-            String machineCode = (String)map.get("machine_code");
-            String mobile = (String)map.get("mobile");
-            String weixin = (String)map.get("weixin");
-            int level = (int)map.get("level");
-            int serviceType = (int)map.get("service_type");
+            String username = (String) map.get("username");
+            String password = (String) map.get("password");
+            String machineCode = (String) map.get("machine_code");
+            String mobile = (String) map.get("mobile");
+            String weixin = (String) map.get("weixin");
+            int level = (int) map.get("level");
+            int serviceType = (int) map.get("service_type");
 
             HFUser hfUser = hfUserService.getUserByUsername(username);
             if (hfUser != null) {
@@ -89,9 +89,9 @@ public class HFLoginController {
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(plain);
 
-            String username = (String)map.get("username");
-            String password = (String)map.get("password");
-            String machineCode = (String)map.get("machine_code");
+            String username = (String) map.get("username");
+            String password = (String) map.get("password");
+            String machineCode = (String) map.get("machine_code");
 
             HFUser hfUser = hfUserService.getUserByUsername(username);
             if (hfUser == null) {
@@ -128,7 +128,7 @@ public class HFLoginController {
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(plain);
 
-            String username = (String)map.get("username");
+            String username = (String) map.get("username");
 
             HFUser hfUser = hfUserService.getUserByUsername(username);
             if (hfUser == null) {

@@ -12,6 +12,7 @@ public interface TaobaoApiService {
 
     /**
      * 重登
+     *
      * @param taobaoAccount
      * @return
      */
@@ -19,6 +20,7 @@ public interface TaobaoApiService {
 
     /**
      * 获取二维码地址
+     *
      * @param
      * @return
      */
@@ -26,6 +28,7 @@ public interface TaobaoApiService {
 
     /**
      * 获取二维码的csrfToken
+     *
      * @param taobaoAccount
      * @param qrCode
      * @return
@@ -34,6 +37,7 @@ public interface TaobaoApiService {
 
     /**
      * 自动扫二维码
+     *
      * @param taobaoAccount
      * @param qrCode
      * @param csrfToken
@@ -43,6 +47,7 @@ public interface TaobaoApiService {
 
     /**
      * 查询验证状态
+     *
      * @param taobaoAccount
      * @param qrCode
      * @return

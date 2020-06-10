@@ -7,6 +7,7 @@ public enum HFUserLevel {
     Adminitrator(99);
 
     private int level = 0;
+
     HFUserLevel(int level) {
         this.level = level;
     }

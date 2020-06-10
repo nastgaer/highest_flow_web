@@ -7,6 +7,7 @@ public enum TaobaoAccountState {
     AutoLoginFailed(2);
 
     private int state = 0;
+
     TaobaoAccountState(int state) {
         this.state = state;
     }

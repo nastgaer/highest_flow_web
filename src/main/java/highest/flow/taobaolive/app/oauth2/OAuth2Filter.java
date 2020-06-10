@@ -20,7 +20,7 @@ public class OAuth2Filter extends AuthenticatingFilter {
 
     @Override
     protected AuthenticationToken createToken(ServletRequest servletRequest, ServletResponse servletResponse) throws Exception {
-        String token = getRequestToken((HttpServletRequest)servletRequest);
+        String token = getRequestToken((HttpServletRequest) servletRequest);
 
         if (StringUtils.isBlank(token)) {
             return null;
@@ -43,8 +43,8 @@ public class OAuth2Filter extends AuthenticatingFilter {
         String token = getRequestToken((HttpServletRequest) request);
 
         if (StringUtils.isBlank(token)) {
-            HttpServletRequest httpServletRequest = (HttpServletRequest)request;
-            HttpServletResponse httpServletResponse = (HttpServletResponse)response;
+            HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+            HttpServletResponse httpServletResponse = (HttpServletResponse) response;
             httpServletResponse.setHeader("Access-Control-Allow-Credentials", "true");
             httpServletResponse.setHeader("Access-Control-Allow-Origin", httpServletRequest.getHeader("Origin"));
 
@@ -61,8 +61,8 @@ public class OAuth2Filter extends AuthenticatingFilter {
 
     @Override
     protected boolean onLoginFailure(AuthenticationToken token, AuthenticationException e, ServletRequest request, ServletResponse response) {
-        HttpServletRequest httpServletRequest = (HttpServletRequest)request;
-        HttpServletResponse httpServletResponse = (HttpServletResponse)response;
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
         httpServletResponse.setContentType("application/json;charset=utf-8");
         httpServletResponse.setHeader("Access-Control-Allow-Credentials", "true");

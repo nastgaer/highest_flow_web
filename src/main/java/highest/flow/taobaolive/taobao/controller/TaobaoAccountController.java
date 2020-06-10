@@ -38,14 +38,14 @@ public class TaobaoAccountController {
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(plain);
 
-            String accountId = (String)map.get("account_id");
-            String nick = (String)map.get("nick");
-            String sid = (String)map.get("sid");
-            String utdid = (String)map.get("utdid");
-            String devid = (String)map.get("devid");
-            String autoLoginToken = (String)map.get("auto_login_token");
-            String cookie = (String)map.get("cookie");
-            int expires = (int)map.get("expires");
+            String accountId = (String) map.get("account_id");
+            String nick = (String) map.get("nick");
+            String sid = (String) map.get("sid");
+            String utdid = (String) map.get("utdid");
+            String devid = (String) map.get("devid");
+            String autoLoginToken = (String) map.get("auto_login_token");
+            String cookie = (String) map.get("cookie");
+            int expires = (int) map.get("expires");
 
             TaobaoAccount tbAccount = taobaoAccountService.register(accountId, nick, sid, utdid, devid, autoLoginToken, cookie, expires);
             if (tbAccount != null) {

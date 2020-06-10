@@ -50,17 +50,17 @@ public class HttpUtils {
     }
 
 
-    public static String sendGet(String getUrl, Map<String, String> paraMap){
+    public static String sendGet(String getUrl, Map<String, String> paraMap) {
         return sendGet(getUrl, paraMap, null);
     }
 
-    public static String sendGet(String getUrl, Map<String, String> paraMap, Map<String, String> additionalHeaderMap){
-        if(paraMap == null){
+    public static String sendGet(String getUrl, Map<String, String> paraMap, Map<String, String> additionalHeaderMap) {
+        if (paraMap == null) {
             paraMap = new HashMap<>();
         }
-        paraMap= new TreeMap<>(paraMap);
+        paraMap = new TreeMap<>(paraMap);
         StringBuilder sb = new StringBuilder();
-        paraMap.entrySet().stream().forEach(entry ->{
+        paraMap.entrySet().stream().forEach(entry -> {
             sb.append(entry.getKey());
             sb.append("=");
             try {
@@ -70,7 +70,7 @@ public class HttpUtils {
             }
             sb.append("&");
         });
-        getUrl = getUrl.contains("?")?getUrl:getUrl+"?" + sb.toString();
+        getUrl = getUrl.contains("?") ? getUrl : getUrl + "?" + sb.toString();
 
         CloseableHttpClient client = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(getUrl);

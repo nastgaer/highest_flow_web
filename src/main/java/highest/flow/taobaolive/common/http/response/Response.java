@@ -67,7 +67,8 @@ public abstract class Response<T> {
 
     /**
      * 处理响应
-     * @param httpResponse 响应
+     *
+     * @param httpResponse     响应
      * @param executeException 执行异常
      */
     public void handleHttpResponse(CloseableHttpResponse httpResponse, Throwable executeException) {
@@ -94,6 +95,7 @@ public abstract class Response<T> {
 
     /**
      * 处理响应结果
+     *
      * @param httpResponse 响应
      * @return 处理结果
      * @throws Throwable 异常
@@ -102,6 +104,7 @@ public abstract class Response<T> {
 
     /**
      * 关闭请求响应
+     *
      * @param httpResponse 响应
      * @throws Throwable 异常
      */

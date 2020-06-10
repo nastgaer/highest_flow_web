@@ -9,6 +9,7 @@ public enum LicenseCodeState {
     Binded(2); // 验证，绑定淘宝账号
 
     private int state = 0;
+
     LicenseCodeState(int state) {
         this.state = state;
     }

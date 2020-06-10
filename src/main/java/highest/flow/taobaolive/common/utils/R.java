@@ -14,12 +14,12 @@ public class R extends HashMap<String, Object> {
     }
 
     public ErrorCodes getCode() {
-        String codeStr = (String)get("code");
+        String codeStr = (String) get("code");
         return ErrorCodes.valueOf(codeStr);
     }
 
     public String getMsg() {
-        return (String)get("msg");
+        return (String) get("msg");
     }
 
     public static R error(ErrorCodes code, String msg) {

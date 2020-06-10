@@ -7,6 +7,7 @@ public enum HFUserState {
     Suspended(2);
 
     private int state = 0;
+
     HFUserState(int state) {
         this.state = state;
     }

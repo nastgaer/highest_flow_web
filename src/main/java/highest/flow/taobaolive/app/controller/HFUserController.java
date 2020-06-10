@@ -38,7 +38,7 @@ public class HFUserController {
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(plain);
 
-            String username = (String)map.get("username");
+            String username = (String) map.get("username");
 
             HFUser hfUser = hfUserService.getUserByUsername(username);
             if (hfUser == null) {
@@ -52,7 +52,7 @@ public class HFUserController {
 
             if (hfUser.getServiceType() == ServiceType.刷热度.getServiceType()) {
                 return r;
-            // } else if (hfUser.getServiceType() == ServiceType.高级引流.getServiceType()) {
+                // } else if (hfUser.getServiceType() == ServiceType.高级引流.getServiceType()) {
 
             } else {
                 return R.error("找不到服务类型");
