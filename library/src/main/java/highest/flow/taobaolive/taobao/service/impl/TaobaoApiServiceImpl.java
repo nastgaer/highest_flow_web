@@ -11,10 +11,7 @@ import highest.flow.taobaolive.common.http.response.Response;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
-import highest.flow.taobaolive.taobao.entity.QRCode;
-import highest.flow.taobaolive.taobao.entity.TaobaoAccount;
-import highest.flow.taobaolive.taobao.entity.TaobaoReturn;
-import highest.flow.taobaolive.taobao.entity.XHeader;
+import highest.flow.taobaolive.taobao.entity.*;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
 import highest.flow.taobaolive.taobao.service.XSignService;
 import org.apache.http.HttpStatus;
@@ -76,6 +73,91 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             ex.printStackTrace();
         }
         return R.error();
+    }
+
+    @Override
+    public R GetH5Token(TaobaoAccount taobaoAccount) {
+        return null;
+    }
+
+    @Override
+    public R ParseTaoCode(String taocode) {
+        return null;
+    }
+
+    @Override
+    public R GetLiveDetail(LiveRoom liveRoom) {
+        return null;
+    }
+
+    @Override
+    public R GetLiveProducts(LiveRoom liveRoom, TaobaoAccount taobaoAccount) {
+        return null;
+    }
+
+    @Override
+    public R GetLiveEntry(LiveRoom liveRoom, TaobaoAccount taobaoAccount) {
+        return null;
+    }
+
+    @Override
+    public R TaskFollow(LiveRoom liveRoom, TaobaoAccount taobaoAccount) {
+        return null;
+    }
+
+    @Override
+    public R TaskStay(LiveRoom liveRoom, TaobaoAccount taobaoAccount, int stayMinutes) {
+        return null;
+    }
+
+    @Override
+    public R TaskBuy(LiveRoom liveRoom, TaobaoAccount taobaoAccount, String productId) {
+        return null;
+    }
+
+    @Override
+    public R CreateLiveRoomWeb(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccount taobaoAccount) {
+        return null;
+    }
+
+    @Override
+    public R CreateLiveRoom(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccount taobaoAccount) {
+        return null;
+    }
+
+    @Override
+    public R StartLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount) {
+        return null;
+    }
+
+    @Override
+    public R StopLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount) {
+        return null;
+    }
+
+    @Override
+    public R DeleteLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount) {
+        return null;
+    }
+
+    @Override
+    public R GetProductItemInfo(TaobaoAccount taobaoAccount, String productId) {
+        return null;
+    }
+
+    @Override
+    public R PublishProductWeb(LiveRoom liveRoom, TaobaoAccount taobaoAccount, String productId) {
+        return null;
+    }
+
+    @Override
+    public R OpenProduct(LiveRoom liveRoom, TaobaoAccount taobaoAccount, Product product) {
+        return null;
+    }
+
+    @Override
+    public R AddTimestamp(LiveRoom liveRoom, TaobaoAccount taobaoAccount, String productId) {
+        return null;
     }
 
     @Override
