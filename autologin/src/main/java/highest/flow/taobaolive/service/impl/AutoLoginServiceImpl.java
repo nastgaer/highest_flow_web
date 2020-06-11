@@ -14,7 +14,9 @@ import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccount;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
+import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,12 +65,11 @@ public class AutoLoginServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAc
                         taobaoAccount.setNick(nick);
                         taobaoAccount.setExpires(new Date(expires));
 
-                        List<String> cookieHeaders = new ArrayList<>();
+                        CookieStore cookieStore = new BasicCookieStore();
                         for (Cookie cookie : lstCookies) {
-                            cookieHeaders.add(CookieHelper.toString(cookie));
+                            cookieStore.addCookie(cookie);
                         }
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        taobaoAccount.setCookie(objectMapper.writeValueAsString(cookieHeaders));
+                        taobaoAccount.setCookieStore(cookieStore);
 
                         taobaoAccount.setState(TaobaoAccountState.Normal.getState());
                     }
@@ -89,12 +90,11 @@ public class AutoLoginServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAc
                             taobaoAccount.setNick(nick);
                             taobaoAccount.setExpires(new Date(expires));
 
-                            List<String> cookieHeaders = new ArrayList<>();
+                            CookieStore cookieStore = new BasicCookieStore();
                             for (Cookie cookie : lstCookies) {
-                                cookieHeaders.add(CookieHelper.toString(cookie));
+                                cookieStore.addCookie(cookie);
                             }
-                            ObjectMapper objectMapper = new ObjectMapper();
-                            taobaoAccount.setCookie(objectMapper.writeValueAsString(cookieHeaders));
+                            taobaoAccount.setCookieStore(cookieStore);
 
                             taobaoAccount.setState(TaobaoAccountState.Normal.getState());
                         }

@@ -8,7 +8,9 @@ import highest.flow.taobaolive.taobao.dao.TaobaoAccountDao;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccount;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
+import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,12 +32,11 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
             taobaoAccount.setDevid(devid);
             taobaoAccount.setAutoLoginToken(autoLoginToken);
 
-            List<String> cookieHeaders = new ArrayList<>();
+            CookieStore cookieStore = new BasicCookieStore();
             for (Cookie cookie : cookies) {
-                cookieHeaders.add(CookieHelper.toString(cookie));
+                cookieStore.addCookie(cookie);
             }
-            ObjectMapper objectMapper = new ObjectMapper();
-            taobaoAccount.setCookie(objectMapper.writeValueAsString(cookieHeaders));
+            taobaoAccount.setCookieStore(cookieStore);
 
             Date expireDate = new Date();
             expireDate.setTime(expireDate.getTime() + expires);

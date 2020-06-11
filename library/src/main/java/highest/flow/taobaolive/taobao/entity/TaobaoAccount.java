@@ -1,8 +1,13 @@
 package highest.flow.taobaolive.taobao.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import highest.flow.taobaolive.common.http.CookieHelper;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.http.client.CookieStore;
 import org.apache.http.impl.client.BasicCookieStore;
 
@@ -12,6 +17,7 @@ import java.util.Date;
 @TableName("tbl_accounts")
 public class TaobaoAccount {
 
+    @TableId
     private int id;
 
     private String accountId;
@@ -30,6 +36,8 @@ public class TaobaoAccount {
 
     private String umidToken;
 
+    @Getter
+    @Setter(AccessLevel.NONE)
     private String cookie;
 
     private Date expires;
@@ -43,16 +51,6 @@ public class TaobaoAccount {
 
     private Date updatedTime;
 
+    @TableField(exist = false)
     private CookieStore cookieStore = new BasicCookieStore();
-
-    public void setCookie(String value) {
-        this.cookie = value;
-
-        String[] cookieHeaders = value.split(";");
-        cookieStore.clear();
-
-        for (String cookieHeader : cookieHeaders) {
-            cookieStore.addCookie(CookieHelper.decodeCookie(cookieHeader));
-        }
-    }
 }
