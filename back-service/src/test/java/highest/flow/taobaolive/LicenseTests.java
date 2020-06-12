@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.app.defines.HFUserLevel;
 import highest.flow.taobaolive.common.defines.ServiceType;
 import highest.flow.taobaolive.common.http.HttpHelper;
+import highest.flow.taobaolive.common.http.SiteConfig;
+import highest.flow.taobaolive.common.http.httpclient.HttpClientFactory;
 import highest.flow.taobaolive.common.http.Request;
 import highest.flow.taobaolive.common.http.ResponseType;
-import highest.flow.taobaolive.common.http.response.Response;
+import highest.flow.taobaolive.common.http.httpclient.response.Response;
 import highest.flow.taobaolive.common.utils.CryptoUtils;
 import highest.flow.taobaolive.security.service.CryptoService;
 import org.junit.jupiter.api.Test;
@@ -16,7 +18,6 @@ import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import javax.xml.ws.Service;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,11 +59,12 @@ public class LicenseTests {
             reqParamMap.put("sign", sign);
 
             String url = "http://localhost:8080/sys/register";
-            Request request = new Request("POST", url, ResponseType.TEXT);
-            request.addParameters(reqParamMap);
 
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/x-www-form-urlencoded"),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .addParameters(reqParamMap));
 
             System.out.println(response.getResult());
 
@@ -91,11 +93,11 @@ public class LicenseTests {
             paramMap.put("sign", sign);
 
             String url = "http://localhost:8080/sys/login";
-            Request request = new Request("POST", url, ResponseType.TEXT);
-            request.addParameters(paramMap);
-
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/x-www-form-urlencoded"),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .addParameters(paramMap));
 
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> resultMap = jsonParser.parseMap(response.getResult());
@@ -131,12 +133,12 @@ public class LicenseTests {
             paramMap1.put("sign", sign);
 
             String url = "http://localhost:8080/license/generate";
-            Request request = new Request("POST", url, ResponseType.TEXT);
-            request.addParameters(paramMap1);
-            request.addHeader("token", token);
-
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/x-www-form-urlencoded"),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .addParameter("token", token)
+                            .addParameters(paramMap1));
 
             System.out.println(response.getResult());
 
@@ -165,11 +167,12 @@ public class LicenseTests {
             paramMap1.put("sign", sign);
 
             String url = "http://localhost:8080/license/accept";
-            Request request = new Request("POST", url, ResponseType.TEXT);
-            request.addParameters(paramMap1);
 
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/x-www-form-urlencoded"),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .addParameters(paramMap1));
 
             System.out.println(response.getResult());
 
@@ -199,11 +202,12 @@ public class LicenseTests {
             paramMap1.put("sign", sign);
 
             String url = "http://localhost:8080/license/bind";
-            Request request = new Request("POST", url, ResponseType.TEXT);
-            request.addParameters(paramMap1);
 
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/x-www-form-urlencoded"),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .addParameters(paramMap1));
 
             System.out.println(response.getResult());
 

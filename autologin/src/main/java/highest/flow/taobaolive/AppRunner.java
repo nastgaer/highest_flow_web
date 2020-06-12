@@ -1,10 +1,9 @@
 package highest.flow.taobaolive;
 
-import highest.flow.taobaolive.common.defines.ScheduleStatus;
+import highest.flow.taobaolive.common.defines.ScheduleState;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import highest.flow.taobaolive.job.service.ScheduleJobService;
 import highest.flow.taobaolive.job.utils.ScheduleUtils;
-import org.quartz.CronTrigger;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,7 @@ public class AppRunner implements CommandLineRunner {
             scheduleJobEntity.setParams(null);
             scheduleJobEntity.setCronExpression("0 0 0/2 1/1 * ? *");
             scheduleJobEntity.setCreatedTime(new Date());
-            scheduleJobEntity.setStatus(ScheduleStatus.NORMAL.getValue());
+            scheduleJobEntity.setState(ScheduleState.NORMAL.getValue());
             scheduleJobEntity.setRemark("延期任务");
 
             ScheduleUtils.createScheduleJob(scheduler, scheduleJobEntity);

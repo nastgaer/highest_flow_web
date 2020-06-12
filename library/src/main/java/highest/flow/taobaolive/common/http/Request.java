@@ -1,6 +1,7 @@
 package highest.flow.taobaolive.common.http;
 
 import highest.flow.taobaolive.common.utils.HFStringUtils;
+import highest.flow.taobaolive.common.utils.NumberUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.CookieStore;
@@ -26,9 +27,6 @@ public class Request implements Serializable {
     private Map<String, String> parameters; //请求参数
     private Map<String, String> extras;     //额外自定义参数
 
-    private String userAgent;
-    private CookieStore cookieStore;
-
     public Request() {
     }
 
@@ -39,8 +37,7 @@ public class Request implements Serializable {
                    Map<String, String> headers,
                    Map<String, String> parameters,
                    HttpEntity entity,
-                   Map<String, String> extras,
-                   CookieStore cookieStore) {
+                   Map<String, String> extras) {
         this.id = StringUtils.isNotBlank(id) ? id : HFStringUtils.getUUID();
         this.method = StringUtils.isNotBlank(method) ? method : Request.METHOD_GET;
         this.url = url;
@@ -49,7 +46,6 @@ public class Request implements Serializable {
         this.parameters = parameters;
         this.entity = entity;
         this.extras = extras;
-        this.cookieStore = cookieStore;
     }
 
     public Request(String url) {
@@ -65,7 +61,7 @@ public class Request implements Serializable {
     }
 
     public Request(String method, String url, ResponseType responseType) {
-        this(null, method, url, responseType, null, null, null, null, null);
+        this(null, method, url, responseType, null, null, null, null);
     }
 
     public String getId() {
@@ -141,7 +137,7 @@ public class Request implements Serializable {
     public Map<String, String> getExtras() {
         return extras;
     }
-
+    
     public String getExtra(String name) {
         return extras != null ? extras.get(name) : null;
     }
@@ -195,20 +191,30 @@ public class Request implements Serializable {
         return parameters;
     }
 
-    public CookieStore getCookieStore() {
-        return cookieStore;
+    public String key() {
+        return url;
     }
 
-    public void setCookieStore(CookieStore cookieStore) {
-        this.cookieStore = cookieStore;
+
+    public static final String EXTRA_KEY_PRIORITY = "$extras.priority";
+
+    /**
+     * 设置请求的优先级
+     * @param priority 优先级
+     * @return 当前对象
+     */
+    public Request setPriority(int priority) {
+        return addExtra(EXTRA_KEY_PRIORITY, String.valueOf(priority));
     }
 
-    public String getUserAgent() {
-        return userAgent;
-    }
+    /**
+     * 获取请求的优先级
+     * @return 优先级
+     */
+    public int getPriority() {
+        String value = getExtra(EXTRA_KEY_PRIORITY);
 
-    public void setUserAgent(String userAgent) {
-        this.userAgent = userAgent;
+        return NumberUtils.valueOf(NumberUtils.parseInt(value));
     }
 
     @Override

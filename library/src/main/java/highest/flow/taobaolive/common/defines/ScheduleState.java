@@ -1,6 +1,6 @@
 package highest.flow.taobaolive.common.defines;
 
-public enum ScheduleStatus {
+public enum ScheduleState {
 
     /**
      * 正常
@@ -13,7 +13,7 @@ public enum ScheduleStatus {
 
     private int value;
 
-    ScheduleStatus(int value) {
+    ScheduleState(int value) {
         this.value = value;
     }
 

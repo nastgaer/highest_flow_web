@@ -1,4 +1,4 @@
-package highest.flow.taobaolive.common.http.response;
+package highest.flow.taobaolive.common.http.httpclient.response;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;

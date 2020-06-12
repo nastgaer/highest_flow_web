@@ -29,7 +29,5 @@ public class LiveRoom extends PreLiveRoomSpec {
      */
     private String rankingName = "";
 
-    private LiveRoomState state = LiveRoomState.Preparing;
-
     private List<Product> productList = new ArrayList<>();
 }

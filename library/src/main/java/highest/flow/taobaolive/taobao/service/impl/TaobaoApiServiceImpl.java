@@ -3,11 +3,10 @@ package highest.flow.taobaolive.taobao.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.common.config.Config;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
-import highest.flow.taobaolive.common.http.CookieHelper;
-import highest.flow.taobaolive.common.http.HttpHelper;
-import highest.flow.taobaolive.common.http.Request;
-import highest.flow.taobaolive.common.http.ResponseType;
-import highest.flow.taobaolive.common.http.response.Response;
+import highest.flow.taobaolive.common.http.*;
+import highest.flow.taobaolive.common.http.cookie.DefaultCookieStorePool;
+import highest.flow.taobaolive.common.http.httpclient.HttpClientFactory;
+import highest.flow.taobaolive.common.http.httpclient.response.Response;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
@@ -48,14 +47,14 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setData(jsonText);
             xHeader.setXsign(xSignService.sign(xHeader));
 
-            Request request = new Request("GET", url, ResponseType.TEXT);
-            request.setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)");
-            request.addHeaders(xHeader.getHeaders());
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                        .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
+                        .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
 
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                return R.error();
+                return null;
             }
 
             String respText = response.getResult();
@@ -217,19 +216,17 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setData(jsonText);
             xHeader.setXsign(xSignService.sign(xHeader));
 
-            Request request = new Request("POST", url, ResponseType.TEXT);
-            request.setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)");
-            request.addHeader("Content-Type", "application/x-www-form-urlencoded");
-            request.addHeaders(xHeader.getHeaders());
-
             Map<String, String> postParams = new HashMap<>();
             postParams.put("data", URLEncoder.encode(jsonText));
-            request.setParameters(postParams);
 
-            request.setCookieStore(taobaoAccount.getCookieStore());
-
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
+                            .addHeaders(xHeader.getHeaders())
+                            .addHeader("Content-Type", "application/x-www-form-urlencoded"),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .setParameters(postParams),
+                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed.getState());
                 return R.error();
@@ -281,12 +278,12 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
         try {
             String url = "https://qrlogin.taobao.com/qrcodelogin/generateNoLoginQRCode.do?lt=m";
 
-            Request request = new Request("GET", url, ResponseType.TEXT);
-            request.setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)");
-            request.addHeader("Referer", url);
-
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
+                            .addHeader("Referer", url)
+                            .setContentType("application/x-www-form-urlencoded"),
+                    new Request("GET", url, ResponseType.TEXT));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
@@ -331,12 +328,11 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                 url += key + "=" + URLEncoder.encode((String) jsonParams.get(key)) + "&";
             }
 
-            Request request = new Request("GET", url, ResponseType.TEXT);
-            request.setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)");
-            request.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
+                            .setAccept("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"),
+                    new Request("GET", url, ResponseType.TEXT));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
@@ -371,18 +367,14 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
         try {
             String url = "https://login.m.taobao.com/qrcodeLoginAuthor.do?qr_t=s";
 
-            Request request = new Request("POST", url, ResponseType.TEXT);
-            request.setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)");
-            request.addHeader("Content-Type", "application/x-www-form-urlencoded");
-
-            Map<String, String> postParams = new HashMap<>();
-            postParams.put("csrftoken", csrfToken);
-            postParams.put("shortURL", qrCode.getNavigateUrl());
-            postParams.put("ql", "true");
-            request.setParameters(postParams);
-
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
+                            .setContentType("application/x-www-form-urlencoded"),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .addParameter("csrftoken", csrfToken)
+                            .addParameter("shortURL", qrCode.getNavigateUrl())
+                            .addParameter("ql", "true"));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
@@ -425,13 +417,12 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setData(jsonText);
             xHeader.setXsign(xSignService.sign(xHeader));
 
-            Request request = new Request("GET", url, ResponseType.TEXT);
-            request.setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)");
-            request.addHeader("Content-Type", "application/x-www-form-urlencoded");
-            request.addHeaders(xHeader.getHeaders());
-
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
+                            .setContentType("application/x-www-form-urlencoded")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }

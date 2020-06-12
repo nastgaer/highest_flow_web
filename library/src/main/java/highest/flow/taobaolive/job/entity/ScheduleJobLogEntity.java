@@ -31,7 +31,7 @@ public class ScheduleJobLogEntity {
     /**
      * 任务状态 0：成功， 1：失败
      */
-    private int status;
+    private int state;
 
     /**
      * 失败信息

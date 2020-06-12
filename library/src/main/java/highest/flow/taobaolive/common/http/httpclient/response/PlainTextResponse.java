@@ -1,4 +1,4 @@
-package highest.flow.taobaolive.common.http.response;
+package highest.flow.taobaolive.common.http.httpclient.response;
 
 import highest.flow.taobaolive.common.config.Config;
 import highest.flow.taobaolive.common.utils.HFStringUtils;

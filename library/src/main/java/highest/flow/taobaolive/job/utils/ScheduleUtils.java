@@ -8,7 +8,7 @@
 
 package highest.flow.taobaolive.job.utils;
 
-import highest.flow.taobaolive.common.defines.ScheduleStatus;
+import highest.flow.taobaolive.common.defines.ScheduleState;
 import highest.flow.taobaolive.common.exception.RRException;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import org.quartz.*;
@@ -66,7 +66,7 @@ public class ScheduleUtils {
 			scheduler.scheduleJob(jobDetail, trigger);
 
 			// 暂停任务
-			if (scheduleJob.getStatus() == ScheduleStatus.PAUSE.getValue()) {
+			if (scheduleJob.getState() == ScheduleState.PAUSE.getValue()) {
 				pauseJob(scheduler, scheduleJob.getId());
 			}
 		} catch (SchedulerException e) {
@@ -95,7 +95,7 @@ public class ScheduleUtils {
 			scheduler.rescheduleJob(triggerKey, trigger);
 
 			// 暂停任务
-			if (scheduleJob.getStatus() == ScheduleStatus.PAUSE.getValue()) {
+			if (scheduleJob.getState() == ScheduleState.PAUSE.getValue()) {
 				pauseJob(scheduler, scheduleJob.getId());
 			}
 

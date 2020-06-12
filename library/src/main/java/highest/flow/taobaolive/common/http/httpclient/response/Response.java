@@ -1,4 +1,4 @@
-package highest.flow.taobaolive.common.http.response;
+package highest.flow.taobaolive.common.http.httpclient.response;
 
 import org.apache.http.Header;
 import org.apache.http.client.CookieStore;
@@ -11,11 +11,17 @@ import java.util.Arrays;
  * Created by brucezee on 2017/1/6.
  */
 public abstract class Response<T> {
+
+    private String url;
     private int statusCode;         //响应状态码
     private Header[] headers;       //响应头
     private T result;               //响应结果
     private Throwable exception;    //异常
     private CookieStore cookieStore;
+
+    public String getUrl() {
+        return url;
+    }
 
     public int getStatusCode() {
         return statusCode;
@@ -39,6 +45,10 @@ public abstract class Response<T> {
 
     public boolean isSuccess() {
         return result != null;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     protected void setStatusCode(int statusCode) {

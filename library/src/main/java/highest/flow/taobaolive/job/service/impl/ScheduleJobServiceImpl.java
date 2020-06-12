@@ -1,7 +1,7 @@
 package highest.flow.taobaolive.job.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import highest.flow.taobaolive.common.defines.ScheduleStatus;
+import highest.flow.taobaolive.common.defines.ScheduleState;
 import highest.flow.taobaolive.job.dao.ScheduleJobDao;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import highest.flow.taobaolive.job.service.ScheduleJobService;
@@ -9,6 +9,7 @@ import highest.flow.taobaolive.job.utils.ScheduleUtils;
 import org.quartz.CronTrigger;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +42,7 @@ public class ScheduleJobServiceImpl extends ServiceImpl<ScheduleJobDao, Schedule
     @Transactional(rollbackFor = Exception.class)
     public void saveJob(ScheduleJobEntity scheduleJob) {
         scheduleJob.setCreatedTime(new Date());
-        scheduleJob.setStatus(ScheduleStatus.NORMAL.getValue());
+        scheduleJob.setState(ScheduleState.NORMAL.getValue());
         this.save(scheduleJob);
 
         ScheduleUtils.createScheduleJob(scheduler, scheduleJob);
@@ -67,10 +68,10 @@ public class ScheduleJobServiceImpl extends ServiceImpl<ScheduleJobDao, Schedule
     }
 
     @Override
-    public int updateBatch(Long[] jobIds, int status) {
+    public int updateBatch(Long[] jobIds, int state) {
         Map<String, Object> map = new HashMap<>(2);
         map.put("list", jobIds);
-        map.put("status", status);
+        map.put("state", state);
         return baseMapper.updateBatch(map);
     }
 
@@ -89,7 +90,7 @@ public class ScheduleJobServiceImpl extends ServiceImpl<ScheduleJobDao, Schedule
             ScheduleUtils.pauseJob(scheduler, jobId);
         }
 
-        updateBatch(jobIds, ScheduleStatus.PAUSE.getValue());
+        updateBatch(jobIds, ScheduleState.PAUSE.getValue());
     }
 
     @Override
@@ -99,7 +100,7 @@ public class ScheduleJobServiceImpl extends ServiceImpl<ScheduleJobDao, Schedule
             ScheduleUtils.resumeJob(scheduler, jobId);
         }
 
-        updateBatch(jobIds, ScheduleStatus.NORMAL.getValue());
+        updateBatch(jobIds, ScheduleState.NORMAL.getValue());
     }
 
 

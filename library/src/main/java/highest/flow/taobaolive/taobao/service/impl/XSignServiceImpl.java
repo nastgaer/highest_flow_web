@@ -1,11 +1,21 @@
 package highest.flow.taobaolive.taobao.service.impl;
 
+import highest.flow.taobaolive.common.http.HttpHelper;
+import highest.flow.taobaolive.common.http.SiteConfig;
+import highest.flow.taobaolive.common.http.httpclient.DefaultHttpClientPool;
+import highest.flow.taobaolive.common.http.httpclient.HttpClientExecutor;
+import highest.flow.taobaolive.common.http.httpclient.HttpClientFactory;
+import highest.flow.taobaolive.common.http.Request;
+import highest.flow.taobaolive.common.http.ResponseType;
+import highest.flow.taobaolive.common.http.httpclient.HttpClientPool;
+import highest.flow.taobaolive.common.http.httpclient.response.Response;
+import highest.flow.taobaolive.common.http.proxy.DefaultHttpProxyPool;
 import highest.flow.taobaolive.common.utils.CryptoUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
-import highest.flow.taobaolive.common.utils.HttpUtils;
 import highest.flow.taobaolive.taobao.entity.XHeader;
 import highest.flow.taobaolive.taobao.service.XSignService;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
@@ -31,12 +41,18 @@ public class XSignServiceImpl implements XSignService {
 
             String url = "http://1.192.134.231:" + port + "/xdata?data=" + plain + "&apiKey=&t=&apiSign=" + URLEncoder.encode(timeMD5);
 
-            String respText = HttpUtils.doGet(url);
+            SiteConfig siteConfig = new SiteConfig()
+                    .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
+                    .addHeaders(xHeader.getHeaders())
+                    .setConnectTimeout(30000)
+                    .setSocketTimeout(45000);
 
-            if (respText == null) {
+            Response<String> response = HttpHelper.execute(siteConfig, new Request("GET", url, ResponseType.TEXT));
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return null;
             }
 
+            String respText = response.getResult();
             respText = StringUtils.strip(respText, "\"\r\n");
 
             if (respText.startsWith("ab2")) {
@@ -79,7 +95,18 @@ public class XSignServiceImpl implements XSignService {
 
             String url = "http://39.100.74.215:2345/x-sign.php?" + plain;
 
-            String respText = HttpUtils.doGet(url);
+            SiteConfig siteConfig = new SiteConfig()
+                    .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
+                    .addHeaders(xHeader.getHeaders())
+                    .setConnectTimeout(30000)
+                    .setSocketTimeout(45000);
+
+            Response<String> response = HttpHelper.execute(siteConfig, new Request("GET", url, ResponseType.TEXT));
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return null;
+            }
+
+            String respText = response.getResult();
 
             if (respText == null) {
                 return null;

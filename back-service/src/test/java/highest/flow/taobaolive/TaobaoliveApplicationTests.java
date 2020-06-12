@@ -2,9 +2,12 @@ package highest.flow.taobaolive;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.common.http.HttpHelper;
+import highest.flow.taobaolive.common.http.SiteConfig;
+import highest.flow.taobaolive.common.http.cookie.DefaultCookieStorePool;
+import highest.flow.taobaolive.common.http.httpclient.HttpClientFactory;
 import highest.flow.taobaolive.common.http.Request;
 import highest.flow.taobaolive.common.http.ResponseType;
-import highest.flow.taobaolive.common.http.response.Response;
+import highest.flow.taobaolive.common.http.httpclient.response.Response;
 import highest.flow.taobaolive.common.utils.CryptoUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.security.service.CryptoService;
@@ -86,13 +89,14 @@ class TaobaoliveApplicationTests {
             System.out.println(data);
 
             // String url = "http://119.45.148.200:8080/highest/xsign";
-            // String url = "http://localhost:8080/xsign";
-            String url = "http://localhost:8080/taobaolive-0.0.1-SNAPSHOT/xsign";
-            Request request = new Request("POST", url, ResponseType.TEXT);
-            request.addParameters(paramMap);
+            String url = "http://localhost:8080/xsign";
+            // String url = "http://localhost:8080/taobaolive-0.0.1-SNAPSHOT/xsign";
 
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/x-www-form-urlencoded"),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .addParameters(paramMap));
 
             System.out.println(response.getResult());
 
@@ -107,11 +111,10 @@ class TaobaoliveApplicationTests {
             CookieStore newCookieStore = new BasicCookieStore();
             newCookieStore.addCookie(new BasicClientCookie("test", "value"));
 
-            Request request = new Request("GET", "https://stackoverflow.com");
-            request.setCookieStore(newCookieStore);
-
-            HttpHelper httpHelper = new HttpHelper();
-            Response<String> response = httpHelper.execute(request);
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig(),
+                    new Request("GET", "https://stackoverflow.com", ResponseType.TEXT),
+                    new DefaultCookieStorePool(newCookieStore));
 
             List<Cookie> cookies = response.getCookieStore().getCookies();
             for (Cookie cookie : cookies) {

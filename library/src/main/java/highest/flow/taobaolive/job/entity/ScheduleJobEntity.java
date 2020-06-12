@@ -37,7 +37,7 @@ public class ScheduleJobEntity {
     /**
      * 任务状态
      */
-    private int status;
+    private int state;
 
     /**
      * 备注
