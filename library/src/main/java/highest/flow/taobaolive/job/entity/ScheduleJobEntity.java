@@ -6,11 +6,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @TableName("schedule_job")
-public class ScheduleJobEntity {
+public class ScheduleJobEntity implements Serializable {
 
     public static final String JOB_PARAM_KEY = "JOB_PARAM_KEY";
 

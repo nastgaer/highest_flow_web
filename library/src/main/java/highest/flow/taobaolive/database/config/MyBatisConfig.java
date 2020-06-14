@@ -1,4 +1,4 @@
-package highest.flow.taobaolive.datasource.config;
+package highest.flow.taobaolive.database.config;
 
 import org.apache.ibatis.session.Configuration;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;

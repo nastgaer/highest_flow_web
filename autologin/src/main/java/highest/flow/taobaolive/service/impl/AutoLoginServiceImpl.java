@@ -20,9 +20,11 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@Service("autoLoginService")
 public class AutoLoginServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAccount> implements AutoLoginService {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -103,9 +105,8 @@ public class AutoLoginServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAc
                     if (r.getCode() != ErrorCodes.SUCCESS) {
                         taobaoAccount.setState(TaobaoAccountState.Expired.getState());
                     }
+                    taobaoAccountService.save(taobaoAccount);
                 }
-
-                taobaoAccountService.save(taobaoAccount);
 
                 Thread.sleep(100);
 
