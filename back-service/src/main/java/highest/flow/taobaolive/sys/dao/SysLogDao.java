@@ -5,6 +5,6 @@ import highest.flow.taobaolive.sys.entity.SysLog;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface LogDao extends BaseMapper<SysLog> {
+public interface SysLogDao extends BaseMapper<SysLog> {
 
 }

@@ -21,7 +21,9 @@ import java.util.List;
 public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAccount> implements TaobaoAccountService {
 
     @Override
-    public TaobaoAccount register(String accountId, String nick, String sid, String utdid, String devid, String autoLoginToken, List<Cookie> cookies, int expires) {
+    public TaobaoAccount register(String accountId, String nick, String sid, String utdid, String devid,
+                                  String autoLoginToken, String umidToken, List<Cookie> cookies, long expires, int state,
+                                  Date created, Date updated) {
         try {
             TaobaoAccount taobaoAccount = new TaobaoAccount();
 
@@ -31,6 +33,7 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
             taobaoAccount.setUtdid(utdid);
             taobaoAccount.setDevid(devid);
             taobaoAccount.setAutoLoginToken(autoLoginToken);
+            taobaoAccount.setUmidToken(umidToken);
 
             CookieStore cookieStore = new BasicCookieStore();
             for (Cookie cookie : cookies) {
@@ -41,9 +44,9 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
             Date expireDate = new Date();
             expireDate.setTime(expireDate.getTime() + expires);
             taobaoAccount.setExpires(expireDate);
-            taobaoAccount.setState(TaobaoAccountState.Normal.getState());
-            taobaoAccount.setCreatedTime(new Date());
-            taobaoAccount.setUpdatedTime(new Date());
+            taobaoAccount.setState(TaobaoAccountState.fromInt(state).getState());
+            taobaoAccount.setCreatedTime(created);
+            taobaoAccount.setUpdatedTime(updated);
 
             this.save(taobaoAccount);
             return taobaoAccount;

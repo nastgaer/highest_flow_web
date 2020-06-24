@@ -9,7 +9,7 @@ public class UpdateUserParam {
 
     private int id;
 
-    private String username;
+    private String memberName;
 
     private String password;
 

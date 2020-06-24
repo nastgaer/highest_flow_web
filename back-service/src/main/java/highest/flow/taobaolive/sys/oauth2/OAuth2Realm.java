@@ -45,8 +45,8 @@ public class OAuth2Realm extends AuthorizingRealm {
             throw new IncorrectCredentialsException("token失效，请重新登录");
         }
 
-        String username = memberToken.getUsername();
-        SysMember member = memberService.getMemberByUsername(username);
+        int memberId = memberToken.getMemberId();
+        SysMember member = memberService.getById(memberId);
         if (member == null) {
             throw new DisabledAccountException("账号已被删除,请联系管理员");
         }

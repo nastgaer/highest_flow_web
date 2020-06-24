@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 @Service
 public interface MemberTokenService extends IService<SysMemberToken> {
 
-    public R createToken(String username);
+    public R createToken(int memberId);
 
-    public void logout(String username);
+    public void logout(int memberId);
 
 }

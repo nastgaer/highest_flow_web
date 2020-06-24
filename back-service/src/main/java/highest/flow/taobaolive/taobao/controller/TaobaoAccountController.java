@@ -1,5 +1,6 @@
 package highest.flow.taobaolive.taobao.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.http.CookieHelper;
 import highest.flow.taobaolive.common.utils.R;
@@ -10,15 +11,17 @@ import highest.flow.taobaolive.taobao.entity.QRCode;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccount;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
+import highest.flow.taobaolive.taobao.utils.DeviceUtils;
+import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/tbacc")
@@ -67,7 +70,7 @@ public class TaobaoAccountController {
                 return r;
             }
 
-            newAccount.setUmtidToken(r.get("umtid"));
+            newAccount.setUmidToken((String) r.get("umtid"));
 
             r = taobaoApiService.getH5Token(newAccount);
             if (r.getCode() != ErrorCodes.SUCCESS) {
@@ -80,7 +83,7 @@ public class TaobaoAccountController {
                 return r;
             }
 
-            newAccount.setDevid(r.get("devid"));
+            newAccount.setDevid((String) r.get("devid"));
 
             waitingAccounts.put(accessToken, newAccount);
 
@@ -99,15 +102,48 @@ public class TaobaoAccountController {
         try {
             TaobaoAccount account = waitingAccounts.get(accessToken);
             if (account == null) {
-                return R.error(INVALID_QRCODE_TOKEN, "请求Token无效");
+                return R.error(ErrorCodes.INVALID_QRCODE_TOKEN, "请求Token无效");
             }
 
             // TODO
+            return R.ok();
 
         } catch (Exception ex) {
             ex.printStackTrace();
             return R.error("验证二维码失败");
         }
+    }
+
+    @PostMapping("/upload")
+    public R upload(@RequestParam(name = "user_id") String userId,
+                    @RequestParam(name = "nick") String nick,
+                    @RequestParam(name = "sid") String sid,
+                    @RequestParam(name = "utdid") String utdid,
+                    @RequestParam(name = "devid") String devid,
+                    @RequestParam(name = "auto_login_token") String autoLoginToken,
+                    @RequestParam(name = "umid_token") String umidToken,
+                    @RequestParam(name = "cookie") String cookieHeaders,
+                    @RequestParam(name = "expires") long expires,
+                    @RequestParam(name = "state") int state,
+                    @RequestParam(name = "created") @DateTimeFormat(pattern = "yyyy-MM-ss HH:mm:ss") Date created,
+                    @RequestParam(name = "updated") @DateTimeFormat(pattern = "yyyy-MM-ss HH:mm:ss") Date updated) {
+
+        try {
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            List cookiesText = jsonParser.parseList(cookieHeaders);
+
+            String url = "https://api.m.taobao.com/gw/mtop.taobao.havana.mlogin.qrcodelogin/1.0/";
+            List<Cookie> cookies = CookieHelper.parseCookieHeaders(url, cookiesText);
+
+            taobaoAccountService.register(nick, nick,
+                    sid, utdid, devid, autoLoginToken, umidToken, cookies, expires, state, created, updated);
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
     }
 
 }

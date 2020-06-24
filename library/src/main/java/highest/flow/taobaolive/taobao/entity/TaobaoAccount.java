@@ -3,7 +3,9 @@ package highest.flow.taobaolive.taobao.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.common.http.CookieHelper;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -14,6 +16,7 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.cookie.BasicClientCookie;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -51,12 +54,32 @@ public class TaobaoAccount {
      */
     private int state;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdTime;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updatedTime;
 
     @TableField(exist = false)
     private CookieStore cookieStore = new BasicCookieStore();
+
+    public String getCookie() {
+        List<String> cookieHeaders = new ArrayList<>();
+        List<Cookie> cookies = cookieStore.getCookies();
+        for (Cookie cookie : cookies) {
+            cookieHeaders.add(CookieHelper.toString(cookie));
+        }
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.writeValueAsString(cookieHeaders);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return "";
+
+    }
 
     public void mergeCookies(List<Cookie> newCookies) {
         List<Cookie> oldCookies = cookieStore.getCookies();

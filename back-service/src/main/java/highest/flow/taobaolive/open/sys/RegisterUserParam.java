@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class RegisterUserParam {
 
-    private String username;
+    private String memberName;
 
     private String password;
 

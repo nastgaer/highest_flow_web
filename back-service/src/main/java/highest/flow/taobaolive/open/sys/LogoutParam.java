@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class LogoutParam {
 
-    private String username;
+    private String memberName;
 }

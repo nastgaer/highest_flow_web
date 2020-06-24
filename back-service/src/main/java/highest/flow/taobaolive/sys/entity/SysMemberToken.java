@@ -14,7 +14,7 @@ public class SysMemberToken {
     @TableId(type = IdType.AUTO)
     private int id;
 
-    private String username;
+    private int memberId;
 
     private String token;
 

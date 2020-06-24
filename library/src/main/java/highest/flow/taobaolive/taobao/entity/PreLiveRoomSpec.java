@@ -8,13 +8,13 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-@TableName("tbl_rooms")
+@TableName("tbl_liverooms")
 public class PreLiveRoomSpec {
 
     @TableId
     private int id;
 
-    private String username;
+    private int memberId;
 
     private String taobaoAccountId;
 

@@ -47,7 +47,7 @@ create table tbl_codes (
 -- Token列表
 create table tbl_user_tokens (
   id INT not null AUTO_INCREMENT comment 'ID'
-  , username VARCHAR(20) not null comment '用户ID'
+  , member_name VARCHAR(20) not null comment '用户ID'
   , token VARCHAR(32) comment 'Token'
   , expire_time DATETIME comment '过期时间'
   , updated_time DATETIME comment '更新时间'
@@ -65,7 +65,7 @@ create table sys_config (
 -- 操作记录
 create table tbl_logs (
   id INT not null AUTO_INCREMENT comment 'ID'
-  , username VARCHAR(20) not null comment '用户ID'
+  , member_name VARCHAR(20) not null comment '用户ID'
   , msg VARCHAR(256) comment '内容'
   , created_time DATETIME comment '创建时间'
   , constraint tbl_logs_PKC primary key (id)

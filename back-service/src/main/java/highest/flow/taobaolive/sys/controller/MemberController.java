@@ -2,10 +2,13 @@ package highest.flow.taobaolive.sys.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
+import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.open.sys.*;
 import highest.flow.taobaolive.sys.dao.MemberDao;
 import highest.flow.taobaolive.sys.entity.SysMember;
+import highest.flow.taobaolive.sys.service.MemberRoleGroupService;
+import highest.flow.taobaolive.sys.service.MemberRoleService;
 import highest.flow.taobaolive.sys.service.MemberService;
 import highest.flow.taobaolive.sys.service.MemberTokenService;
 import org.apache.shiro.crypto.hash.Sha256Hash;
@@ -15,11 +18,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/sys")
-public class UserController {
+public class MemberController {
 
     @Autowired
     private MemberService memberService;
@@ -27,7 +33,7 @@ public class UserController {
     @PostMapping("/register")
     public R register(@RequestBody RegisterUserParam registerUserParam) {
         try {
-            SysMember member = memberService.register(registerUserParam.getUsername(),
+            SysMember member = memberService.register(registerUserParam.getMemberName(),
                     registerUserParam.getPassword(),
                     registerUserParam.getMobile(),
                     registerUserParam.getComment(),
@@ -38,7 +44,7 @@ public class UserController {
                 return R.error("注册用户失败");
             }
 
-            return R.ok().put(member.getId());
+            return R.ok().put("member_id", member.getId());
 
         } catch (Exception ex){
             return R.error("注册用户失败");
@@ -50,7 +56,24 @@ public class UserController {
         try {
             List<SysMember> members = this.memberService.list();
 
-            return R.ok().put("users", members).put("total_count", members.size());
+            List<Map<String, Object>> memberList = new ArrayList<>();
+            for (SysMember sysMember : members) {
+                List<String> roles = memberService.getRoles(sysMember);
+
+                Map<String, Object> memberMap = new HashMap<>();
+                memberMap.put("id", sysMember.getId());
+                memberMap.put("member_name", sysMember.getMemberName());
+                memberMap.put("role", roles);
+                memberMap.put("mobile", sysMember.getMobile());
+                memberMap.put("comment", sysMember.getComment());
+                memberMap.put("state", sysMember.getState());
+                memberMap.put("created_time", CommonUtils.dateToTimestamp(sysMember.getCreatedTime()));
+                memberMap.put("updated_time", CommonUtils.dateToTimestamp(sysMember.getUpdatedTime()));
+
+                memberList.add(memberMap);
+            }
+
+            return R.ok().put("users", memberList).put("total_count", memberList.size());
 
         } catch (Exception ex){
             return R.error("注册用户失败");

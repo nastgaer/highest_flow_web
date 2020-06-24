@@ -18,7 +18,7 @@ public class MemberTokenServiceImpl extends ServiceImpl<MemberTokenDao, SysMembe
     private final static int EXPIRE = 3600 * 12;
 
     @Override
-    public R createToken(String username) {
+    public R createToken(int memberId) {
         // 生成一个token
         String token = TokenGenerator.generateValue();
 
@@ -27,10 +27,10 @@ public class MemberTokenServiceImpl extends ServiceImpl<MemberTokenDao, SysMembe
         // 过期时间
         Date expireTime = new Date(now.getTime() + EXPIRE * 1000);
 
-        SysMemberToken memberToken = baseMapper.selectOne(Wrappers.<SysMemberToken>lambdaQuery().eq(SysMemberToken::getUsername, username));
+        SysMemberToken memberToken = baseMapper.selectOne(Wrappers.<SysMemberToken>lambdaQuery().eq(SysMemberToken::getMemberId, memberId));
         if (memberToken == null) {
             memberToken = new SysMemberToken();
-            memberToken.setUsername(username);
+            memberToken.setMemberId(memberId);
             memberToken.setToken(token);
             memberToken.setExpireTime(expireTime);
             memberToken.setUpdatedTime(new Date());
@@ -43,15 +43,15 @@ public class MemberTokenServiceImpl extends ServiceImpl<MemberTokenDao, SysMembe
             this.updateById(memberToken);
         }
 
-        return R.ok().put("access-token", token).put("expire", expireTime);
+        return R.ok().put("access_token", token).put("expires", expireTime);
     }
 
     @Override
-    public void logout(String username) {
+    public void logout(int memberId) {
         // 生成一个token
         String token = TokenGenerator.generateValue();
 
-        SysMemberToken memberToken = baseMapper.selectOne(Wrappers.<SysMemberToken>lambdaQuery().eq(SysMemberToken::getUsername, username));
+        SysMemberToken memberToken = baseMapper.selectOne(Wrappers.<SysMemberToken>lambdaQuery().eq(SysMemberToken::getMemberId, memberId));
         if (memberToken == null) {
             return;
         }

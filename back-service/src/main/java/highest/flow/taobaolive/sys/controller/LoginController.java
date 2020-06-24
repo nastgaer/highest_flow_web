@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/sys")
 public class LoginController {
@@ -27,7 +29,7 @@ public class LoginController {
     @PostMapping("/login")
     public R login(@RequestBody LoginParam loginParam) {
         try {
-            SysMember sysMember = memberService.getMemberByUsername(loginParam.getUsername());
+            SysMember sysMember = memberService.getMemberByName(loginParam.getMemberName());
             if (sysMember == null) {
                 return R.error(ErrorCodes.NOT_FOUND_USER, "找不到用户");
             }
@@ -36,10 +38,11 @@ public class LoginController {
                 return R.error(ErrorCodes.INVALID_PASSWORD, "账号或密码不正确");
             }
 
-            R r = memberTokenService.createToken(username);
+            R r = memberTokenService.createToken(sysMember.getId());
 
+            List<String> roles = memberService.getRoles(sysMember);
 
-            return r;
+            return r.put("role", roles);
 
         } catch (Exception ex){
             return R.error("登录用户失败");
@@ -49,12 +52,12 @@ public class LoginController {
     @PostMapping("/logout")
     public R logout(@RequestBody LogoutParam logoutParam) {
         try {
-            SysMember sysMember = memberService.getMemberByUsername(loginParam.getUsername());
+            SysMember sysMember = memberService.getMemberByName(logoutParam.getMemberName());
             if (sysMember == null) {
                 return R.error(ErrorCodes.NOT_FOUND_USER, "找不到用户");
             }
 
-            memberTokenService.logout(sysMember.getUsername());
+            memberTokenService.logout(sysMember.getId());
 
             return R.ok();
 

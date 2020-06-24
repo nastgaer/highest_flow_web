@@ -10,7 +10,9 @@ import java.util.List;
 @Service
 public interface MemberService extends IService<SysMember> {
 
-    public SysMember register(String username, String password, String mobile, String comment, List<String> roles, int state);
+    public SysMember register(String memberName, String password, String mobile, String comment, List<String> roles, int state);
 
-    public SysMember getMemberByUsername(String username);
+    public SysMember getMemberByName(String memberName);
+
+    public List<String> getRoles(SysMember sysMember);
 }
