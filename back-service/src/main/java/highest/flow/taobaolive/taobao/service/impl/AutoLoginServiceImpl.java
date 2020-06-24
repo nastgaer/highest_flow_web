@@ -120,7 +120,7 @@ public class AutoLoginServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAc
                         taobaoAccount.setState(TaobaoAccountState.Expired.getState());
                     }
 
-                    if (taobaoAccount.getState() == TaobaoAccountState.Normal) {
+                    if (taobaoAccount.getState() == TaobaoAccountState.Normal.getState()) {
                         activeCount++;
                     }
 

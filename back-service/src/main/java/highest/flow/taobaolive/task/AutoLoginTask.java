@@ -1,6 +1,6 @@
 package highest.flow.taobaolive.task;
 
-import highest.flow.taobaolive.service.AutoLoginService;
+import highest.flow.taobaolive.taobao.service.AutoLoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
