@@ -47,7 +47,7 @@ public class XHeader {
         this.utdid = taobaoAccount.getUtdid();
         this.devid = taobaoAccount.getDevid();
         this.sid = taobaoAccount.getSid();
-        this.uid = taobaoAccount.getAccountId();
+        this.uid = taobaoAccount.getUid();
     }
 
     @JsonIgnore
@@ -83,17 +83,17 @@ public class XHeader {
         map.put("x-sign", xsign);
         map.put("x-features", String.valueOf(features));
         map.put("x-location", getLocation());
-        map.put("x-ttid", ttid);
-        if (HFStringUtils.isNullOrEmpty(utdid)) {
+        map.put("x-ttid", getTtid());
+        if (!HFStringUtils.isNullOrEmpty(utdid)) {
             map.put("x-utdid", utdid);
         }
-        if (HFStringUtils.isNullOrEmpty(devid)) {
+        if (!HFStringUtils.isNullOrEmpty(devid)) {
             map.put("x-devid", devid);
         }
-        if (HFStringUtils.isNullOrEmpty(uid)) {
+        if (!HFStringUtils.isNullOrEmpty(uid)) {
             map.put("x-uid", uid);
         }
-        if (HFStringUtils.isNullOrEmpty(uid)) {
+        if (!HFStringUtils.isNullOrEmpty(uid)) {
             map.put("x-sid", sid);
         }
         return map;

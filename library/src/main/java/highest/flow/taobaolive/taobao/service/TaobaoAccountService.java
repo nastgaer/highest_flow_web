@@ -12,6 +12,7 @@ import java.util.List;
 public interface TaobaoAccountService extends IService<TaobaoAccount> {
 
     public TaobaoAccount register(String accountId, String nick,
+                                  String uid,
                                   String sid,
                                   String utdid,
                                   String devid,

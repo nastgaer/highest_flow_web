@@ -20,12 +20,13 @@ public enum ErrorCodes {
 
     // TAOBAO ERROR CODE
     QRCODE_LOGIN_START(301),
-    FAIL_SYS_SESSION_EXPIRED(302),   // 过期了
-    FAIL_SYS_TOKEN_EMPTY(303),       // 令牌为空
-    FAIL_SYS_TOKEN_EXOIRED(304),     // 令牌过期了
-    FAIL_CREATE_LIVEROOM_LIMITED(305),   // 达到当天发布预告限制
-    FAIL_ADD_ITEM_LIMITED(306),          // 添加商品达到限制
-    FAIL_ALREADY_STARTED_LIVEROOM(307);  // 该用户已经有直播内容
+    FAIL_SYS_ILEGAL_SIGN(302),
+    FAIL_SYS_SESSION_EXPIRED(303),   // 过期了
+    FAIL_SYS_TOKEN_EMPTY(304),       // 令牌为空
+    FAIL_SYS_TOKEN_EXOIRED(305),     // 令牌过期了
+    FAIL_CREATE_LIVEROOM_LIMITED(306),   // 达到当天发布预告限制
+    FAIL_ADD_ITEM_LIMITED(307),          // 添加商品达到限制
+    FAIL_ALREADY_STARTED_LIVEROOM(308);  // 该用户已经有直播内容
 
     private int code = 0;
 

@@ -1,6 +1,7 @@
 package highest.flow.taobaolive.common.http;
 
 import highest.flow.taobaolive.common.utils.HFStringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.http.cookie.*;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.impl.cookie.BrowserCompatSpec;
@@ -14,6 +15,8 @@ import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -100,32 +103,53 @@ public class CookieHelper {
     }
 
     public static String toString(Cookie cookie) {
-        String cookieHeader = "";
+        try {
+            String cookieHeader = "";
 
-        cookieHeader += cookie.getName() + "=" + cookie.getValue() + ";";
-        cookieHeader += "Domain=" + cookie.getDomain() + ";";
-        cookieHeader += "Path=" + cookie.getPath() + ";";
-        cookieHeader += "Expires=" + cookie.getExpiryDate().toString() + ";";
-        if (cookie.isSecure()) {
-            cookieHeader += "Secure;";
+            cookieHeader += cookie.getName() + "=" + cookie.getValue() + ";";
+            cookieHeader += "Domain=" + cookie.getDomain() + ";";
+            cookieHeader += "Path=" + cookie.getPath() + ";";
+            if (cookie.getExpiryDate() != null) {
+                cookieHeader += "Expires=" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(cookie.getExpiryDate()) + ";";
+            }
+            if (cookie.isSecure()) {
+                cookieHeader += "Secure;";
+            }
+            return cookieHeader;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        return cookieHeader;
+        return "";
     }
 
     public static Cookie parseString(String rawCookie) {
         try {
             String[] rawCookieParams = rawCookie.split(";");
 
-            String[] rawCookieNameAndValue = rawCookieParams[0].split("=");
-            if (rawCookieNameAndValue.length != 2) {
+            int pos = rawCookieParams[0].indexOf('=');
+            if (pos < 0) {
                 return null;
             }
+
+            String[] rawCookieNameAndValue = new String[] {
+                    rawCookieParams[0].substring(0, pos),
+                    rawCookieParams[0].substring(pos + 1)
+            };
 
             String cookieName = rawCookieNameAndValue[0].trim();
             String cookieValue = rawCookieNameAndValue[1].trim();
             BasicClientCookie cookie = new BasicClientCookie(cookieName, cookieValue);
             for (int i = 1; i < rawCookieParams.length; i++) {
-                String rawCookieParamNameAndValue[] = rawCookieParams[i].trim().split("=");
+                String params = rawCookieParams[i].trim();
+                pos = params.indexOf('=');
+                if (pos < 0) {
+                    continue;
+                }
+                String rawCookieParamNameAndValue[] = new String[] {
+                        params.substring(0, pos),
+                        params.substring(pos + 1)
+                };
 
                 String paramName = rawCookieParamNameAndValue[0].trim();
 
@@ -139,7 +163,7 @@ public class CookieHelper {
                     String paramValue = rawCookieParamNameAndValue[1].trim();
 
                     if (paramName.equalsIgnoreCase("expires")) {
-                        Date expiryDate = DateFormat.getDateTimeInstance().parse(paramValue);
+                        Date expiryDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(paramValue); // DateFormat.getDateTimeInstance().parse(paramValue);
                         cookie.setExpiryDate(expiryDate);
                     } else if (paramName.equalsIgnoreCase("max-age")) {
                         long maxAge = Long.parseLong(paramValue);

@@ -1,8 +1,24 @@
 -- Project Name : 高级引流
--- Date/Time    : 2020/6/14 5:42:26
+-- Date/Time    : 2020/6/25 0:16:45
 -- Author       : KKK
 -- RDBMS Type   : MySQL
 -- Application  : A5:SQL Mk-2
+
+-- 权限表
+create table tbl_member_roles (
+  id INT not null AUTO_INCREMENT comment 'ID'
+  , member_id INT not null comment '会员ID'
+  , role_id INT not null comment '权限ID'
+  , created_time DATETIME comment '创建时间'
+  , constraint tbl_member_roles_PKC primary key (id)
+) comment '权限表' ;
+
+-- 权限
+create table tbl_roles (
+  id INT not null AUTO_INCREMENT comment 'ID'
+  , name VARCHAR(20) comment '权限名称'
+  , constraint tbl_roles_PKC primary key (id)
+) comment '权限' ;
 
 -- 日程表记录
 create table schedule_job_log (
@@ -10,7 +26,7 @@ create table schedule_job_log (
   , job_id INT not null comment '日程表ID'
   , bean_name VARCHAR(32) comment 'BEAN名称'
   , params TEXT comment '参数'
-  , status TINYINT comment '状态'
+  , state TINYINT comment '状态'
   , error TEXT comment '报错内容'
   , times INT comment '反复次数'
   , created_time DATETIME comment '创建时间'
@@ -45,13 +61,13 @@ create table tbl_codes (
 ) comment '用户卡密' ;
 
 -- Token列表
-create table tbl_user_tokens (
+create table tbl_member_tokens (
   id INT not null AUTO_INCREMENT comment 'ID'
-  , member_name VARCHAR(20) not null comment '用户ID'
+  , member_id INT not null comment '会员ID'
   , token VARCHAR(32) comment 'Token'
   , expire_time DATETIME comment '过期时间'
   , updated_time DATETIME comment '更新时间'
-  , constraint tbl_user_tokens_PKC primary key (id)
+  , constraint tbl_member_tokens_PKC primary key (id)
 ) comment 'Token列表' ;
 
 -- 系统参数
@@ -65,8 +81,9 @@ create table sys_config (
 -- 操作记录
 create table tbl_logs (
   id INT not null AUTO_INCREMENT comment 'ID'
-  , member_name VARCHAR(20) not null comment '用户ID'
-  , msg VARCHAR(256) comment '内容'
+  , member_id INT not null comment '用户名'
+  , category VARCHAR(32) comment '分类'
+  , msg TEXT comment '内容'
   , created_time DATETIME comment '创建时间'
   , constraint tbl_logs_PKC primary key (id)
 ) comment '操作记录' ;
@@ -93,7 +110,7 @@ create table tbl_products (
 -- 直播间列表
 create table tbl_liverooms (
   id INT not null AUTO_INCREMENT comment 'ID'
-  , username VARCHAR(20) not null comment '用户id'
+  , member_id INT not null comment '用户id'
   , taobao_account_id VARCHAR(20) not null comment '淘宝用户id'
   , room_name VARCHAR(32) comment '直播间名称'
   , cover_img VARCHAR(256) comment '主封面图'
@@ -124,28 +141,24 @@ create table tbl_accounts (
   , auto_login_token TEXT comment 'AutoLoginToken'
   , umid_token VARCHAR(48) comment 'UmidToken'
   , cookie TEXT comment 'Cookie'
-  , expires INT comment '过期时间'
+  , expires DATETIME comment '过期时间'
   , state TINYINT comment '状态:0：正常，1：过期，2：失败'
   , created_time DATETIME comment '创建时间'
   , updated_time DATETIME comment '更新时间'
   , constraint tbl_accounts_PKC primary key (id,account_id)
 ) comment '淘宝小号' ;
 
--- 用户
-create table tbl_users (
+-- 会员
+create table tbl_members (
   id INT not null AUTO_INCREMENT comment 'id'
-  , username VARCHAR(20) not null comment '用户名'
+  , member_name VARCHAR(20) not null comment '用户名'
   , password VARCHAR(72) comment '密码'
   , salt VARCHAR(48) comment 'Salt'
-  , machine_code VARCHAR(32) comment '机器号'
   , mobile VARCHAR(20) comment '手机号'
-  , weixin VARCHAR(20) comment '微信号'
-  , level TINYINT comment '用户等级:99：高级管理员，0：普通会员'
-  , service_type TINYINT comment '服务类型:0：热度，1：高级引流，3：真人注入'
-  , state TINYINT comment '状态:0: 正常，1: 删除，2：过期'
-  , code VARCHAR(72) comment '卡密'
-  , account_id VARCHAR(32) comment '淘宝用户名'
+  , comment TEXT comment '备注'
+  , state TINYINT comment '状态:0: 正常，1: 禁用'
   , created_time DATETIME comment '创建时间'
   , updated_time DATETIME comment '更新时间'
-  , constraint tbl_users_PKC primary key (id)
-) comment '用户' ;
+  , constraint tbl_members_PKC primary key (id)
+) comment '会员' ;
+

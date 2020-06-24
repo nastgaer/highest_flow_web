@@ -122,7 +122,7 @@ public class TaobaoAccountController {
                     @RequestParam(name = "devid") String devid,
                     @RequestParam(name = "auto_login_token") String autoLoginToken,
                     @RequestParam(name = "umid_token") String umidToken,
-                    @RequestParam(name = "cookie") String cookieHeaders,
+                    @RequestParam(name = "cookies[]") String [] cookieHeaders,
                     @RequestParam(name = "expires") long expires,
                     @RequestParam(name = "state") int state,
                     @RequestParam(name = "created") @DateTimeFormat(pattern = "yyyy-MM-ss HH:mm:ss") Date created,
@@ -130,13 +130,21 @@ public class TaobaoAccountController {
 
         try {
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
-            List cookiesText = jsonParser.parseList(cookieHeaders);
 
             String url = "https://api.m.taobao.com/gw/mtop.taobao.havana.mlogin.qrcodelogin/1.0/";
-            List<Cookie> cookies = CookieHelper.parseCookieHeaders(url, cookiesText);
+            List<Cookie> cookies = new ArrayList<>();
+            for (String cookieHeader : cookieHeaders) {
+                Cookie cookie = CookieHelper.parseString(cookieHeader);
+                if (cookie != null) {
+                    cookies.add(cookie);
+                }
+            }
 
-            taobaoAccountService.register(nick, nick,
+            TaobaoAccount taobaoAccount = taobaoAccountService.register(nick, nick, userId,
                     sid, utdid, devid, autoLoginToken, umidToken, cookies, expires, state, created, updated);
+            if (taobaoAccount == null) {
+                return R.error("保存数据库失败");
+            }
 
             return R.ok();
 

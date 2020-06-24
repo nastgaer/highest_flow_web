@@ -48,7 +48,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            xHeader.setXsign("ab24260090aaa8c2f96e2358c705f6e9d368f3f08ae4ee8b79"); // signService.xsign(xHeader));
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -66,7 +66,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             return R.ok();
@@ -111,7 +111,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
@@ -172,7 +172,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
@@ -262,7 +262,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
@@ -386,7 +386,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
@@ -472,7 +472,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             return R.ok();
@@ -538,7 +538,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             return R.ok();
@@ -568,8 +568,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, String> postParams = new HashMap<>();
             postParams.put("landscape", "false");
-            postParams.put("title", URLEncoder.encode(preLiveRoomSpec.getTitle()));
-            postParams.put("descInfo", URLEncoder.encode(preLiveRoomSpec.getIntro()));
+            postParams.put("title", preLiveRoomSpec.getTitle());
+            postParams.put("descInfo", preLiveRoomSpec.getIntro());
             postParams.put("coverImg", preLiveRoomSpec.getCoverImg().replace("https:", ""));
             postParams.put("coverImg169", preLiveRoomSpec.getCoverImg169().replace("https:", ""));
             postParams.put("coverImg916", "null");
@@ -596,7 +596,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             postParams.put("notice", "");
             postParams.put("country", "");
             postParams.put("province", "");
-            postParams.put("city", URLEncoder.encode(preLiveRoomSpec.getLocation()));
+            postParams.put("city", preLiveRoomSpec.getLocation());
             postParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpec.getStartTime())));
             postParams.put("liveEndTime", String.valueOf(CommonUtils.dateToTimestamp(CommonUtils.addDays(preLiveRoomSpec.getStartTime(), 30))));
 
@@ -618,7 +618,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             Map<String, Object> mapModel = (Map<String, Object>) map.get("model");
@@ -688,7 +688,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
@@ -745,7 +745,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             return R.ok();
@@ -784,7 +784,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             return R.ok();
@@ -823,7 +823,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             return R.ok();
@@ -861,7 +861,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             Map<String, Object> mapModel = (Map<String, Object>) map.get("model");
@@ -908,7 +908,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, String> postParams = new HashMap<>();
             postParams.put("_input_charset", "utf-8");
-            postParams.put("draft", URLEncoder.encode(jsonText));
+            postParams.put("draft", jsonText);
             postParams.put("_tb_token_", taobaoAccount.getToken());
 
             Response<String> response = HttpHelper.execute(
@@ -930,7 +930,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             return R.ok();
@@ -1002,7 +1002,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             return R.ok();
@@ -1064,7 +1064,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             return R.ok();
@@ -1092,25 +1092,25 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             apiReferMap.put("eventName", "SESSION_INVALID");
             apiReferMap.put("long_nick", "");
             apiReferMap.put("msgCode", "FAIL_SYS_SESSION_EXPIRED");
-            apiReferMap.put("processName", "FAIL_SYS_SESSION_EXPIRED");
+            apiReferMap.put("processName", "com.taobao.taobao");
             apiReferMap.put("v", "4.0");
 
             Map<String, Object> extMap = new HashMap<>();
             extMap.put("apiRefer", objectMapper.writeValueAsString(apiReferMap));
 
             Map<String, Object> tokenInfo = new HashMap<>();
-            apiReferMap.put("appName", "25443018");
-            apiReferMap.put("appVersion", "android_7.6.0");
-            apiReferMap.put("deviceId", taobaoAccount.getDevid());
-            apiReferMap.put("deviceName", "");
-            apiReferMap.put("locale", "zh_CN");
-            apiReferMap.put("sdkVersion", "android_3.8.1");
-            apiReferMap.put("site", 0);
-            apiReferMap.put("t", new Date().getTime());
-            apiReferMap.put("token", taobaoAccount.getAutoLoginToken());
-            apiReferMap.put("ttid", "600000@taobao_android_7.6.0");
-            apiReferMap.put("useAcitonType", true);
-            apiReferMap.put("useDeviceToken", true);
+            tokenInfo.put("appName", "25443018");
+            tokenInfo.put("appVersion", "android_7.6.0");
+            tokenInfo.put("deviceId", taobaoAccount.getDevid());
+            tokenInfo.put("deviceName", "");
+            tokenInfo.put("locale", "zh_CN");
+            tokenInfo.put("sdkVersion", "android_3.8.1");
+            tokenInfo.put("site", 0);
+            tokenInfo.put("t", new Date().getTime());
+            tokenInfo.put("token", taobaoAccount.getAutoLoginToken());
+            tokenInfo.put("ttid", "600000@taobao_android_7.6.0");
+            tokenInfo.put("useAcitonType", true);
+            tokenInfo.put("useDeviceToken", true);
 
             Map<String, Object> umidTokenMap = new HashMap<>();
             umidTokenMap.put("umidToken", taobaoAccount.getUmidToken());
@@ -1133,7 +1133,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setXsign(signService.xsign(xHeader));
 
             Map<String, String> postParams = new HashMap<>();
-            postParams.put("data", URLEncoder.encode(jsonText));
+            postParams.put("data", jsonText);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -1155,7 +1155,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
                 taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed.getState());
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
@@ -1164,13 +1164,13 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, Object> mapRetData = jsonParser.parseMap(data);
 
             String autoLoginToken = (String) mapRetData.get("autoLoginToken");
-            long expires = (long) mapRetData.get("expires");
+            long expires = (long)((Integer) mapRetData.get("expires"));
             List<String> lstCookieHeaders = (List<String>) mapRetData.get("cookies");
 
             List<Cookie> lstCookies = CookieHelper.parseCookieHeaders(url, lstCookieHeaders);
 
             String sid = (String) mapRetData.get("sid");
-            String uid = (String) mapRetData.get("uid");
+            String uid = String.valueOf((Integer) mapRetData.get("userId"));
             String nick = (String) mapRetData.get("nick");
 
             taobaoAccount.setState(TaobaoAccountState.Normal.getState());
@@ -1210,7 +1210,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             QRCode qrCode = new QRCode();
@@ -1349,7 +1349,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
@@ -1567,7 +1567,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorMsg());
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");

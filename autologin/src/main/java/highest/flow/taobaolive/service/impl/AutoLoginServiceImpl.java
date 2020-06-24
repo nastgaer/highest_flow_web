@@ -47,13 +47,19 @@ public class AutoLoginServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAc
         int activeCount = 0;
         for (TaobaoAccount taobaoAccount : taobaoAccounts) {
             try {
+                logger.info("[" + taobaoAccount.getNick() + "] 用户开始重登+延期");
+
                 R r = taobaoApiService.getUserSimple(taobaoAccount);
                 if (r.getCode() == ErrorCodes.SUCCESS) {
                     // 正常
+                    activeCount++;
                 } else if (r.getCode() == ErrorCodes.FAIL_SYS_SESSION_EXPIRED) {
+                    logger.info("[" + taobaoAccount.getNick() + "] 用户开始重登");
                     r = taobaoApiService.autoLogin(taobaoAccount);
 
                     if (r.getCode() == ErrorCodes.SUCCESS) {
+                        logger.info("[" + taobaoAccount.getNick() + "] 用户重登成功");
+
                         long expires = (long) r.get("expires");
                         String autoLoginToken = (String) r.get("autoLoginToken");
                         List<Cookie> lstCookies = (List<Cookie>) r.get("cookie");
@@ -74,11 +80,16 @@ public class AutoLoginServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAc
                         taobaoAccount.setCookieStore(cookieStore);
 
                         taobaoAccount.setState(TaobaoAccountState.Normal.getState());
+                    } else {
+                        logger.error("[" + taobaoAccount.getNick() + "] 用户重登失败：" + r.getMsg());
                     }
 
                     if (r.getCode() == ErrorCodes.SUCCESS) {
+                        logger.info("[" + taobaoAccount.getNick() + "] 用户开始延期");
                         r = taobaoApiService.postpone(taobaoAccount);
                         if (r.getCode() == ErrorCodes.SUCCESS) {
+                            logger.info("[" + taobaoAccount.getNick() + "] 用户延期成功");
+
                             long expires = (long) r.get("expires");
                             String autoLoginToken = (String) r.get("autoLoginToken");
                             List<Cookie> lstCookies = (List<Cookie>) r.get("cookie");
@@ -99,13 +110,21 @@ public class AutoLoginServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAc
                             taobaoAccount.setCookieStore(cookieStore);
 
                             taobaoAccount.setState(TaobaoAccountState.Normal.getState());
+                        } else {
+                            logger.error("[" + taobaoAccount.getNick() + "] 用户延期失败：" + r.getMsg());
                         }
                     }
 
                     if (r.getCode() != ErrorCodes.SUCCESS) {
                         taobaoAccount.setState(TaobaoAccountState.Expired.getState());
                     }
-                    taobaoAccountService.save(taobaoAccount);
+
+                    if (taobaoAccount.getState() == TaobaoAccountState.Normal) {
+                        activeCount++;
+                    }
+
+                    taobaoAccount.setUpdatedTime(new Date());
+                    taobaoAccountService.updateById(taobaoAccount);
                 }
 
                 Thread.sleep(100);

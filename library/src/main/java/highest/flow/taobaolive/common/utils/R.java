@@ -5,33 +5,38 @@ import highest.flow.taobaolive.common.defines.ErrorCodes;
 import java.util.HashMap;
 import java.util.Map;
 
-public class R extends HashMap<String, Object> {
+public class R {
+
+    private ErrorCodes code = ErrorCodes.SUCCESS;
+
+    private String msg = "成功";
 
     private Map<String, Object> data = new HashMap<>();
 
-    public R() {
-        super.put("code", ErrorCodes.SUCCESS.toString());
-        super.put("msg", "成功");
-        super.put("data", data);
+    public ErrorCodes getCode() {
+        return code;
     }
 
-    public ErrorCodes getCode() {
-        String codeStr = (String) super.get("code");
-        return ErrorCodes.valueOf(codeStr);
+    public void setCode(ErrorCodes errorCode) {
+        this.code = errorCode;
     }
 
     public String getMsg() {
-        return (String) super.get("msg");
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 
     public Map<String, Object> getData() {
-        return (Map<String, Object>) super.get("data");
+        return data;
     }
 
     public static R error(ErrorCodes code, String msg) {
         R r = new R();
-        r.put("code", code.toString());
-        r.put("msg", msg);
+        r.setCode(code);
+        r.setMsg(msg);
         return r;
     }
 
@@ -63,13 +68,12 @@ public class R extends HashMap<String, Object> {
         return new R().put("data", data);
     }
 
-    @Override
     public Object get(Object key) {
-        return getData().get(key);
+        return data.get(key);
     }
 
     public R put(String key, Object value) {
-        this.getData().put(key, value);
+        data.put(key, value);
         return this;
     }
 }

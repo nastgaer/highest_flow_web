@@ -39,7 +39,6 @@ public class SignServiceImpl implements SignService {
 
             SiteConfig siteConfig = new SiteConfig()
                     .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
-                    .addHeaders(xHeader.getHeaders())
                     .setConnectTimeout(30000)
                     .setSocketTimeout(45000);
 

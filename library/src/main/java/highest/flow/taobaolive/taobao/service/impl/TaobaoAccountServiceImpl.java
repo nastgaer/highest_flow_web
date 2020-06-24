@@ -21,7 +21,7 @@ import java.util.List;
 public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAccount> implements TaobaoAccountService {
 
     @Override
-    public TaobaoAccount register(String accountId, String nick, String sid, String utdid, String devid,
+    public TaobaoAccount register(String accountId, String nick, String uid, String sid, String utdid, String devid,
                                   String autoLoginToken, String umidToken, List<Cookie> cookies, long expires, int state,
                                   Date created, Date updated) {
         try {
@@ -29,6 +29,7 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
 
             taobaoAccount.setAccountId(accountId);
             taobaoAccount.setNick(nick);
+            taobaoAccount.setUid(uid);
             taobaoAccount.setSid(sid);
             taobaoAccount.setUtdid(utdid);
             taobaoAccount.setDevid(devid);

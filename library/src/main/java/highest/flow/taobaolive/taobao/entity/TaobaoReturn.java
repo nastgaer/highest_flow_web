@@ -2,6 +2,7 @@ package highest.flow.taobaolive.taobao.entity;
 
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 
+import java.util.List;
 import java.util.Map;
 
 public class TaobaoReturn {
@@ -16,9 +17,9 @@ public class TaobaoReturn {
             errorCodeStr = (String) respMap.get("msgCode");
             errorMsg = (String) respMap.get("msgInfo");
         } else { // MOBILE API
-            Map<String, Object> retMap = (Map<String, Object>) respMap.get("ret");
-            if (retMap != null) {
-                for (String key : retMap.keySet()) {
+            List<String> retList = respMap.containsKey("ret") ? (List<String>) respMap.get("ret") : null;
+            if (retList != null) {
+                for (String key : retList) {
                     String[] words = key.split("::");
                     if (words.length >= 2) {
                         errorCodeStr = words[0];
