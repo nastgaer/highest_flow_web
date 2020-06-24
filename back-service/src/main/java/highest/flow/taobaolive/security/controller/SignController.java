@@ -5,7 +5,7 @@ import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.security.service.CryptoService;
 import highest.flow.taobaolive.taobao.entity.XHeader;
-import highest.flow.taobaolive.taobao.service.XSignService;
+import highest.flow.taobaolive.taobao.service.SignService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,16 +20,16 @@ public class SignController {
     private CryptoService cryptoService;
 
     @Autowired
-    private XSignService xSignService;
+    private SignService signService;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @PostMapping("/xsign")
-    public R xsign(@RequestParam(name = "data") String data, @RequestParam(name = "sign") String sign) {
+    public R xsign(@RequestParam(name = "data") String data, @RequestParam(name = "xsign") String sign) {
 
         try {
             //logger.info(data);
-            //logger.info(sign);
+            //logger.info(xsign);
 
             boolean verify = cryptoService.verify(data, sign);
             if (!verify) {
@@ -41,11 +41,11 @@ public class SignController {
             ObjectMapper objectMapper = new ObjectMapper();
             XHeader xHeader = objectMapper.readValue(plain, XHeader.class);
 
-            String xsign = xSignService.sign1(xHeader);
+            String xsign = signService.xsign1(xHeader);
             if (!HFStringUtils.isNullOrEmpty(xsign)) {
                 return R.ok("成功").put("xsign", xsign).put("encoded", true);
             }
-            xsign = xSignService.sign2(xHeader);
+            xsign = signService.xsign2(xHeader);
             if (!HFStringUtils.isNullOrEmpty(xsign)) {
                 return R.ok("成功").put("xsign", xsign).put("encoded", false);
             }

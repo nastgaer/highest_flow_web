@@ -7,18 +7,25 @@ import java.util.Map;
 
 public class R extends HashMap<String, Object> {
 
+    private Map<String, Object> data = new HashMap<>();
+
     public R() {
-        put("code", ErrorCodes.SUCCESS.toString());
-        put("msg", "成功");
+        super.put("code", ErrorCodes.SUCCESS.toString());
+        super.put("msg", "成功");
+        super.put("data", data);
     }
 
     public ErrorCodes getCode() {
-        String codeStr = (String) get("code");
+        String codeStr = (String) super.get("code");
         return ErrorCodes.valueOf(codeStr);
     }
 
     public String getMsg() {
-        return (String) get("msg");
+        return (String) super.get("msg");
+    }
+
+    public Map<String, Object> getData() {
+        return (Map<String, Object>) super.get("data");
     }
 
     public static R error(ErrorCodes code, String msg) {
@@ -44,7 +51,7 @@ public class R extends HashMap<String, Object> {
 
     public static R ok(Map<String, Object> map) {
         R r = new R();
-        r.putAll(map);
+        r.getData().putAll(map);
         return r;
     }
 
@@ -56,8 +63,13 @@ public class R extends HashMap<String, Object> {
         return new R().put("data", data);
     }
 
+    @Override
+    public Object get(Object key) {
+        return getData().get(key);
+    }
+
     public R put(String key, Object value) {
-        super.put(key, value);
+        this.getData().put(key, value);
         return this;
     }
 }

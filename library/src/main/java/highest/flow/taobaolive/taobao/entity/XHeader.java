@@ -1,6 +1,7 @@
 package highest.flow.taobaolive.taobao.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import lombok.Data;
 
@@ -38,9 +39,7 @@ public class XHeader {
     public XHeader(Date date) {
         this();
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        this.timestamp = calendar.getTimeInMillis();
+        this.timestamp = CommonUtils.dateToTimestamp(date);
     }
 
     public XHeader(TaobaoAccount taobaoAccount) {

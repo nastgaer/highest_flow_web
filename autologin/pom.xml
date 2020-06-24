@@ -11,6 +11,7 @@
     <groupId>highest.flow</groupId>
     <artifactId>autologin</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
     <name>autologin</name>
     <description>小号自动重登延期</description>
 

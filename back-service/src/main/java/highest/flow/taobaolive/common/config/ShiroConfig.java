@@ -1,7 +1,7 @@
 package highest.flow.taobaolive.common.config;
 
-import highest.flow.taobaolive.app.oauth2.OAuth2Filter;
-import highest.flow.taobaolive.app.oauth2.OAuth2Realm;
+import highest.flow.taobaolive.sys.oauth2.OAuth2Filter;
+import highest.flow.taobaolive.sys.oauth2.OAuth2Realm;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;

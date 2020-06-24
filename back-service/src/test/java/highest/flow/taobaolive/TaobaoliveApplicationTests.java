@@ -39,11 +39,11 @@ class TaobaoliveApplicationTests {
     @Autowired
     private CryptoService cryptoService;
 
-    @Value("${sign.prefix}")
+    @Value("${xsign.prefix}")
     private String prefix;
-    @Value("${sign.suffix}")
+    @Value("${xsign.suffix}")
     private String suffix;
-    @Value("${sign.method}")
+    @Value("${xsign.method}")
     private String method;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -84,7 +84,7 @@ class TaobaoliveApplicationTests {
 
             HashMap<String, String> paramMap = new HashMap<>();
             paramMap.put("data", encryptData);
-            paramMap.put("sign", sign);
+            paramMap.put("xsign", sign);
 
             System.out.println(data);
 

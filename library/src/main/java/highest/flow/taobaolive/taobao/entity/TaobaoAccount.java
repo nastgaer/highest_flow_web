@@ -3,15 +3,19 @@ package highest.flow.taobaolive.taobao.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import highest.flow.taobaolive.common.http.CookieHelper;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.http.client.CookieStore;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.cookie.BasicClientCookie;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @TableName("tbl_accounts")
@@ -53,4 +57,51 @@ public class TaobaoAccount {
 
     @TableField(exist = false)
     private CookieStore cookieStore = new BasicCookieStore();
+
+    public void mergeCookies(List<Cookie> newCookies) {
+        List<Cookie> oldCookies = cookieStore.getCookies();
+
+        cookieStore.clear();
+
+        for (Cookie cookie : oldCookies) {
+            Cookie newCookie = cookie;
+            for (Cookie cookie1 : newCookies) {
+                if (newCookie.getName().compareToIgnoreCase(cookie1.getName()) == 0) {
+                    newCookie = cookie1;
+                    if (newCookie.getDomain().toLowerCase().compareTo("taobao.com") == 0) {
+                        ((BasicClientCookie) newCookie).setDomain(".taobao.com");
+                    }
+                    break;
+                }
+            }
+            cookieStore.addCookie(newCookie);
+        }
+
+        for (Cookie cookie1 : newCookies) {
+            Cookie newCookie = cookie1;
+            for (Cookie cookie : oldCookies) {
+                if (newCookie.getName().compareToIgnoreCase(cookie1.getName()) == 0) {
+                    newCookie = null;
+                    break;
+                }
+            }
+            if (newCookie != null) {
+                if (newCookie.getDomain().toLowerCase().compareTo("taobao.com") == 0) {
+                    ((BasicClientCookie) newCookie).setDomain(".taobao.com");
+                }
+                cookieStore.addCookie(newCookie);
+            }
+        }
+    }
+
+    @JsonIgnore
+    public String getToken() {
+        List<Cookie> cookies = cookieStore.getCookies();
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().compareTo("_tb_token_") == 0) {
+                return cookie.getValue();
+            }
+        }
+        return "";
+    }
 }

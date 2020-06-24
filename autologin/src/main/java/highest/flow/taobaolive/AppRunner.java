@@ -30,11 +30,19 @@ public class AppRunner implements CommandLineRunner {
     private void initializeJob() {
         try {
             List<ScheduleJobEntity> scheduleJobList = schedulerJobService.list();
-            if (scheduleJobList.size() < 1) {
+            boolean found = false;
+            for (ScheduleJobEntity scheduleJobEntity : scheduleJobList) {
+                if (scheduleJobEntity.getBeanName().compareTo("autoLoginTask") == 0) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
                 ScheduleJobEntity scheduleJobEntity = new ScheduleJobEntity();
-                scheduleJobEntity.setBeanName("highest.flow.taobaolive.task.autoLoginTask");
+                scheduleJobEntity.setBeanName("autoLoginTask");
                 scheduleJobEntity.setParams(null);
-                scheduleJobEntity.setCronExpression("0 0 0/2 1/1 * ? *");
+                // scheduleJobEntity.setCronExpression("0 0 0/2 1/1 * ? *");
+                scheduleJobEntity.setCronExpression("0 0/1 * * * ? *");
                 scheduleJobEntity.setCreatedTime(new Date());
                 scheduleJobEntity.setState(ScheduleState.NORMAL.getValue());
                 scheduleJobEntity.setRemark("延期任务");

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="highest.flow.taobaolive.taobao.dao.LogDao">
+
+    <resultMap id="logMap" type="highest.flow.taobaolive.taobao.dao.LogDao">
+        <result property="id" column="id"/>
+        <result property="category" column="category"/>
+        <result property="accountId" column="account_id"/>
+        <result property="nick" column="nick"/>
+        <result property="expires" column="expires"/>
+        <result property="content" column="content"/>
+        <result property="createdTime" column="created_time"/>
+    </resultMap>
+
+</mapper>

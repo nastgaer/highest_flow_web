@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="highest.flow.taobaolive.sys.dao.MemberTokenDao">
+
+    <resultMap id="memberTokenMap" type="highest.flow.taobaolive.sys.entity.SysMemberToken">
+        <result property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="token" column="token"/>
+        <result property="expireTime" column="expire_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <select id="getMemberTokenByToken" resultType="memberTokenMap">
+        select * from tbl_member_tokens where token = #{token}
+    </select>
+
+</mapper>

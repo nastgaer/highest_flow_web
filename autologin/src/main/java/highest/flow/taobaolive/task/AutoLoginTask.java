@@ -12,6 +12,7 @@ public class AutoLoginTask implements ITask {
 
     @Override
     public void run(String params) {
-        autoLoginService.doAutoLogin();
+//        autoLoginService.doAutoLogin();
+        System.out.println("AutoLogin::run");
     }
 }

@@ -1,7 +1,5 @@
 package highest.flow.taobaolive.security.defines;
 
-import highest.flow.taobaolive.security.service.LicenseService;
-
 public enum LicenseCodeState {
 
     Created(0),

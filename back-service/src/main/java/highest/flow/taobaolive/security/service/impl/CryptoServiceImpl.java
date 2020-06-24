@@ -14,11 +14,11 @@ import java.security.MessageDigest;
 @Service("cryptoService")
 public class CryptoServiceImpl implements CryptoService {
 
-    @Value("${sign.prefix}")
+    @Value("${xsign.prefix}")
     private String prefix;
-    @Value("${sign.suffix}")
+    @Value("${xsign.suffix}")
     private String suffix;
-    @Value("${sign.method}")
+    @Value("${xsign.method}")
     private String method;
 
     @Value("${secure.key}")

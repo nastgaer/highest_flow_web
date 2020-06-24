@@ -36,8 +36,13 @@ public class PreLiveRoomSpec {
 
     private int columnId;
 
+    private String location;
+
     private String hotProductUrl;
 
+    /**
+     * LiveRoomState
+     */
     private int state;
 
     private String keywords;

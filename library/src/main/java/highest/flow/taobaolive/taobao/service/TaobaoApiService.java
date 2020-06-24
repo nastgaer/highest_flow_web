@@ -60,21 +60,25 @@ public interface TaobaoApiService {
      */
     public R postpone(TaobaoAccount taobaoAccount);
 
-    public R GetH5Token(TaobaoAccount taobaoAccount);
+    public R getUmtidToken();
+
+    public R getH5Token(TaobaoAccount taobaoAccount);
+
+    public R getNewDeviceId(TaobaoAccount taobaoAccount);
 
     /**
      * 解析淘口令
      * @param taocode
      * @return
      */
-    public R ParseTaoCode(String taocode);
+    public R parseTaoCode(String taocode);
 
     /**
      * 获取直播间详细信息
-     * @param liveRoom
+     * @param liveId
      * @return
      */
-    public R GetLiveDetail(LiveRoom liveRoom);
+    public R getLiveDetail(String liveId);
 
     /**
      * 获取直播间商品
@@ -82,7 +86,7 @@ public interface TaobaoApiService {
      * @param taobaoAccount
      * @return
      */
-    public R GetLiveProducts(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
+    public R getLiveProducts(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
 
     /**
      * 查询直播间赛道
@@ -90,7 +94,7 @@ public interface TaobaoApiService {
      * @param taobaoAccount
      * @return
      */
-    public R GetLiveEntry(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
+    public R getLiveEntry(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
 
     /**
      * 助力：关注任务
@@ -98,16 +102,16 @@ public interface TaobaoApiService {
      * @param taobaoAccount
      * @return
      */
-    public R TaskFollow(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
+    public R taskFollow(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
 
     /**
      * 助力：在直播间等待几分钟
      * @param liveRoom
      * @param taobaoAccount
-     * @param stayMinutes
+     * @param staySeconds
      * @return
      */
-    public R TaskStay(LiveRoom liveRoom, TaobaoAccount taobaoAccount, int stayMinutes);
+    public R taskStay(LiveRoom liveRoom, TaobaoAccount taobaoAccount, int staySeconds);
 
     /**
      * 助力：购买商品
@@ -116,7 +120,7 @@ public interface TaobaoApiService {
      * @param productId
      * @return
      */
-    public R TaskBuy(LiveRoom liveRoom, TaobaoAccount taobaoAccount, String productId);
+    public R taskBuy(LiveRoom liveRoom, TaobaoAccount taobaoAccount, String productId);
 
     /**
      * 发布预告（Web)
@@ -124,7 +128,7 @@ public interface TaobaoApiService {
      * @param preLiveRoomSpec
      * @return
      */
-    public R CreateLiveRoomWeb(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccount taobaoAccount);
+    public R createLiveRoomWeb(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccount taobaoAccount);
 
     /**
      * 发布预告（Mobile)
@@ -132,7 +136,7 @@ public interface TaobaoApiService {
      * @param preLiveRoomSpec
      * @return
      */
-    public R CreateLiveRoom(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccount taobaoAccount);
+    public R createLiveRoom(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccount taobaoAccount);
 
     /**
      * 开始直播
@@ -140,7 +144,7 @@ public interface TaobaoApiService {
      * @param taobaoAccount
      * @return
      */
-    public R StartLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
+    public R startLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
 
     /**
      * 结束直播
@@ -148,7 +152,7 @@ public interface TaobaoApiService {
      * @param taobaoAccount
      * @return
      */
-    public R StopLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
+    public R stopLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
 
     /**
      * 删除回放
@@ -156,7 +160,7 @@ public interface TaobaoApiService {
      * @param taobaoAccount
      * @return
      */
-    public R DeleteLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
+    public R deleteLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
 
     /**
      * 获取商品信息
@@ -164,7 +168,7 @@ public interface TaobaoApiService {
      * @param productId
      * @return
      */
-    public R GetProductItemInfo(TaobaoAccount taobaoAccount, String productId);
+    public R getProductItemInfo(TaobaoAccount taobaoAccount, String productId);
 
     /**
      * 在直播间上架商品
@@ -173,7 +177,7 @@ public interface TaobaoApiService {
      * @param productId
      * @return
      */
-    public R PublishProductWeb(LiveRoom liveRoom, TaobaoAccount taobaoAccount, String productId);
+    public R publishProductWeb(LiveRoom liveRoom, TaobaoAccount taobaoAccount, Product product);
 
     /**
      * 访问商品的详细页面
@@ -182,7 +186,7 @@ public interface TaobaoApiService {
      * @param product
      * @return
      */
-    public R OpenProduct(LiveRoom liveRoom, TaobaoAccount taobaoAccount, Product product);
+    public R openProduct(LiveRoom liveRoom, TaobaoAccount taobaoAccount, Product product);
 
     /**
      * 开始讲解
@@ -191,5 +195,5 @@ public interface TaobaoApiService {
      * @param productId
      * @return
      */
-    public R AddTimestamp(LiveRoom liveRoom, TaobaoAccount taobaoAccount, String productId);
+    public R addTimestamp(LiveRoom liveRoom, TaobaoAccount taobaoAccount, String productId);
 }
