@@ -12,6 +12,7 @@
     <modules>
         <module>library</module>
         <module>back-service</module>
+        <module>xsign</module>
     </modules>
 
 </project>

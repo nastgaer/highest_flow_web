@@ -1,17 +1,15 @@
-package highest.flow.taobaolive.service.impl;
+package highest.flow.taobaolive.taobao.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
-import highest.flow.taobaolive.common.http.CookieHelper;
 import highest.flow.taobaolive.common.utils.Query;
 import highest.flow.taobaolive.common.utils.R;
-import highest.flow.taobaolive.service.AutoLoginService;
 import highest.flow.taobaolive.taobao.dao.TaobaoAccountDao;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccount;
+import highest.flow.taobaolive.taobao.service.AutoLoginService;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
 import org.apache.http.client.CookieStore;
@@ -22,7 +20,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("autoLoginService")
 public class AutoLoginServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAccount> implements AutoLoginService {

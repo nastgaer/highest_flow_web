@@ -9,11 +9,11 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>highest.flow</groupId>
-    <artifactId>autologin</artifactId>
+    <artifactId>xsign</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>autologin</name>
-    <description>小号自动重登延期</description>
+    <name>xsign</name>
+    <description>xsign签名计算</description>
 
     <properties>
         <java.version>1.8</java.version>

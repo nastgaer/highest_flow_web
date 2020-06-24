@@ -1,4 +1,4 @@
-package highest.flow.taobaolive.service;
+package highest.flow.taobaolive.taobao.service;
 
 import org.springframework.stereotype.Service;
 

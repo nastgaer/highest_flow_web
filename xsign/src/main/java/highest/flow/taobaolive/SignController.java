@@ -1,4 +1,4 @@
-package highest.flow.taobaolive.security.controller;
+package highest.flow.taobaolive;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.common.utils.R;

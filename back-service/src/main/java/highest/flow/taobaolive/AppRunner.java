@@ -1,19 +1,9 @@
 package highest.flow.taobaolive;
 
-import highest.flow.taobaolive.common.defines.ScheduleState;
 import highest.flow.taobaolive.common.utils.SpringContextUtils;
-import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
-import highest.flow.taobaolive.job.service.ScheduleJobService;
-import highest.flow.taobaolive.job.utils.ScheduleUtils;
 import highest.flow.taobaolive.task.AutoLoginTask;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
-import java.util.List;
 
 @Component
 public class AppRunner implements CommandLineRunner {
