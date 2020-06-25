@@ -17,25 +17,25 @@ public class Product {
 
     private int categoryId;
 
-    private String categoryName;
+    private String categoryName = "";
 
-    private String productId;
+    private String productId = "";;
 
-    private String title;
+    private String title = "";;
 
-    private String price;
+    private String price = "";;
 
     private int monthSales;
 
-    private String shopName;
+    private String shopName = "";;
 
-    private String url;
+    private String url = "";;
 
-    private String picurl;
+    private String picurl = "";;
 
     private int state;
 
-    private String remark;
+    private String remark = "";;
 
     @TableField(exist = false)
     private long timepoint;

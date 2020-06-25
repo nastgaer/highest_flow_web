@@ -116,8 +116,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            String creatorId = (String) mapData.get("taopwdOwnerId");
-            String talentLiveUrl = (String) mapData.get("url");
+            String creatorId = String.valueOf(mapData.get("taopwdOwnerId"));
+            String talentLiveUrl = String.valueOf(mapData.get("url"));
             String liveId = "";
             String[] words = talentLiveUrl.split("[::?&/]");
             for (String word : words) {
@@ -178,24 +178,24 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
             Map<String, Object> mapBroadCaster = (Map<String, Object>) mapData.get("broadCaster");
-            String accountId = (String) mapBroadCaster.get("accountId");
-            String accountName = (String) mapBroadCaster.get("accountName");
-            int fansNum = (int) mapBroadCaster.get("fansNum");
+            String accountId = String.valueOf(mapBroadCaster.get("accountId"));
+            String accountName = String.valueOf(mapBroadCaster.get("accountName"));
+            int fansNum = Integer.parseInt(String.valueOf(mapBroadCaster.get("fansNum")));
 
-            String topic = (String) mapData.get("topic");
-            int viewCount = (int) mapData.get("viewCount");
-            int praiseCount = (int) mapData.get("praiseCount");
-            int onlineCount = (int) mapData.get("joinCount");
+            String topic = String.valueOf(mapData.get("topic"));
+            int viewCount = Integer.parseInt(String.valueOf(mapData.get("viewCount")));
+            int praiseCount = Integer.parseInt(String.valueOf(mapData.get("praiseCount")));
+            int onlineCount = Integer.parseInt(String.valueOf(mapData.get("joinCount")));
 
-            long startTimestamp = (int) mapData.get("startTime");
+            long startTimestamp = Long.parseLong(String.valueOf(mapData.get("startTime")));
             Date startTime = CommonUtils.timestampToDate(startTimestamp);
-            String coverImg = (String) mapData.get("coverImg");
-            String coverImg169 = (String) mapData.get("coverImg169");
-            String title = (String) mapData.get("title");
-            String intro = (String) mapData.get("descInfo");
-            int channelId = (int) mapData.get("liveChannelId");
-            int columnId = (int) mapData.get("liveColumnId");
-            String location = (String) mapData.get("location");
+            String coverImg = String.valueOf(mapData.get("coverImg"));
+            String coverImg169 = String.valueOf(mapData.get("coverImg169"));
+            String title = String.valueOf(mapData.get("title"));
+            String intro = String.valueOf(mapData.get("descInfo"));
+            int channelId = Integer.parseInt(String.valueOf(mapData.get("liveChannelId")));
+            int columnId = Integer.parseInt(String.valueOf(mapData.get("liveColumnId")));
+            String location = String.valueOf(mapData.get("location"));
 
             return R.ok()
                     .put("accountId", accountId)
@@ -225,7 +225,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
         try {
             Map<String, Object> jsonParams = new HashMap<>();
             jsonParams.put("groupNum", "0");
-            jsonParams.put("liveId", liveRoom.getId());
+            jsonParams.put("liveId", liveRoom.getLiveId());
             jsonParams.put("n", "350");
             jsonParams.put("type", "0");
 
@@ -269,7 +269,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            int totalNum = (int) mapData.get("totalNum");
+            int totalNum = Integer.parseInt(String.valueOf(mapData.get("totalNum")));
 
             List<Product> products = new ArrayList<>();
             List<Map<String, Object>> itemList = (List<Map<String, Object>>) mapData.get("itemList");
@@ -280,11 +280,11 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                 }
 
                 for (Map<String, Object> goodObj : goodsList) {
-                    String itemId = (String) goodObj.get("itemId");
-                    String itemName = (String) goodObj.get("itemName");
-                    String itemPic = (String) goodObj.get("itemPic");
-                    String itemPrice = (String) goodObj.get("itemPrice");
-                    String itemUrl = (String) goodObj.get("itemUrl");
+                    String itemId = String.valueOf(goodObj.get("itemId"));
+                    String itemName = String.valueOf(goodObj.get("itemName"));
+                    String itemPic = String.valueOf(goodObj.get("itemPic"));
+                    String itemPrice = String.valueOf(goodObj.get("itemPrice"));
+                    String itemUrl = String.valueOf(goodObj.get("itemUrl"));
 
                     Product product = new Product();
                     product.setProductId(itemId);
@@ -296,18 +296,22 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     Map<String, Object> mapExtendVal = (Map<String, Object>) goodObj.get("extendVal");
                     if (mapExtendVal != null) {
                         if (mapExtendVal.containsKey("timepoint")) {
-                            product.setTimepoint((long) mapExtendVal.get("timepoint"));
+                            product.setTimepoint(Long.parseLong(String.valueOf(mapExtendVal.get("timepoint"))));
                         }
 
-                        String business = (String) mapExtendVal.get("business");
-                        Map<String, Object> mapBusiness = jsonParser.parseMap(respText);
+                        product.setMonthSales(Integer.parseInt(String.valueOf(mapExtendVal.get("buyCount"))));
+                        product.setCategoryId(Integer.parseInt(String.valueOf(mapExtendVal.get("categoryLevelLeaf"))));
+                        product.setCategoryName(String.valueOf(mapExtendVal.get("categoryLevelOneName")));
+
+                        String business = String.valueOf(mapExtendVal.get("business"));
+                        Map<String, Object> mapBusiness = jsonParser.parseMap(business);
 
                         Map<String, Object> mapCpsTcpInfo = (Map<String, Object>) mapBusiness.get("cpsTcpInfo");
                         Map<String, Object> mapTaobaoLivetoc = (Map<String, Object>) mapCpsTcpInfo.get("taobaolivetoc");
-                        product.setBusinessSceneId((int) mapTaobaoLivetoc.get("businessScenceId"));
+                        product.setBusinessSceneId(Integer.parseInt(String.valueOf(mapTaobaoLivetoc.get("businessScenceId"))));
 
                         Map<String, Object> mapItemBizInfo = (Map<String, Object>) mapBusiness.get("itemBizInfo");
-                        String itemJumpUrl = (String) mapItemBizInfo.get("itemJumpUrl");
+                        String itemJumpUrl = String.valueOf(mapItemBizInfo.get("itemJumpUrl"));
                         itemJumpUrl = URLDecoder.decode(itemJumpUrl);
 
                         String [] words = itemJumpUrl.split("&");
@@ -393,7 +397,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            liveRoom.setHasRankingEntry((boolean) mapData.get("hasRankingListEntry"));
+            liveRoom.setHasRankingEntry(Boolean.parseBoolean(String.valueOf(mapData.get("hasRankingListEntry"))));
             if (!liveRoom.isHasRankingEntry()) {
                 liveRoom.setRankingScore(0);
                 liveRoom.setRankingNum(0);
@@ -402,14 +406,14 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             } else {
                 Map<String, Object> mapRankingListData = (Map<String, Object>) mapData.get("rankingListData");
                 Map<String, Object> mapBizData = (Map<String, Object>) mapRankingListData.get("bizData");
-                liveRoom.setRankingScore((int) mapBizData.get("score"));
-                liveRoom.setRankingNum((int) mapBizData.get("rankNum"));
-                liveRoom.setRankingName((String) mapBizData.get("name"));
+                liveRoom.setRankingScore(Integer.parseInt(String.valueOf(mapBizData.get("score"))));
+                liveRoom.setRankingNum(Integer.parseInt(String.valueOf(mapBizData.get("rankNum"))));
+                liveRoom.setRankingName(String.valueOf(mapBizData.get("name")));
             }
 
             Map<String, Object> mapHierachyData = (Map<String, Object>) mapData.get("hierarchyData");
-            liveRoom.setScopeId(mapHierachyData == null ? "-1" : (String) mapHierachyData.get("scopeId"));
-            liveRoom.setSubScopeId(mapHierachyData == null ? "-1" : (String) mapHierachyData.get("subScopeId"));
+            liveRoom.setScopeId(mapHierachyData == null ? "-1" : String.valueOf(mapHierachyData.get("scopeId")));
+            liveRoom.setSubScopeId(mapHierachyData == null ? "-1" : String.valueOf(mapHierachyData.get("subScopeId")));
 
             return R.ok()
                     .put("liveRoom", liveRoom);
@@ -683,7 +687,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, Object> mapModel = (Map<String, Object>) map.get("model");
 
             LiveRoom liveRoom = new LiveRoom();
-            liveRoom.setLiveId((String) mapModel.get("preLiveId"));
+            liveRoom.setLiveId(String.valueOf(mapModel.get("preLiveId")));
             liveRoom.setStartTime(preLiveRoomSpec.getStartTime());
             liveRoom.setCoverImg(preLiveRoomSpec.getCoverImg());
             liveRoom.setCoverImg169(preLiveRoomSpec.getCoverImg169());
@@ -752,19 +756,19 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
             LiveRoom liveRoom = new LiveRoom();
-            liveRoom.setLiveId((String) mapData.get("liveId"));
-            liveRoom.setAccountId( (String) mapData.get("accountId"));
-            liveRoom.setTopic((String) mapData.get("topic"));
-            liveRoom.setViewCount((int) mapData.get("viewCount"));
-            liveRoom.setPraiseCount((int) mapData.get("praiseCount"));
+            liveRoom.setLiveId(String.valueOf(mapData.get("liveId")));
+            liveRoom.setAccountId(String.valueOf(mapData.get("accountId")));
+            liveRoom.setTopic(String.valueOf(mapData.get("topic")));
+            liveRoom.setViewCount(Integer.parseInt(String.valueOf(mapData.get("viewCount"))));
+            liveRoom.setPraiseCount(Integer.parseInt(String.valueOf(mapData.get("praiseCount"))));
             liveRoom.setStartTime(preLiveRoomSpec.getStartTime());
-            liveRoom.setCoverImg((String) mapData.get("coverImg"));
-            liveRoom.setCoverImg169((String) mapData.get("coverImg169"));
-            liveRoom.setTitle((String) mapData.get("title"));
-            liveRoom.setIntro((String) mapData.get("intro"));
-            liveRoom.setChannelId((int) mapData.get("liveChannelId"));
-            liveRoom.setColumnId((int) mapData.get("liveColumnId"));
-            liveRoom.setLocation((String) mapData.get("location"));
+            liveRoom.setCoverImg(String.valueOf(mapData.get("coverImg")));
+            liveRoom.setCoverImg169(String.valueOf(mapData.get("coverImg169")));
+            liveRoom.setTitle(String.valueOf(mapData.get("title")));
+            liveRoom.setIntro(String.valueOf(mapData.get("intro")));
+            liveRoom.setChannelId(Integer.parseInt(String.valueOf(mapData.get("liveChannelId"))));
+            liveRoom.setColumnId(Integer.parseInt(String.valueOf(mapData.get("liveColumnId"))));
+            liveRoom.setLocation(String.valueOf(mapData.get("location")));
 
             return R.ok()
                     .put("liveRoom", liveRoom);
@@ -924,9 +928,9 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapModel = (Map<String, Object>) map.get("model");
-            String imgUrl = (String) mapModel.get("imgUrl");
-            String title = (String) mapModel.get("itemTitle");
-            String price = (String) mapModel.get("itemPrice");
+            String imgUrl = String.valueOf(mapModel.get("imgUrl"));
+            String title = String.valueOf(mapModel.get("itemTitle"));
+            String price = String.valueOf(mapModel.get("itemPrice"));
 
             return R.ok()
                     .put("productId", productId)
@@ -1216,15 +1220,15 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String data = (String) mapReturnValue.get("data");
             Map<String, Object> mapRetData = jsonParser.parseMap(data);
 
-            String autoLoginToken = (String) mapRetData.get("autoLoginToken");
-            long expires = (long)((Integer) mapRetData.get("expires"));
+            String autoLoginToken = String.valueOf(mapRetData.get("autoLoginToken"));
+            long expires = Long.parseLong(String.valueOf(mapRetData.get("expires")));
             List<String> lstCookieHeaders = (List<String>) mapRetData.get("cookies");
 
             List<Cookie> lstCookies = CookieHelper.parseCookieHeaders(url, lstCookieHeaders);
 
-            String sid = (String) mapRetData.get("sid");
+            String sid = String.valueOf(mapRetData.get("sid"));
             String uid = String.valueOf(mapRetData.get("userId"));
-            String nick = (String) mapRetData.get("nick");
+            String nick = String.valueOf(mapRetData.get("nick"));
 
             taobaoAccount.setState(TaobaoAccountState.Normal.getState());
 
@@ -1267,9 +1271,9 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             QRCode qrCode = new QRCode();
-            String lgToken = (String) map.get("at");
-            String qrCodeUrl = (String) map.get("url");
-            long timestamp = (long) map.get("t");
+            String lgToken = String.valueOf(map.get("at"));
+            String qrCodeUrl = String.valueOf(map.get("url"));
+            long timestamp = Long.parseLong(String.valueOf(map.get("t")));
 
             qrCode.setTimestamp(timestamp);
             qrCode.setAccessToken(lgToken);
@@ -1412,18 +1416,18 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
             Map<String, Object> mapReturnValue = (Map<String, Object>) mapData.get("returnValue");
-            String data = (String) mapReturnValue.get("data");
+            String data = String.valueOf(mapReturnValue.get("data"));
             Map<String, Object> mapRetData = jsonParser.parseMap(data);
 
-            String autoLoginToken = (String) mapRetData.get("autoLoginToken");
-            long expires = (long)((Integer) mapRetData.get("expires"));
+            String autoLoginToken = String.valueOf(mapRetData.get("autoLoginToken"));
+            long expires = Long.parseLong(String.valueOf(mapRetData.get("expires")));
             List<String> lstCookieHeaders = (List<String>) mapRetData.get("cookies");
 
             List<Cookie> lstCookies = CookieHelper.parseCookieHeaders(url, lstCookieHeaders);
 
-            String sid = (String) mapRetData.get("sid");
+            String sid = String.valueOf(mapRetData.get("sid"));
             String uid = String.valueOf(mapRetData.get("userId"));
-            String nick = (String) mapRetData.get("nick");
+            String nick = String.valueOf(mapRetData.get("nick"));
 
             return R.ok()
                     .put("expires", expires)
@@ -1467,12 +1471,12 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     continue;
                 }
 
-                long expires = (long) r.get("expires");
-                String autoLoginToken = (String) r.get("autoLoginToken");
+                long expires = Long.parseLong(String.valueOf(r.get("expires")));
+                String autoLoginToken = String.valueOf(r.get("autoLoginToken"));
                 List<Cookie> lstCookies = (List<Cookie>) r.get("cookie");
-                String sid = (String) r.get("sid");
-                String uid = (String) r.get("uid");
-                String nick = (String) r.get("nick");
+                String sid = String.valueOf(r.get("sid"));
+                String uid = String.valueOf(r.get("uid"));
+                String nick = String.valueOf(r.get("nick"));
 
                 return R.ok()
                         .put("expires", expires)
@@ -1511,7 +1515,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             List<Map> dataList = (List<Map>)map.get("data");
             if (dataList.size() > 0) {
                 Map<String, Object> testMap = (Map<String, Object>)dataList.get(0);
-                String umtid = (String) testMap.get("test");
+                String umtid = String.valueOf(testMap.get("test"));
                 return R.ok()
                     .put("umtid", umtid.replace("{", "").replace("}", ""));
             }
@@ -1623,7 +1627,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            String deviceId = (String) mapData.get("device_id");
+            String deviceId = String.valueOf(mapData.get("device_id"));
 
             return R.ok()
                     .put("device_id", deviceId);

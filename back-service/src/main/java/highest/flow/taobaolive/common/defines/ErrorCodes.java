@@ -20,7 +20,7 @@ public enum ErrorCodes {
 
     // TAOBAO ERROR CODE
     QRCODE_LOGIN_START(301),
-    FAIL_SYS_ILEGAL_SIGN(302),
+    FAIL_SYS_ILEGEL_SIGN(302),
     FAIL_SYS_SESSION_EXPIRED(303),   // 过期了
     FAIL_SYS_TOKEN_EMPTY(304),       // 令牌为空
     FAIL_SYS_TOKEN_EXOIRED(305),     // 令牌过期了
