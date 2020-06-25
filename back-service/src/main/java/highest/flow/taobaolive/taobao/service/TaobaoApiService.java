@@ -181,12 +181,11 @@ public interface TaobaoApiService {
 
     /**
      * 访问商品的详细页面
-     * @param liveRoom
      * @param taobaoAccount
-     * @param product
+     * @param productId
      * @return
      */
-    public R openProduct(LiveRoom liveRoom, TaobaoAccount taobaoAccount, Product product);
+    public R openProduct(TaobaoAccount taobaoAccount, String productId);
 
     /**
      * 开始讲解

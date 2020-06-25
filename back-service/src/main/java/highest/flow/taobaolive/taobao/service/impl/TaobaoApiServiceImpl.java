@@ -284,7 +284,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     String itemName = String.valueOf(goodObj.get("itemName"));
                     String itemPic = String.valueOf(goodObj.get("itemPic"));
                     String itemPrice = String.valueOf(goodObj.get("itemPrice"));
-                    String itemUrl = String.valueOf(goodObj.get("itemUrl"));
+                    String itemUrl = "https://item.taobao.com/item.htm?id=" + itemId; // String.valueOf(goodObj.get("itemUrl"));
 
                     Product product = new Product();
                     product.setProductId(itemId);
@@ -710,8 +710,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     public R createLiveRoom(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccount taobaoAccount) {
         try {
             Map<String, String> jsonParams = new HashMap<>();
-            jsonParams.put("coverImg", preLiveRoomSpec.getCoverImg().replace("https:", ""));
-            jsonParams.put("coverImg169", preLiveRoomSpec.getCoverImg169().replace("https:", ""));
+            jsonParams.put("coverImg", preLiveRoomSpec.getCoverImg());
+            jsonParams.put("coverImg169", preLiveRoomSpec.getCoverImg169());
             jsonParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpec.getStartTime())));
             jsonParams.put("title", preLiveRoomSpec.getTitle());
             jsonParams.put("descInfo", preLiveRoomSpec.getIntro());
@@ -739,7 +739,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     new SiteConfig()
                             .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
                             .addHeaders(xHeader.getHeaders()),
-                    new Request("GET", url, ResponseType.TEXT));
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -971,7 +972,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, String> postParams = new HashMap<>();
             postParams.put("_input_charset", "utf-8");
-            postParams.put("draft", jsonText);
+            postParams.put("draft", URLEncoder.encode(URLEncoder.encode(jsonText)));
             postParams.put("_tb_token_", taobaoAccount.getToken());
 
             Response<String> response = HttpHelper.execute(
@@ -1005,7 +1006,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R openProduct(LiveRoom liveRoom, TaobaoAccount taobaoAccount, Product product) {
+    public R openProduct(TaobaoAccount taobaoAccount, String productId) {
         try {
             XHeader xHeader = new XHeader(taobaoAccount);
             ObjectMapper objectMapper = new ObjectMapper();
@@ -1021,8 +1022,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             mapExParams.put("cpuMaxHz", "1001000");
             mapExParams.put("dinamic_v3", "true");
             mapExParams.put("from", "search");
-            mapExParams.put("id", product.getProductId());
-            mapExParams.put("item_id", product.getProductId());
+            mapExParams.put("id", productId);
+            mapExParams.put("item_id", productId);
             mapExParams.put("list_type", "search");
             mapExParams.put("nick", taobaoAccount.getNick());
             mapExParams.put("osVersion", "23");
@@ -1037,7 +1038,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, String> jsonParams = new HashMap<>();
             jsonParams.put("detail_v", "3.3.2");
             jsonParams.put("exParams", objectMapper.writeValueAsString(mapExParams));
-            jsonParams.put("itemNumId", product.getProductId());
+            jsonParams.put("itemNumId", productId);
 
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
@@ -1053,7 +1054,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     new SiteConfig()
                             .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
                             .addHeaders(xHeader.getHeaders()),
-                    new Request("GET", url, ResponseType.TEXT));
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
