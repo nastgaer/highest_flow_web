@@ -115,6 +115,7 @@ public class AutoLoginServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAc
                         taobaoAccount.setCookieStore(cookieStore);
 
                         taobaoAccount.setState(TaobaoAccountState.Normal.getState());
+
                     } else {
                         logger.error("[" + taobaoAccount.getNick() + "] 用户重登失败：" + r.getMsg());
                         taobaoAccount.setState(TaobaoAccountState.Expired.getState());

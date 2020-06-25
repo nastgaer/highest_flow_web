@@ -52,15 +52,15 @@ public class H5Header {
             return;
         }
 
+        token = words[0];
+
         timestamp = Long.parseLong(words[1]);
         Date date = CommonUtils.timestampToDate(timestamp);
         long now = CommonUtils.dateToTimestamp(new Date());
-        if (timestamp > now) {
+        if (timestamp < now) {
             expired = true;
             return;
         }
-
-        token = words[0];
     }
 
     public H5Header(TaobaoAccount taobaoAccount, String appKey) {

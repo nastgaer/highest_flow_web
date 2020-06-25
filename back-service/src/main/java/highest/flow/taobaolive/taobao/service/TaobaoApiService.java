@@ -174,7 +174,7 @@ public interface TaobaoApiService {
      * 在直播间上架商品
      * @param liveRoom
      * @param taobaoAccount
-     * @param productId
+     * @param product
      * @return
      */
     public R publishProductWeb(LiveRoom liveRoom, TaobaoAccount taobaoAccount, Product product);

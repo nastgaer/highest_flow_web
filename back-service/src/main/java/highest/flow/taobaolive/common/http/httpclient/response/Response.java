@@ -1,8 +1,11 @@
 package highest.flow.taobaolive.common.http.httpclient.response;
 
+import highest.flow.taobaolive.common.http.CookieHelper;
 import org.apache.http.Header;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
 
 import java.util.Arrays;
 
@@ -87,6 +90,17 @@ public abstract class Response<T> {
                 setStatusCode(httpResponse.getStatusLine().getStatusCode());
                 setHeaders(httpResponse.getAllHeaders());
                 setResult(handleHttpResponseResult(httpResponse));
+
+                CookieStore cookieStore = new BasicCookieStore();
+                for (Header header : httpResponse.getAllHeaders()) {
+                    if (header.getName().equalsIgnoreCase("Set-Cookie")) {
+                        Cookie cookie = CookieHelper.parseString(header.getValue());
+                        if (cookie != null) {
+                            cookieStore.addCookie(cookie);
+                        }
+                    }
+                }
+                setCookieStore(cookieStore);
 
             } catch (Throwable e) {
                 setStatusCode(0);

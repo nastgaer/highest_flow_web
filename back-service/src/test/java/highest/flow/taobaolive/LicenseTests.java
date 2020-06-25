@@ -1,6 +1,7 @@
 package highest.flow.taobaolive;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import highest.flow.taobaolive.common.defines.ServiceType;
 import highest.flow.taobaolive.common.http.HttpHelper;
 import highest.flow.taobaolive.common.http.SiteConfig;
 import highest.flow.taobaolive.common.http.Request;
@@ -24,11 +25,11 @@ public class LicenseTests {
 //    @Autowired
 //    private CryptoService cryptoService;
 //
-//    @Value("${xsign.prefix}")
+//    @Value("${sign.prefix}")
 //    private String prefix;
-//    @Value("${xsign.suffix}")
+//    @Value("${sign.suffix}")
 //    private String suffix;
-//    @Value("${xsign.method}")
+//    @Value("${sign.method}")
 //    private String method;
 //
 //    @Test

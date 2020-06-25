@@ -140,7 +140,7 @@ public class TaobaoAccount {
         for (Cookie cookie1 : newCookies) {
             Cookie newCookie = cookie1;
             for (Cookie cookie : oldCookies) {
-                if (newCookie.getName().compareToIgnoreCase(cookie1.getName()) == 0) {
+                if (newCookie.getName().compareToIgnoreCase(cookie.getName()) == 0) {
                     newCookie = null;
                     break;
                 }

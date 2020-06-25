@@ -6,6 +6,7 @@ import org.apache.http.cookie.*;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.impl.cookie.BrowserCompatSpec;
 import org.apache.http.message.BasicHeader;
+import org.springframework.format.datetime.DateFormatter;
 import org.springframework.web.util.WebUtils;
 
 import java.io.ByteArrayInputStream;
@@ -17,9 +18,11 @@ import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class CookieHelper {
 
@@ -163,8 +166,16 @@ public class CookieHelper {
                     String paramValue = rawCookieParamNameAndValue[1].trim();
 
                     if (paramName.equalsIgnoreCase("expires")) {
-                        Date expiryDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(paramValue); // DateFormat.getDateTimeInstance().parse(paramValue);
-                        cookie.setExpiryDate(expiryDate);
+                        if (paramValue.indexOf("GMT") >= 0) {
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy HH:mm:ss", Locale.ENGLISH);
+                            LocalDateTime localDateTime = LocalDateTime.parse(paramValue.replace(" GMT", ""), formatter);
+
+                            Date expiryDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+                            cookie.setExpiryDate(expiryDate);
+                        } else {
+                            Date expiryDate = DateFormat.getDateTimeInstance().parse(paramValue);
+                            cookie.setExpiryDate(expiryDate);
+                        }
                     } else if (paramName.equalsIgnoreCase("max-age")) {
                         long maxAge = Long.parseLong(paramValue);
                         Date expiryDate = new Date(System.currentTimeMillis() + maxAge);
@@ -182,6 +193,7 @@ public class CookieHelper {
             }
 
             return cookie;
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }

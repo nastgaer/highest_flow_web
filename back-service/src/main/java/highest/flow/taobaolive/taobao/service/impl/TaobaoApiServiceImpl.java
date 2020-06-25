@@ -226,6 +226,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, Object> jsonParams = new HashMap<>();
             jsonParams.put("groupNum", "0");
             jsonParams.put("liveId", liveRoom.getId());
+            jsonParams.put("n", "350");
+            jsonParams.put("type", "0");
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(jsonParams);
@@ -243,8 +245,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/4.0/?";
 
-            for (String key : jsonParams.keySet()) {
-                url += key + "=" + URLEncoder.encode((String) jsonParams.get(key)) + "&";
+            for (String key : urlParams.keySet()) {
+                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -367,8 +369,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/1.0/?";
 
-            for (String key : jsonParams.keySet()) {
-                url += key + "=" + URLEncoder.encode((String) jsonParams.get(key)) + "&";
+            for (String key : urlParams.keySet()) {
+                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -453,8 +455,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/1.0/?";
 
-            for (String key : jsonParams.keySet()) {
-                url += key + "=" + URLEncoder.encode((String) jsonParams.get(key)) + "&";
+            for (String key : urlParams.keySet()) {
+                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -519,8 +521,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/1.0/?";
 
-            for (String key : jsonParams.keySet()) {
-                url += key + "=" + URLEncoder.encode((String) jsonParams.get(key)) + "&";
+            for (String key : urlParams.keySet()) {
+                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -553,7 +555,63 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     @Override
     public R taskBuy(LiveRoom liveRoom, TaobaoAccount taobaoAccount, String productId) {
         try {
+            ObjectMapper objectMapper = new ObjectMapper();
 
+            Map<String, Object> mapTrackParams = new HashMap<>();
+            mapTrackParams.put("activityId", liveRoom.getLiveId());
+            mapTrackParams.put("broadcasterId", liveRoom.getAccountId());
+            mapTrackParams.put("userId", taobaoAccount.getUid());
+
+            Map<String, Object> mapParams = new HashMap<>();
+            mapParams.put("itemId", productId);
+            mapParams.put("cost", 50);
+
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("scopeId", liveRoom.getScopeId());
+            jsonParams.put("subScope", liveRoom.getSubScopeId());
+            jsonParams.put("trackParams", objectMapper.writeValueAsString(mapTrackParams));
+            jsonParams.put("action", "payCarts");
+            jsonParams.put("params", objectMapper.writeValueAsString(mapParams));
+
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            H5Header h5Header = new H5Header(taobaoAccount);
+            String subUrl = "mtop.taobao.iliad.task.action";
+
+            Map<String, Object> urlParams = new HashMap<>();
+            urlParams.put("appKey", h5Header.getAppKey());
+            urlParams.put("t", String.valueOf(h5Header.getLongTimestamp()));
+            urlParams.put("api", subUrl);
+            urlParams.put("v", "1.0");
+            urlParams.put("data", jsonText);
+            urlParams.put("sign", signService.h5sign(h5Header, jsonText));
+
+            String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/1.0/?";
+
+            for (String key : urlParams.keySet()) {
+                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
+            }
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            return R.ok();
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -721,7 +779,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     public R startLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount) {
         try {
             String url = "https://liveplatform.taobao.com/live/action.do?api=start_live_from_pre&_tb_token_=" + taobaoAccount.getToken();
-            String refererUrl = "https://liveplatform.taobao.com/live/addLive.htm";
+            String refererUrl = "https://liveplatform.taobao.com/live/liveDetail.htm?id=" + liveRoom.getLiveId() + "&openHlvPush=true";
 
             Map<String, String> postParams = new HashMap<>();
             postParams.put("liveVideoId", liveRoom.getLiveId());
@@ -887,7 +945,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
         try {
             Map<String, Object> mapNode = new HashMap<>();
             mapNode.put("type", "picItem");
-            mapNode.put("path", product.getPicurl().replace("", ""));
+            mapNode.put("path", product.getPicurl().replace("https:", ""));
             mapNode.put("content", product.getTitle());
             mapNode.put("bizId", product.getProductId());
             mapNode.put("right", "");
@@ -1043,8 +1101,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/1.0/?";
 
-            for (String key : jsonParams.keySet()) {
-                url += key + "=" + URLEncoder.encode((String) jsonParams.get(key)) + "&";
+            for (String key : urlParams.keySet()) {
+                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -1216,6 +1274,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             qrCode.setTimestamp(timestamp);
             qrCode.setAccessToken(lgToken);
             qrCode.setNavigateUrl(qrCodeUrl);
+            qrCode.setImageUrl("https://gqrcode.alicdn.com/img?type=hv&text=" + URLEncoder.encode(qrCodeUrl) + "&h=160&w=160");
 
             return R.ok()
                     .put("qrCode", qrCode);
@@ -1236,7 +1295,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             String url = "https://login.m.taobao.com/qrcodeLogin.htm?";
             for (String key : jsonParams.keySet()) {
-                url += key + "=" + URLEncoder.encode((String) jsonParams.get(key)) + "&";
+                url += key + "=" + URLEncoder.encode(String.valueOf(jsonParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -1480,7 +1539,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             String url = "https://acs.m.taobao.com/h5/" + subUrl + "/1.0/?";
             for (String key : paramMap.keySet()) {
-                url += key + "=" + URLEncoder.encode((String) paramMap.get(key)) + "&";
+                url += key + "=" + URLEncoder.encode(String.valueOf(paramMap.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -1540,8 +1599,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/4.0/?";
 
-            for (String key : jsonParams.keySet()) {
-                url += key + "=" + URLEncoder.encode((String) jsonParams.get(key)) + "&";
+            for (String key : urlParams.keySet()) {
+                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
