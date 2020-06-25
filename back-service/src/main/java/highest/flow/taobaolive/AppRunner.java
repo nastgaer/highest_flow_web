@@ -1,9 +1,13 @@
 package highest.flow.taobaolive;
 
+import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.SpringContextUtils;
 import highest.flow.taobaolive.task.AutoLoginTask;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Component
 public class AppRunner implements CommandLineRunner {

@@ -52,9 +52,10 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
-                        .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
-                        .addHeaders(xHeader.getHeaders()),
-                    new Request("GET", url, ResponseType.TEXT));
+                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -1078,12 +1079,6 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     @Override
     public R autoLogin(TaobaoAccount taobaoAccount) {
         try {
-            R r = this.getUserSimple(taobaoAccount);
-            if (r.getCode() == ErrorCodes.SUCCESS) {
-                taobaoAccount.setState(TaobaoAccountState.Normal.getState());
-                return r;
-            }
-
             ObjectMapper objectMapper = new ObjectMapper();
 
             Map<String, Object> apiReferMap = new HashMap<>();
@@ -1170,7 +1165,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             List<Cookie> lstCookies = CookieHelper.parseCookieHeaders(url, lstCookieHeaders);
 
             String sid = (String) mapRetData.get("sid");
-            String uid = String.valueOf((Integer) mapRetData.get("userId"));
+            String uid = String.valueOf(mapRetData.get("userId"));
             String nick = (String) mapRetData.get("nick");
 
             taobaoAccount.setState(TaobaoAccountState.Normal.getState());
@@ -1247,8 +1242,11 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
-                            .setAccept("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"),
-                    new Request("GET", url, ResponseType.TEXT));
+                            .setAccept("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+                            .addHeader("Accept-Language", "zh-CN,en-US;q=0.9")
+                            .addHeader("x-requested-with", "com.taobao.taobao"),
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
@@ -1258,15 +1256,15 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             // 获取csrfToken
             int startPos = respText.indexOf("name=\"csrftoken\"");
             if (startPos < 0)
-                return null;
+                return R.error();
             startPos = respText.indexOf("value=\"", startPos);
             if (startPos < 0)
-                return null;
+                return R.error();
             startPos += "value=\"".length();
 
             int endPos = respText.indexOf("\"", startPos);
             if (endPos < 0)
-                return null;
+                return R.error();
             String csrfToken = respText.substring(startPos, endPos);
 
             return R.ok()
@@ -1290,7 +1288,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     new Request("POST", url, ResponseType.TEXT)
                             .addParameter("csrftoken", csrfToken)
                             .addParameter("shortURL", qrCode.getNavigateUrl())
-                            .addParameter("ql", "true"));
+                            .addParameter("ql", "true"),
+                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
@@ -1358,13 +1357,13 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, Object> mapRetData = jsonParser.parseMap(data);
 
             String autoLoginToken = (String) mapRetData.get("autoLoginToken");
-            long expires = (long) mapRetData.get("expires");
+            long expires = (long)((Integer) mapRetData.get("expires"));
             List<String> lstCookieHeaders = (List<String>) mapRetData.get("cookies");
 
             List<Cookie> lstCookies = CookieHelper.parseCookieHeaders(url, lstCookieHeaders);
 
             String sid = (String) mapRetData.get("sid");
-            String uid = (String) mapRetData.get("uid");
+            String uid = String.valueOf(mapRetData.get("userId"));
             String nick = (String) mapRetData.get("nick");
 
             return R.ok()
@@ -1384,13 +1383,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     @Override
     public R postpone(TaobaoAccount taobaoAccount) {
         try {
-            R r = this.getUserSimple(taobaoAccount);
-            if (r.getCode() == ErrorCodes.FAIL_SYS_SESSION_EXPIRED) {
-                taobaoAccount.setState(TaobaoAccountState.Expired.getState());
-                return r;
-            }
-
-            r = this.getLoginQRCodeURL();
+            R r = this.getLoginQRCodeURL();
             if (r.getCode() != ErrorCodes.SUCCESS) {
                 return r;
             }

@@ -125,8 +125,8 @@ public class TaobaoAccountController {
                     @RequestParam(name = "cookies[]") String [] cookieHeaders,
                     @RequestParam(name = "expires") long expires,
                     @RequestParam(name = "state") int state,
-                    @RequestParam(name = "created") @DateTimeFormat(pattern = "yyyy-MM-ss HH:mm:ss") Date created,
-                    @RequestParam(name = "updated") @DateTimeFormat(pattern = "yyyy-MM-ss HH:mm:ss") Date updated) {
+                    @RequestParam(name = "created") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date created,
+                    @RequestParam(name = "updated") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date updated) {
 
         try {
             JsonParser jsonParser = JsonParserFactory.getJsonParser();

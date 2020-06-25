@@ -15,6 +15,8 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.springframework.boot.json.JsonParser;
+import org.springframework.boot.json.JsonParserFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,7 +65,44 @@ public class TaobaoAccount {
     @TableField(exist = false)
     private CookieStore cookieStore = new BasicCookieStore();
 
-    public String getCookie() {
+//    public String getCookie() {
+//        List<String> cookieHeaders = new ArrayList<>();
+//        List<Cookie> cookies = cookieStore.getCookies();
+//        for (Cookie cookie : cookies) {
+//            cookieHeaders.add(CookieHelper.toString(cookie));
+//        }
+//
+//        try {
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            return objectMapper.writeValueAsString(cookieHeaders);
+//
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//        return "";
+//    }
+
+    public void setCookie(String cookieHeaders) {
+        this.cookie = cookieHeaders;
+
+        // String to CookieStore
+        this.cookieStore.clear();
+
+        JsonParser jsonParser = JsonParserFactory.getJsonParser();
+        List<Object> texts = jsonParser.parseList(cookieHeaders);
+        for (Object obj : texts) {
+            String cookieHeader = (String) obj;
+            Cookie cookie = CookieHelper.parseString(cookieHeader);
+            if (cookie != null) {
+                this.cookieStore.addCookie(cookie);
+            }
+        }
+    }
+
+    public void setCookieStore(CookieStore cookieStore) {
+        this.cookieStore = cookieStore;
+
+        // CookieStore to String
         List<String> cookieHeaders = new ArrayList<>();
         List<Cookie> cookies = cookieStore.getCookies();
         for (Cookie cookie : cookies) {
@@ -72,19 +111,17 @@ public class TaobaoAccount {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.writeValueAsString(cookieHeaders);
+            this.cookie = objectMapper.writeValueAsString(cookieHeaders);
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return "";
-
     }
 
     public void mergeCookies(List<Cookie> newCookies) {
         List<Cookie> oldCookies = cookieStore.getCookies();
 
-        cookieStore.clear();
+        CookieStore newCookieStore = new BasicCookieStore();
 
         for (Cookie cookie : oldCookies) {
             Cookie newCookie = cookie;
@@ -97,7 +134,7 @@ public class TaobaoAccount {
                     break;
                 }
             }
-            cookieStore.addCookie(newCookie);
+            newCookieStore.addCookie(newCookie);
         }
 
         for (Cookie cookie1 : newCookies) {
@@ -112,9 +149,11 @@ public class TaobaoAccount {
                 if (newCookie.getDomain().toLowerCase().compareTo("taobao.com") == 0) {
                     ((BasicClientCookie) newCookie).setDomain(".taobao.com");
                 }
-                cookieStore.addCookie(newCookie);
+                newCookieStore.addCookie(newCookie);
             }
         }
+
+        this.setCookieStore(newCookieStore);
     }
 
     @JsonIgnore
