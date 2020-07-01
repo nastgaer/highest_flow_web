@@ -1,20 +1,20 @@
 package highest.flow.taobaolive.taobao.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.http.CookieHelper;
 import highest.flow.taobaolive.common.utils.R;
-import highest.flow.taobaolive.open.sys.PageParam;
-import highest.flow.taobaolive.security.service.CryptoService;
-import highest.flow.taobaolive.sys.entity.SysMember;
+import highest.flow.taobaolive.common.utils.SelfExpiringHashMap;
+import highest.flow.taobaolive.common.utils.SelfExpiringMap;
+import highest.flow.taobaolive.sys.entity.PageEntity;
+import highest.flow.taobaolive.sys.controller.AbstractController;
 import highest.flow.taobaolive.taobao.entity.QRCode;
-import highest.flow.taobaolive.taobao.entity.TaobaoAccount;
+import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
 import highest.flow.taobaolive.taobao.utils.DeviceUtils;
-import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.BasicCookieStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
@@ -25,7 +25,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/tbacc")
-public class TaobaoAccountController {
+public class TaobaoAccountController extends AbstractController {
 
     @Autowired
     private TaobaoAccountService taobaoAccountService;
@@ -33,14 +33,18 @@ public class TaobaoAccountController {
     @Autowired
     private TaobaoApiService taobaoApiService;
 
-    private Map<String, TaobaoAccount> waitingAccounts = new HashMap<>();
+    private SelfExpiringMap<String, TaobaoAccountEntity> waitingAccounts = new SelfExpiringHashMap<>(30 * 60 * 1000);
+    private SelfExpiringMap<String, QRCode> waitingQRCodes = new SelfExpiringHashMap<>(30 * 60 * 1000);
 
     @PostMapping("/list")
-    public R list(@RequestBody PageParam pageParam) {
+    public R list(@RequestBody PageEntity pageEntity) {
         try {
-            List<TaobaoAccount> taobaoAccounts = this.taobaoAccountService.list();
+            int pageNo = pageEntity.getPageNo();
+            int pageSize = pageEntity.getPageSize();
+            IPage<TaobaoAccountEntity> page = this.taobaoAccountService.page(new Page<>((pageNo - 1) * pageSize, pageSize));
+            List<TaobaoAccountEntity> taobaoAccountEntities = this.taobaoAccountService.list();
 
-            return R.ok().put("users", taobaoAccounts).put("total_count", taobaoAccounts.size());
+            return R.ok().put("users", taobaoAccountEntities).put("total_count", taobaoAccountService.size());
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -60,8 +64,9 @@ public class TaobaoAccountController {
 
             String accessToken = qrCode.getAccessToken();
             String url = qrCode.getNavigateUrl();
+            String imageUrl = qrCode.getImageUrl();
 
-            TaobaoAccount newAccount = new TaobaoAccount();
+            TaobaoAccountEntity newAccount = new TaobaoAccountEntity();
 
             newAccount.setUtdid(DeviceUtils.generateUtdid());
 
@@ -86,10 +91,11 @@ public class TaobaoAccountController {
             newAccount.setDevid((String) r.get("devid"));
 
             waitingAccounts.put(accessToken, newAccount);
+            waitingQRCodes.put(accessToken, qrCode);
 
             return R.ok()
                 .put("access_token", accessToken)
-                .put("navigate_url", url);
+                .put("navigate_url", imageUrl);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -100,18 +106,67 @@ public class TaobaoAccountController {
     @PostMapping("/verify_qrcode")
     public R verifyQRCode(@RequestParam(name = "access_token") String accessToken) {
         try {
-            TaobaoAccount account = waitingAccounts.get(accessToken);
-            if (account == null) {
+            if (!waitingAccounts.containsKey(accessToken) || !waitingQRCodes.containsKey(accessToken)) {
                 return R.error(ErrorCodes.INVALID_QRCODE_TOKEN, "请求Token无效");
             }
 
+            TaobaoAccountEntity taobaoAccountEntity = waitingAccounts.get(accessToken);
+            QRCode qrCode = waitingQRCodes.get(accessToken);
+            if (qrCode == null) {
+                return R.error(ErrorCodes.INVALID_QRCODE_TOKEN, "请求Token无效");
+            }
+
+            return taobaoApiService.checkLoginByQRCode(taobaoAccountEntity, qrCode);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("验证二维码失败");
+    }
+
+    @PostMapping("/delete")
+    public R delete(@RequestParam(name = "user_ids") String param) {
+        try {
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            List userIds = jsonParser.parseList(param);
+
+            List<String> ids = new ArrayList<>();
+            for (Object obj : userIds) {
+                ids.add(String.valueOf(obj));
+            }
+            if (taobaoAccountService.removeByIds(ids)) {
+                return R.ok();
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("批量删除扫码信息失败");
+    }
+
+    @PostMapping("/postpone")
+    public R postpone(@RequestParam(name = "crond") String crond) {
+        try {
             // TODO
             return R.ok();
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            return R.error("验证二维码失败");
         }
+        return R.error("设置延期公式失败");
+    }
+
+    @PostMapping("/logs")
+    public R logs(@RequestBody PageEntity pageEntity) {
+        try {
+            // TODO
+            return R.ok()
+                    .put("logs", new ArrayList<>());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("设置延期公式失败");
     }
 
     @PostMapping("/upload")
@@ -140,9 +195,9 @@ public class TaobaoAccountController {
                 }
             }
 
-            TaobaoAccount taobaoAccount = taobaoAccountService.register(nick, nick, userId,
+            TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.register(nick, nick, userId,
                     sid, utdid, devid, autoLoginToken, umidToken, cookies, expires, state, created, updated);
-            if (taobaoAccount == null) {
+            if (taobaoAccountEntity == null) {
                 return R.error("保存数据库失败");
             }
 

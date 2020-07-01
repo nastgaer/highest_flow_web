@@ -1,17 +1,15 @@
 package highest.flow.taobaolive.sys.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import highest.flow.taobaolive.common.defines.ErrorCodes;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.R;
-import highest.flow.taobaolive.open.sys.*;
-import highest.flow.taobaolive.sys.dao.MemberDao;
+import highest.flow.taobaolive.sys.entity.PageEntity;
+import highest.flow.taobaolive.sys.entity.RegisterUserEntity;
+import highest.flow.taobaolive.sys.entity.SysLog;
 import highest.flow.taobaolive.sys.entity.SysMember;
-import highest.flow.taobaolive.sys.service.MemberRoleGroupService;
-import highest.flow.taobaolive.sys.service.MemberRoleService;
 import highest.flow.taobaolive.sys.service.MemberService;
-import highest.flow.taobaolive.sys.service.MemberTokenService;
-import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,20 +23,20 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/sys")
-public class MemberController {
+public class MemberController extends AbstractController {
 
     @Autowired
     private MemberService memberService;
 
     @PostMapping("/register")
-    public R register(@RequestBody RegisterUserParam registerUserParam) {
+    public R register(@RequestBody RegisterUserEntity registerUserEntity) {
         try {
-            SysMember member = memberService.register(registerUserParam.getMemberName(),
-                    registerUserParam.getPassword(),
-                    registerUserParam.getMobile(),
-                    registerUserParam.getComment(),
-                    registerUserParam.getRole(),
-                    registerUserParam.getState());
+            SysMember member = memberService.register(registerUserEntity.getMemberName(),
+                    registerUserEntity.getPassword(),
+                    registerUserEntity.getMobile(),
+                    registerUserEntity.getComment(),
+                    registerUserEntity.getRole(),
+                    registerUserEntity.getState());
 
             if (member == null) {
                 return R.error("注册用户失败");
@@ -52,9 +50,12 @@ public class MemberController {
     }
 
     @PostMapping("/list")
-    public R list(@RequestBody PageParam pageParam) {
+    public R list(@RequestBody PageEntity pageEntity) {
         try {
-            List<SysMember> members = this.memberService.list();
+            int pageNo = pageEntity.getPageNo();
+            int pageSize = pageEntity.getPageSize();
+            IPage<SysMember> page = this.memberService.page(new Page<>((pageNo - 1) * pageSize, pageSize));
+            List<SysMember> members = page.getRecords();
 
             List<Map<String, Object>> memberList = new ArrayList<>();
             for (SysMember sysMember : members) {

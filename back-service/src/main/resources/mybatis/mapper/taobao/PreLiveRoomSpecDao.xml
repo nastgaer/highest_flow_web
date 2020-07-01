@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="highest.flow.taobaolive.taobao.dao.PreLiveRoomSpecDao">
+
+    <resultMap id="preLiveRoomSpecMap" type="highest.flow.taobaolive.taobao.entity.PreLiveRoomSpecEntity">
+        <result property="id" column="id"/>
+        <result property="taobaoAccountId" column="taobao_account_id"/>
+        <result property="liveCoverImg" column="live_cover_img"/>
+        <result property="liveCoverImg169" column="live_cover_img169"/>
+        <result property="liveTitle" column="live_title"/>
+        <result property="liveIntro" column="live_intro"/>
+        <result property="liveStartTime" column="live_start_time"/>
+        <result property="liveEndTime" column="live_end_time"/>
+        <result property="liveChannelId" column="live_channel_id"/>
+        <result property="liveColumnId" column="live_column_id"/>
+        <result property="liveLocation" column="live_location"/>
+        <result property="hotProductUrl" column="hot_product_url"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+</mapper>

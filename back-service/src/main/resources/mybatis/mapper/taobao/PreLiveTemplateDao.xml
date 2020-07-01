@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="highest.flow.taobaolive.taobao.dao.PreLiveTemplateDao">
+
+    <resultMap id="preLiveTemplateMap" type="highest.flow.taobaolive.taobao.entity.PreLiveTemplateEntity">
+        <result property="id" column="id"/>
+        <result property="templateId" column="template_id"/>
+        <result property="templateKind" column="template_kind"/>
+        <result property="liveKind" column="live_kind"/>
+        <result property="liveChannelId" column="live_channel_id"/>
+        <result property="liveColumnId" column="live_column_id"/>
+        <result property="pscChannelId" column="psc_channel_id"/>
+        <result property="pscCategoryId" column="psc_category_id"/>
+        <result property="pscStartPrice" column="psc_start_price"/>
+        <result property="pscEndPrice" column="psc_end_price"/>
+        <result property="pscMinSales" column="psc_min_sales"/>
+        <result property="pscProductCount" column="psc_product_count"/>
+        <result property="pscIsTmall" column="psc_is_tmall"/>
+        <result property="pscSortKind" column="psc_sort_kind"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+</mapper>

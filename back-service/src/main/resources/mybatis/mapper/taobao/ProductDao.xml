@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="highest.flow.taobaolive.taobao.dao.ProductDao">
+
+    <resultMap id="productMap" type="highest.flow.taobaolive.taobao.entity.ProductEntity">
+        <result property="id" column="id"/>
+        <result property="liveId" column="live_id"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryTitle" column="category_title"/>
+        <result property="productId" column="product_id"/>
+        <result property="title" column="title"/>
+        <result property="price" column="price"/>
+        <result property="monthSales" column="month_sales"/>
+        <result property="shopName" column="shop_name"/>
+        <result property="url" column="url"/>
+        <result property="picurl" column="picurl"/>
+        <result property="state" column="state"/>
+        <result property="remark" column="remark"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+</mapper>

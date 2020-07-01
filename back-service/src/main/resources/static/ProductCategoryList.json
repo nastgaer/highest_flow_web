@@ -1,0 +1,669 @@
+[
+  {
+    "title": "穿搭",
+    "id": 0,
+    "suggests": [
+      {
+        "id": 0,
+        "title": "女装",
+        "kxuan_id": "3536",
+        "kxuan_swyt_item": "10463",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 1,
+        "title": "男装",
+        "kxuan_id": "3537",
+        "kxuan_swyt_item": "10499",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 2,
+        "title": "女鞋",
+        "kxuan_id": "3541",
+        "kxuan_swyt_item": "10505",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 3,
+        "title": "男鞋",
+        "kxuan_id": "3538",
+        "kxuan_swyt_item": "10502",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 4,
+        "title": "内衣",
+        "kxuan_id": "3539",
+        "kxuan_swyt_item": "10503",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 5,
+        "title": "女包",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "50006842",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 6,
+        "title": "男包",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "50072686",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 7,
+        "title": "箱包",
+        "kxuan_id": "3540",
+        "kxuan_swyt_item": "10504",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 8,
+        "title": "配饰配件",
+        "kxuan_id": "3542",
+        "kxuan_swyt_item": "10506",
+        "swyt_filter": "0"
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "title": "母婴",
+    "suggests": [
+      {
+        "id": 0,
+        "title": "童装",
+        "kxuan_id": "3584",
+        "kxuan_swyt_item": "10588",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 1,
+        "title": "童鞋",
+        "kxuan_id": "3587",
+        "kxuan_swyt_item": "10591",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 2,
+        "title": "玩具",
+        "kxuan_id": "3582",
+        "kxuan_swyt_item": "10586",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 3,
+        "title": "孕产系列",
+        "kxuan_id": "3586",
+        "kxuan_swyt_item": "10590",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 4,
+        "title": "奶粉辅食",
+        "kxuan_id": "3583",
+        "kxuan_swyt_item": "10587",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 5,
+        "title": "尿片洗护",
+        "kxuan_id": "3585",
+        "kxuan_swyt_item": "10589",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 6,
+        "title": "宝宝用品",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "50006004",
+        "swyt_filter": "0"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "美妆",
+    "suggests": [
+      {
+        "id": 0,
+        "title": "彩妆",
+        "kxuan_id": "3560",
+        "kxuan_swyt_item": "10542",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 1,
+        "title": "美发护发",
+        "kxuan_id": "3561",
+        "kxuan_swyt_item": "10545",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 2,
+        "title": "美容护肤",
+        "kxuan_id": "3559",
+        "kxuan_swyt_item": "10539",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 3,
+        "title": "个人护理",
+        "kxuan_id": "3558",
+        "kxuan_swyt_item": "10538",
+        "swyt_filter": "0"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "运动户外",
+    "suggests": [
+      {
+        "id": 0,
+        "title": "健身瑜伽",
+        "kxuan_id": "3600",
+        "kxuan_swyt_item": "10634",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 1,
+        "title": "运动服",
+        "kxuan_id": "3601",
+        "kxuan_swyt_item": "10635",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 2,
+        "title": "运动鞋",
+        "kxuan_id": "3602",
+        "kxuan_swyt_item": "10636",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 3,
+        "title": "运动包",
+        "kxuan_id": "3604",
+        "kxuan_swyt_item": "10638",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 4,
+        "title": "户外装备",
+        "kxuan_id": "3603",
+        "kxuan_swyt_item": "10637",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 5,
+        "title": "自行车及相关配件",
+        "kxuan_id": "3605",
+        "kxuan_swyt_item": "10639",
+        "swyt_filter": "0"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "美食",
+    "suggests": [
+      {
+        "id": 0,
+        "title": "滋补品",
+        "kxuan_id": "3566",
+        "kxuan_swyt_item": "10570",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 1,
+        "title": "咖啡茶饮品",
+        "kxuan_id": "3567",
+        "kxuan_swyt_item": "10571",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 2,
+        "title": "生鲜蔬果",
+        "kxuan_id": "3568",
+        "kxuan_swyt_item": "10572",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 3,
+        "title": "O2O美食卡券",
+        "kxuan_id": "3569",
+        "kxuan_swyt_item": "10573",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 4,
+        "title": "厨房电器",
+        "kxuan_id": "3562",
+        "kxuan_swyt_item": "10566",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 5,
+        "title": "零食",
+        "kxuan_id": "3563",
+        "kxuan_swyt_item": "10567",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 6,
+        "title": "酒类",
+        "kxuan_id": "3564",
+        "kxuan_swyt_item": "10568",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 7,
+        "title": "粮油米面",
+        "kxuan_id": "3565",
+        "kxuan_swyt_item": "10569",
+        "swyt_filter": "0"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "旅行",
+    "suggests": [
+      {
+        "id": 0,
+        "title": "酒店",
+        "kxuan_id": "3623",
+        "kxuan_swyt_item": "12656",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 1,
+        "title": "门票",
+        "kxuan_id": "3624",
+        "kxuan_swyt_item": "12657",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 2,
+        "title": "度假",
+        "kxuan_id": "3625",
+        "kxuan_swyt_item": "12658",
+        "swyt_filter": "0"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "家装家居",
+    "suggests": [
+      {
+        "id": 0,
+        "title": "仪式类鲜花",
+        "kxuan_id": "3595",
+        "kxuan_swyt_item": "10630",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 1,
+        "title": "床上用品",
+        "kxuan_id": "3553",
+        "kxuan_swyt_item": "10529",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 2,
+        "title": "家具灯饰",
+        "kxuan_id": "3554",
+        "kxuan_swyt_item": "10530",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 3,
+        "title": "餐饮厨具",
+        "kxuan_id": "3555",
+        "kxuan_swyt_item": "10531",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 4,
+        "title": "软装布艺",
+        "kxuan_id": "3556",
+        "kxuan_swyt_item": "10532",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 5,
+        "title": "房产",
+        "kxuan_id": "3557",
+        "kxuan_swyt_item": "10533",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 6,
+        "title": "清洁护理",
+        "kxuan_id": "3548",
+        "kxuan_swyt_item": "10516",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 7,
+        "title": "芳香驱虫",
+        "kxuan_id": "3549",
+        "kxuan_swyt_item": "10517",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 8,
+        "title": "生活电器",
+        "kxuan_id": "3550",
+        "kxuan_swyt_item": "10520",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 9,
+        "title": "家装",
+        "kxuan_id": "3551",
+        "kxuan_swyt_item": "10525",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 10,
+        "title": "居家收纳",
+        "kxuan_id": "3552",
+        "kxuan_swyt_item": "10528",
+        "swyt_filter": "0"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "数码科技",
+    "suggests": [
+      {
+        "id": 0,
+        "title": "手机",
+        "kxuan_id": "3591",
+        "kxuan_swyt_item": "10605",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 1,
+        "title": "3C及数码配件",
+        "kxuan_id": "3592",
+        "kxuan_swyt_item": "10606",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 2,
+        "title": "影音电器",
+        "kxuan_id": "3593",
+        "kxuan_swyt_item": "10609",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 3,
+        "title": "智能设备",
+        "kxuan_id": "3594",
+        "kxuan_swyt_item": "10610",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 4,
+        "title": "办公设备",
+        "kxuan_id": "3588",
+        "kxuan_swyt_item": "10600",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 5,
+        "title": "电子配件及电脑周边",
+        "kxuan_id": "3589",
+        "kxuan_swyt_item": "10601",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 6,
+        "title": "电脑",
+        "kxuan_id": "3590",
+        "kxuan_swyt_item": "10604",
+        "swyt_filter": "0"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "title": "萌宠",
+    "suggests": [
+      {
+        "id": 0,
+        "title": "服饰玩具",
+        "kxuan_id": "3574",
+        "kxuan_swyt_item": "10578",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 1,
+        "title": "水族世界",
+        "kxuan_id": "3575",
+        "kxuan_swyt_item": "10579",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 2,
+        "title": "小宠物",
+        "kxuan_id": "3576",
+        "kxuan_swyt_item": "10580",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 3,
+        "title": "马类",
+        "kxuan_id": "3577",
+        "kxuan_swyt_item": "10581",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 4,
+        "title": "其他宠物",
+        "kxuan_id": "3578",
+        "kxuan_swyt_item": "10582",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 5,
+        "title": "畜牧用品",
+        "kxuan_id": "3579",
+        "kxuan_swyt_item": "10583",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 6,
+        "title": "智能设备",
+        "kxuan_id": "3580",
+        "kxuan_swyt_item": "10584",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 7,
+        "title": "宠物服务",
+        "kxuan_id": "3581",
+        "kxuan_swyt_item": "10585",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 8,
+        "title": "狗狗及狗粮",
+        "kxuan_id": "3570",
+        "kxuan_swyt_item": "10574",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 9,
+        "title": "猫咪及猫粮",
+        "kxuan_id": "3571",
+        "kxuan_swyt_item": "10575",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 10,
+        "title": "日用清洁",
+        "kxuan_id": "3572",
+        "kxuan_swyt_item": "10576",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 11,
+        "title": "保健医疗",
+        "kxuan_id": "3573",
+        "kxuan_swyt_item": "10577",
+        "swyt_filter": "0"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "title": "珠宝",
+    "suggests": [
+      {
+        "id": 0,
+        "title": "珠宝/钻石/翡翠/黄金",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "50015926",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 1,
+        "title": "饰品/流行首饰/时尚饰品",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "1705",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 2,
+        "title": "珠宝》翡翠",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "50015926",
+        "swyt_filter": "0",
+        "keyword": "翡翠"
+      },
+      {
+        "id": 3,
+        "title": "饰品》翡翠",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "1705",
+        "swyt_filter": "0",
+        "keyword": "翡翠"
+      },
+      {
+        "id": 4,
+        "title": "珠宝》翡翠原石",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "50015926",
+        "swyt_filter": "0",
+        "keyword": "翡翠原石"
+      },
+      {
+        "id": 5,
+        "title": "珠宝》琥珀蜜蜡",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "50015926",
+        "swyt_filter": "0",
+        "keyword": "琥珀蜜蜡"
+      },
+      {
+        "id": 6,
+        "title": "饰品》钻石",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "1705",
+        "swyt_filter": "0",
+        "keyword": "钻石"
+      },
+      {
+        "id": 7,
+        "title": "珠宝》黄金",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "50015926", 
+        "swyt_filter": "0",
+        "keyword": "黄金"
+      },
+      {
+        "id": 8,
+        "title": "珠宝》和田玉",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "50015926",
+        "swyt_filter": "0",
+        "keyword": "和田玉"
+      },
+      {
+        "id": 9,
+        "title": "饰品》和田玉",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "1705",
+        "swyt_filter": "0",
+        "keyword": "和田玉"
+      },
+      {
+        "id": 10,
+        "title": "饰品》水晶",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "1705",
+        "swyt_filter": "0",
+        "keyword": "水晶"
+      },
+      {
+        "id": 11,
+        "title": "珠宝》文玩收藏",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "50015926",
+        "swyt_filter": "0",
+        "keyword": "文玩"
+      },
+      {
+        "id": 12,
+        "title": "饰品》莫桑钻",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "cat": "1705",
+        "swyt_filter": "0",
+        "keyword": "莫桑钻"
+      }
+    ]
+  },
+  {
+    "id": 99,
+    "title": "人气新品池",
+    "suggests": [
+      {
+        "id": 0,
+        "title": "人气新品池",
+        "kxuan_id": "3675",
+        "kxuan_swyt_item": "12812",
+        "swyt_filter": "0"
+      },
+      {
+        "id": 1,
+        "title": "搜全站",
+        "kxuan_id": "0",
+        "kxuan_swyt_item": "12835",
+        "swyt_filter": "0"
+      }
+    ]
+  }
+]

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="highest.flow.taobaolive.taobao.dao.LiveRoomStrategyDao">
+
+    <resultMap id="liveRoomStrategyMap" type="highest.flow.taobaolive.taobao.entity.LiveRoomStrategyEntity">
+        <result property="id" column="id"/>
+        <result property="taobaoAccountId" column="taobao_account_id"/>
+        <result property="templateKind" column="template_kind"/>
+        <result property="liveKind" column="live_kind"/>
+        <result property="liveId" column="live_id"/>
+        <result property="liveCoverImg" column="live_cover_img"/>
+        <result property="liveCoverImg169" column="live_cover_img169"/>
+        <result property="liveTitle" column="live_title"/>
+        <result property="liveIntro" column="live_intro"/>
+        <result property="liveStartTime" column="live_start_time"/>
+        <result property="liveEndTime" column="live_end_time"/>
+        <result property="liveChannelId" column="live_channel_id"/>
+        <result property="liveColumnId" column="live_column_id"/>
+        <result property="liveLocation" column="live_location"/>
+        <result property="hotProductUrl" column="hot_product_url"/>
+        <result property="pscChannelId" column="psc_channel_id"/>
+        <result property="pscCategoryId" column="psc_category_id"/>
+        <result property="pscStartPrice" column="psc_start_price"/>
+        <result property="pscEndPrice" column="psc_end_price"/>
+        <result property="pscMinSales" column="psc_min_sales"/>
+        <result property="pscProductCount" column="psc_product_count"/>
+        <result property="pscIsTmall" column="psc_is_tmall"/>
+        <result property="pscSortKind" column="psc_sort_kind"/>
+        <result property="isDel" column="is_del"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+</mapper>

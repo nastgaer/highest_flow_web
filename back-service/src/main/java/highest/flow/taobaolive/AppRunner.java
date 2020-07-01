@@ -1,22 +1,28 @@
 package highest.flow.taobaolive;
 
-import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.SpringContextUtils;
+import highest.flow.taobaolive.job.defines.ScheduleState;
+import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
+import highest.flow.taobaolive.job.service.ScheduleJobService;
+import highest.flow.taobaolive.job.utils.ScheduleUtils;
 import highest.flow.taobaolive.task.AutoLoginTask;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class AppRunner implements CommandLineRunner {
 
-//    @Autowired
-//    private Scheduler scheduler;
-//
-//    @Autowired
-//    private ScheduleJobService schedulerJobService;
+    @Autowired
+    private Scheduler scheduler;
+
+    @Autowired
+    private ScheduleJobService schedulerJobService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -43,12 +49,12 @@ public class AppRunner implements CommandLineRunner {
 //                scheduleJobEntity.setBeanName("autoLoginTask");
 //                scheduleJobEntity.setParams(null);
 //                // scheduleJobEntity.setCronExpression("0 0 0/2 1/1 * ? *");
-//                scheduleJobEntity.setCronExpression("0 0/1 * * * ? *");
+//                scheduleJobEntity.setCronExpression("0 0/10 * * * ? *");
 //                scheduleJobEntity.setCreatedTime(new Date());
 //                scheduleJobEntity.setState(ScheduleState.NORMAL.getValue());
 //                scheduleJobEntity.setRemark("延期任务");
 //
-//                // schedulerJobService.saveOrUpdate(scheduleJobEntity);
+//                schedulerJobService.saveOrUpdate(scheduleJobEntity);
 //                ScheduleUtils.createScheduleJob(scheduler, scheduleJobEntity);
 //
 //                scheduler.start();

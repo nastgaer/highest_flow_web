@@ -3,9 +3,9 @@ package highest.flow.taobaolive;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
-import highest.flow.taobaolive.taobao.entity.LiveRoom;
-import highest.flow.taobaolive.taobao.entity.Product;
-import highest.flow.taobaolive.taobao.entity.TaobaoAccount;
+import highest.flow.taobaolive.taobao.entity.LiveRoomEntity;
+import highest.flow.taobaolive.taobao.entity.ProductEntity;
+import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
 import org.junit.jupiter.api.Test;
@@ -37,48 +37,48 @@ public class RankingTests {
             R r = taobaoApiService.parseTaoCode(taocode);
             System.out.println(objectMapper.writeValueAsString(r));
 
-            LiveRoom liveRoom = new LiveRoom();
-            liveRoom.setLiveId((String) r.get("liveId"));
-            liveRoom.setCreatorId((String) r.get("creatorId"));
-            liveRoom.setTalentLiveUrl((String) r.get("talentLiveUrl"));
+            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+            liveRoomEntity.setLiveId((String) r.get("liveId"));
+            liveRoomEntity.setCreatorId((String) r.get("creatorId"));
+            liveRoomEntity.setTalentLiveUrl((String) r.get("talentLiveUrl"));
 
             String liveId = (String) r.get("liveId");
             r = taobaoApiService.getLiveDetail(liveId);
             System.out.println(objectMapper.writeValueAsString(r));
 
-            liveRoom.setAccountId((String) r.get("accountId"));
-            liveRoom.setAccountName((String) r.get("accountName"));
-            liveRoom.setFansNum((int) r.get("fansNum"));
-            liveRoom.setTopic((String) r.get("topic"));
-            liveRoom.setViewCount((int) r.get("viewCount"));
-            liveRoom.setPraiseCount((int) r.get("praiseCount"));
-            liveRoom.setOnlineCount((int) r.get("onlineCount"));
-            liveRoom.setCoverImg((String) r.get("coverImg"));
-            liveRoom.setCoverImg169((String) r.get("coverImg169"));
-            liveRoom.setTitle((String) r.get("title"));
-            liveRoom.setIntro((String) r.get("intro"));
-            liveRoom.setChannelId((int) r.get("channelId"));
-            liveRoom.setColumnId((int) r.get("columnId"));
-            liveRoom.setLocation((String) r.get("location"));
+            liveRoomEntity.setAccountId((String) r.get("accountId"));
+            liveRoomEntity.setAccountName((String) r.get("accountName"));
+            liveRoomEntity.setFansNum((int) r.get("fansNum"));
+            liveRoomEntity.setTopic((String) r.get("topic"));
+            liveRoomEntity.setViewCount((int) r.get("viewCount"));
+            liveRoomEntity.setPraiseCount((int) r.get("praiseCount"));
+            liveRoomEntity.setOnlineCount((int) r.get("onlineCount"));
+            liveRoomEntity.setCoverImg((String) r.get("coverImg"));
+            liveRoomEntity.setCoverImg169((String) r.get("coverImg169"));
+            liveRoomEntity.setTitle((String) r.get("title"));
+            liveRoomEntity.setIntro((String) r.get("intro"));
+            liveRoomEntity.setChannelId((int) r.get("channelId"));
+            liveRoomEntity.setColumnId((int) r.get("columnId"));
+            liveRoomEntity.setLocation((String) r.get("location"));
 
-            TaobaoAccount activeAccount = null;
-            List<TaobaoAccount> taobaoAccounts = taobaoAccountService.list();
-            for (TaobaoAccount taobaoAccount : taobaoAccounts) {
-                if (taobaoAccount.getState() == TaobaoAccountState.Normal.getState()) {
-                    activeAccount = taobaoAccount;
+            TaobaoAccountEntity activeAccount = null;
+            List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.list();
+            for (TaobaoAccountEntity taobaoAccountEntity : taobaoAccountEntities) {
+                if (taobaoAccountEntity.getState() == TaobaoAccountState.Normal.getState()) {
+                    activeAccount = taobaoAccountEntity;
                     break;
                 }
             }
 
             if (activeAccount != null) {
                 taobaoApiService.getH5Token(activeAccount);
-                r = taobaoApiService.getLiveEntry(liveRoom, activeAccount);
+                r = taobaoApiService.getLiveEntry(liveRoomEntity, activeAccount);
                 System.out.println(objectMapper.writeValueAsString(r));
 
-                liveRoom.setScopeId((String) r.get("scopeId"));
-                liveRoom.setSubScopeId((String) r.get("subScopeId"));
+                liveRoomEntity.setScopeId((String) r.get("scopeId"));
+                liveRoomEntity.setSubScopeId((String) r.get("subScopeId"));
 
-                r = taobaoApiService.getLiveProducts(liveRoom, activeAccount);
+                r = taobaoApiService.getLiveProducts(liveRoomEntity, activeAccount);
                 System.out.println(objectMapper.writeValueAsString(r));
             }
 
@@ -97,56 +97,56 @@ public class RankingTests {
             R r = taobaoApiService.parseTaoCode(taocode);
             System.out.println(objectMapper.writeValueAsString(r));
 
-            LiveRoom liveRoom = new LiveRoom();
-            liveRoom.setLiveId((String) r.get("liveId"));
-            liveRoom.setCreatorId((String) r.get("creatorId"));
-            liveRoom.setTalentLiveUrl((String) r.get("talentLiveUrl"));
+            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+            liveRoomEntity.setLiveId((String) r.get("liveId"));
+            liveRoomEntity.setCreatorId((String) r.get("creatorId"));
+            liveRoomEntity.setTalentLiveUrl((String) r.get("talentLiveUrl"));
 
             String liveId = (String) r.get("liveId");
             r = taobaoApiService.getLiveDetail(liveId);
             System.out.println(objectMapper.writeValueAsString(r));
 
-            liveRoom.setAccountId((String) r.get("accountId"));
-            liveRoom.setAccountName((String) r.get("accountName"));
-            liveRoom.setFansNum((int) r.get("fansNum"));
-            liveRoom.setTopic((String) r.get("topic"));
-            liveRoom.setViewCount((int) r.get("viewCount"));
-            liveRoom.setPraiseCount((int) r.get("praiseCount"));
-            liveRoom.setOnlineCount((int) r.get("onlineCount"));
-            liveRoom.setCoverImg((String) r.get("coverImg"));
-            liveRoom.setCoverImg169((String) r.get("coverImg169"));
-            liveRoom.setTitle((String) r.get("title"));
-            liveRoom.setIntro((String) r.get("intro"));
-            liveRoom.setChannelId((int) r.get("channelId"));
-            liveRoom.setColumnId((int) r.get("columnId"));
-            liveRoom.setLocation((String) r.get("location"));
+            liveRoomEntity.setAccountId((String) r.get("accountId"));
+            liveRoomEntity.setAccountName((String) r.get("accountName"));
+            liveRoomEntity.setFansNum((int) r.get("fansNum"));
+            liveRoomEntity.setTopic((String) r.get("topic"));
+            liveRoomEntity.setViewCount((int) r.get("viewCount"));
+            liveRoomEntity.setPraiseCount((int) r.get("praiseCount"));
+            liveRoomEntity.setOnlineCount((int) r.get("onlineCount"));
+            liveRoomEntity.setCoverImg((String) r.get("coverImg"));
+            liveRoomEntity.setCoverImg169((String) r.get("coverImg169"));
+            liveRoomEntity.setTitle((String) r.get("title"));
+            liveRoomEntity.setIntro((String) r.get("intro"));
+            liveRoomEntity.setChannelId((int) r.get("channelId"));
+            liveRoomEntity.setColumnId((int) r.get("columnId"));
+            liveRoomEntity.setLocation((String) r.get("location"));
 
-            List<TaobaoAccount> taobaoAccounts = taobaoAccountService.list();
+            List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.list();
 
-            TaobaoAccount activeAccount = null;
-            for (TaobaoAccount taobaoAccount : taobaoAccounts) {
-                if (taobaoAccount.getState() == TaobaoAccountState.Normal.getState()) {
-                    activeAccount = taobaoAccount;
+            TaobaoAccountEntity activeAccount = null;
+            for (TaobaoAccountEntity taobaoAccountEntity : taobaoAccountEntities) {
+                if (taobaoAccountEntity.getState() == TaobaoAccountState.Normal.getState()) {
+                    activeAccount = taobaoAccountEntity;
                     break;
                 }
             }
 
             taobaoApiService.getH5Token(activeAccount);
-            taobaoApiService.getLiveEntry(liveRoom, activeAccount);
-            r = taobaoApiService.getLiveProducts(liveRoom, activeAccount);
-            List<Product> products = (List<Product>) r.get("products");
+            taobaoApiService.getLiveEntry(liveRoomEntity, activeAccount);
+            r = taobaoApiService.getLiveProducts(liveRoomEntity, activeAccount);
+            List<ProductEntity> productEntities = (List<ProductEntity>) r.get("productEntities");
 
-            for (TaobaoAccount taobaoAccount : taobaoAccounts) {
-                if (taobaoAccount.getState() == TaobaoAccountState.Normal.getState()) {
-                    taobaoApiService.getH5Token(taobaoAccount);
+            for (TaobaoAccountEntity taobaoAccountEntity : taobaoAccountEntities) {
+                if (taobaoAccountEntity.getState() == TaobaoAccountState.Normal.getState()) {
+                    taobaoApiService.getH5Token(taobaoAccountEntity);
 
-                    r = taobaoApiService.taskFollow(liveRoom, taobaoAccount);
+                    r = taobaoApiService.taskFollow(liveRoomEntity, taobaoAccountEntity);
                     System.out.println(objectMapper.writeValueAsString(r));
 
-                    r = taobaoApiService.taskBuy(liveRoom, taobaoAccount, products.get(0).getProductId());
+                    r = taobaoApiService.taskBuy(liveRoomEntity, taobaoAccountEntity, productEntities.get(0).getProductId());
                     System.out.println(objectMapper.writeValueAsString(r));
 
-                    r = taobaoApiService.taskStay(liveRoom, taobaoAccount, 60);
+                    r = taobaoApiService.taskStay(liveRoomEntity, taobaoAccountEntity, 60);
                     System.out.println(objectMapper.writeValueAsString(r));
                 }
             }

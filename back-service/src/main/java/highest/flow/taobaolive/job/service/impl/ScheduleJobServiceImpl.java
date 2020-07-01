@@ -1,7 +1,7 @@
 package highest.flow.taobaolive.job.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import highest.flow.taobaolive.common.defines.ScheduleState;
+import highest.flow.taobaolive.job.defines.ScheduleState;
 import highest.flow.taobaolive.job.dao.ScheduleJobDao;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import highest.flow.taobaolive.job.service.ScheduleJobService;

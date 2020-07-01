@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="highest.flow.taobaolive.taobao.dao.RankingTaskDao">
+
+    <resultMap id="rankingTaskMap" type="highest.flow.taobaolive.taobao.entity.RankingEntity">
+        <result property="id" column="id"/>
+        <result property="memberId" column="member_id"/>
+        <result property="taocode" column="taocode"/>
+        <result property="roomName" column="room_name"/>
+        <result property="startScore" column="start_score"/>
+        <result property="targetScore" column="target_score"/>
+        <result property="doubleBuy" column="double_buy"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="state" column="state"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+</mapper>

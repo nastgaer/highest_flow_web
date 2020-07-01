@@ -1,53 +1,35 @@
 package highest.flow.taobaolive.taobao.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
 @Data
-@TableName("tbl_liverooms")
 public class PreLiveRoomSpec {
 
-    @TableId
-    private int id;
+    private String liveCoverImg;
 
-    private int memberId;
+    private String liveCoverImg169;
 
-    private String taobaoAccountId;
+    private String liveTitle;
 
-    private String roomName;
+    private String liveIntro;
 
-    private String coverImg;
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date liveStartTime;
 
-    private String coverImg169;
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date liveEndTime;
 
-    private String title;
+    private int liveChannelId;
 
-    private String intro;
+    private int liveColumnId;
 
-    private Date startTime;
-
-    private Date endTime;
-
-    private int channelId;
-
-    private int columnId;
-
-    private String location;
+    private String liveLocation;
 
     private String hotProductUrl;
-
-    /**
-     * LiveRoomState
-     */
-    private int state;
-
-    private String keywords;
-
-    private Date createdTime;
-
-    private Date updatedTime;
 }

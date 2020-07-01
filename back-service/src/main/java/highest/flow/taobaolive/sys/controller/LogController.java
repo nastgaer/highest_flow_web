@@ -1,7 +1,9 @@
 package highest.flow.taobaolive.sys.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import highest.flow.taobaolive.common.utils.R;
-import highest.flow.taobaolive.open.sys.PageParam;
+import highest.flow.taobaolive.sys.entity.PageEntity;
 import highest.flow.taobaolive.sys.entity.SysLog;
 import highest.flow.taobaolive.sys.service.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +22,14 @@ public class LogController {
     private LogService logService;
 
     @PostMapping("/logs")
-    public R logs(@RequestBody PageParam pageParam) {
+    public R logs(@RequestBody PageEntity pageEntity) {
         try {
-            List<SysLog> logs = this.logService.list();
+            int pageNo = pageEntity.getPageNo();
+            int pageSize = pageEntity.getPageSize();
+            IPage<SysLog> page = this.logService.page(new Page<>((pageNo - 1) * pageSize, pageSize));
+            List<SysLog> logs = page.getRecords();
 
-            return R.ok().put("logs", logs).put("total_count", logs.size());
+            return R.ok().put("logs", logs).put("total_count", this.logService.size());
 
         } catch (Exception ex) {
             return R.error("获取系统记录失败");

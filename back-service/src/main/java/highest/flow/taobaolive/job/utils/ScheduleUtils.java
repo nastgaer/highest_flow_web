@@ -8,7 +8,7 @@
 
 package highest.flow.taobaolive.job.utils;
 
-import highest.flow.taobaolive.common.defines.ScheduleState;
+import highest.flow.taobaolive.job.defines.ScheduleState;
 import highest.flow.taobaolive.common.exception.RRException;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import org.quartz.*;

@@ -10,11 +10,8 @@ import lombok.Setter;
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 
-import java.net.URLEncoder;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Data
 public class H5Header {
@@ -31,8 +28,8 @@ public class H5Header {
     @Setter(AccessLevel.NONE)
     private boolean expired = false;
 
-    public H5Header(TaobaoAccount taobaoAccount) {
-        CookieStore cookieStore = taobaoAccount.getCookieStore();
+    public H5Header(TaobaoAccountEntity taobaoAccountEntity) {
+        CookieStore cookieStore = taobaoAccountEntity.getCookieStore();
         List<Cookie> cookies = cookieStore.getCookies();
 
         String h5tk = "";
@@ -63,8 +60,8 @@ public class H5Header {
         }
     }
 
-    public H5Header(TaobaoAccount taobaoAccount, String appKey) {
-        this(taobaoAccount);
+    public H5Header(TaobaoAccountEntity taobaoAccountEntity, String appKey) {
+        this(taobaoAccountEntity);
         this.appKey = appKey;
     }
 

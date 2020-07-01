@@ -7,7 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class TaobaoliveApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(TaobaoliveApplication.class, args);
+        SpringApplication.run(TaobaoliveApplication.class, new String[] {
+                "test"
+        });
     }
 
 }

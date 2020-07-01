@@ -3,7 +3,7 @@
 
 <mapper namespace="highest.flow.taobaolive.taobao.dao.TaobaoAccountDao">
 
-    <resultMap id="taobaoAccountMap" type="highest.flow.taobaolive.taobao.entity.TaobaoAccount">
+    <resultMap id="taobaoAccountMap" type="highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity">
         <result property="id" column="id"/>
         <result property="accountId" column="account_id"/>
         <result property="nick" column="nick"/>

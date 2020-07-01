@@ -6,7 +6,6 @@ import highest.flow.taobaolive.common.utils.HFStringUtils;
 import lombok.Data;
 
 import java.net.URLEncoder;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,12 +41,12 @@ public class XHeader {
         this.timestamp = CommonUtils.dateToTimestamp(date);
     }
 
-    public XHeader(TaobaoAccount taobaoAccount) {
+    public XHeader(TaobaoAccountEntity taobaoAccountEntity) {
         this(new Date());
-        this.utdid = taobaoAccount.getUtdid();
-        this.devid = taobaoAccount.getDevid();
-        this.sid = taobaoAccount.getSid();
-        this.uid = taobaoAccount.getUid();
+        this.utdid = taobaoAccountEntity.getUtdid();
+        this.devid = taobaoAccountEntity.getDevid();
+        this.sid = taobaoAccountEntity.getSid();
+        this.uid = taobaoAccountEntity.getUid();
     }
 
     @JsonIgnore

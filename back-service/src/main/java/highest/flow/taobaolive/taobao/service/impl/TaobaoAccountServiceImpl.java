@@ -2,55 +2,52 @@ package highest.flow.taobaolive.taobao.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import highest.flow.taobaolive.common.http.CookieHelper;
 import highest.flow.taobaolive.taobao.dao.TaobaoAccountDao;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
-import highest.flow.taobaolive.taobao.entity.TaobaoAccount;
+import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Service("taobaoAccountService")
-public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAccount> implements TaobaoAccountService {
+public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAccountEntity> implements TaobaoAccountService {
 
     @Override
-    public TaobaoAccount register(String accountId, String nick, String uid, String sid, String utdid, String devid,
-                                  String autoLoginToken, String umidToken, List<Cookie> cookies, long expires, int state,
-                                  Date created, Date updated) {
+    public TaobaoAccountEntity register(String accountId, String nick, String uid, String sid, String utdid, String devid,
+                                        String autoLoginToken, String umidToken, List<Cookie> cookies, long expires, int state,
+                                        Date created, Date updated) {
         try {
-            TaobaoAccount taobaoAccount = new TaobaoAccount();
+            TaobaoAccountEntity taobaoAccountEntity = new TaobaoAccountEntity();
 
-            taobaoAccount.setAccountId(accountId);
-            taobaoAccount.setNick(nick);
-            taobaoAccount.setUid(uid);
-            taobaoAccount.setSid(sid);
-            taobaoAccount.setUtdid(utdid);
-            taobaoAccount.setDevid(devid);
-            taobaoAccount.setAutoLoginToken(autoLoginToken);
-            taobaoAccount.setUmidToken(umidToken);
+            taobaoAccountEntity.setAccountId(accountId);
+            taobaoAccountEntity.setNick(nick);
+            taobaoAccountEntity.setUid(uid);
+            taobaoAccountEntity.setSid(sid);
+            taobaoAccountEntity.setUtdid(utdid);
+            taobaoAccountEntity.setDevid(devid);
+            taobaoAccountEntity.setAutoLoginToken(autoLoginToken);
+            taobaoAccountEntity.setUmidToken(umidToken);
 
             CookieStore cookieStore = new BasicCookieStore();
             for (Cookie cookie : cookies) {
                 cookieStore.addCookie(cookie);
             }
-            taobaoAccount.setCookieStore(cookieStore);
+            taobaoAccountEntity.setCookieStore(cookieStore);
 
             Date expireDate = new Date();
             expireDate.setTime(expireDate.getTime() + expires);
-            taobaoAccount.setExpires(expireDate);
-            taobaoAccount.setState(TaobaoAccountState.fromInt(state).getState());
-            taobaoAccount.setCreatedTime(created);
-            taobaoAccount.setUpdatedTime(updated);
+            taobaoAccountEntity.setExpires(expireDate);
+            taobaoAccountEntity.setState(TaobaoAccountState.fromInt(state).getState());
+            taobaoAccountEntity.setCreatedTime(created);
+            taobaoAccountEntity.setUpdatedTime(updated);
 
-            this.save(taobaoAccount);
-            return taobaoAccount;
+            this.save(taobaoAccountEntity);
+            return taobaoAccountEntity;
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -59,7 +56,7 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     }
 
     @Override
-    public TaobaoAccount getInfo(String accountId) {
-        return baseMapper.selectOne(Wrappers.<TaobaoAccount>lambdaQuery().eq(TaobaoAccount::getAccountId, accountId));
+    public TaobaoAccountEntity getInfo(String accountId) {
+        return baseMapper.selectOne(Wrappers.<TaobaoAccountEntity>lambdaQuery().eq(TaobaoAccountEntity::getAccountId, accountId));
     }
 }

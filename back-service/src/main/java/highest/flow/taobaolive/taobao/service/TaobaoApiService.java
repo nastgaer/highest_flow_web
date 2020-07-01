@@ -7,15 +7,15 @@ import org.springframework.stereotype.Service;
 @Service
 public interface TaobaoApiService {
 
-    public R getUserSimple(TaobaoAccount taobaoAccount);
+    public R getUserSimple(TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 重登
      *
-     * @param taobaoAccount
+     * @param taobaoAccountEntity
      * @return
      */
-    public R autoLogin(TaobaoAccount taobaoAccount);
+    public R autoLogin(TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 获取二维码地址
@@ -28,43 +28,43 @@ public interface TaobaoApiService {
     /**
      * 获取二维码的csrfToken
      *
-     * @param taobaoAccount
+     * @param taobaoAccountEntity
      * @param qrCode
      * @return
      */
-    public R getLoginQRCodeCsrfToken(TaobaoAccount taobaoAccount, QRCode qrCode);
+    public R getLoginQRCodeCsrfToken(TaobaoAccountEntity taobaoAccountEntity, QRCode qrCode);
 
     /**
      * 自动扫二维码
      *
-     * @param taobaoAccount
+     * @param taobaoAccountEntity
      * @param qrCode
      * @param csrfToken
      * @return
      */
-    public R authQRCode(TaobaoAccount taobaoAccount, QRCode qrCode, String csrfToken);
+    public R authQRCode(TaobaoAccountEntity taobaoAccountEntity, QRCode qrCode, String csrfToken);
 
     /**
      * 查询验证状态
      *
-     * @param taobaoAccount
+     * @param taobaoAccountEntity
      * @param qrCode
      * @return
      */
-    public R checkLoginByQRCode(TaobaoAccount taobaoAccount, QRCode qrCode);
+    public R checkLoginByQRCode(TaobaoAccountEntity taobaoAccountEntity, QRCode qrCode);
 
     /**
      * 延期扫码信息
-     * @param taobaoAccount
+     * @param taobaoAccountEntity
      * @return
      */
-    public R postpone(TaobaoAccount taobaoAccount);
+    public R postpone(TaobaoAccountEntity taobaoAccountEntity);
 
     public R getUmtidToken();
 
-    public R getH5Token(TaobaoAccount taobaoAccount);
+    public R getH5Token(TaobaoAccountEntity taobaoAccountEntity);
 
-    public R getNewDeviceId(TaobaoAccount taobaoAccount);
+    public R getNewDeviceId(TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 解析淘口令
@@ -82,117 +82,125 @@ public interface TaobaoApiService {
 
     /**
      * 获取直播间商品
-     * @param liveRoom
-     * @param taobaoAccount
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
      * @return
      */
-    public R getLiveProducts(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
+    public R getLiveProducts(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 查询直播间赛道
-     * @param liveRoom
-     * @param taobaoAccount
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
      * @return
      */
-    public R getLiveEntry(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
+    public R getLiveEntry(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
+
+    /**
+     * 解析淘口令获取直播间信息
+     * @param taocode
+     * @param taobaoAccountEntity
+     * @return
+     */
+    public R getLiveInfo(String taocode, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 助力：关注任务
-     * @param liveRoom
-     * @param taobaoAccount
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
      * @return
      */
-    public R taskFollow(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
+    public R taskFollow(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 助力：在直播间等待几分钟
-     * @param liveRoom
-     * @param taobaoAccount
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
      * @param staySeconds
      * @return
      */
-    public R taskStay(LiveRoom liveRoom, TaobaoAccount taobaoAccount, int staySeconds);
+    public R taskStay(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, int staySeconds);
 
     /**
      * 助力：购买商品
-     * @param liveRoom
-     * @param taobaoAccount
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
      * @param productId
      * @return
      */
-    public R taskBuy(LiveRoom liveRoom, TaobaoAccount taobaoAccount, String productId);
+    public R taskBuy(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, String productId);
 
     /**
      * 发布预告（Web)
-     * @param taobaoAccount
-     * @param preLiveRoomSpec
+     * @param taobaoAccountEntity
+     * @param preLiveRoomSpecEntity
      * @return
      */
-    public R createLiveRoomWeb(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccount taobaoAccount);
+    public R createLiveRoomWeb(PreLiveRoomSpecEntity preLiveRoomSpecEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 发布预告（Mobile)
-     * @param taobaoAccount
-     * @param preLiveRoomSpec
+     * @param taobaoAccountEntity
+     * @param preLiveRoomSpecEntity
      * @return
      */
-    public R createLiveRoom(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccount taobaoAccount);
+    public R createLiveRoom(PreLiveRoomSpecEntity preLiveRoomSpecEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 开始直播
-     * @param liveRoom
-     * @param taobaoAccount
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
      * @return
      */
-    public R startLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
+    public R startLive(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 结束直播
-     * @param liveRoom
-     * @param taobaoAccount
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
      * @return
      */
-    public R stopLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
+    public R stopLive(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 删除回放
-     * @param liveRoom
-     * @param taobaoAccount
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
      * @return
      */
-    public R deleteLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount);
+    public R deleteLive(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 获取商品信息
-     * @param taobaoAccount
+     * @param taobaoAccountEntity
      * @param productId
      * @return
      */
-    public R getProductItemInfo(TaobaoAccount taobaoAccount, String productId);
+    public R getProductItemInfo(TaobaoAccountEntity taobaoAccountEntity, String productId);
 
     /**
      * 在直播间上架商品
-     * @param liveRoom
-     * @param taobaoAccount
-     * @param product
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
+     * @param productEntity
      * @return
      */
-    public R publishProductWeb(LiveRoom liveRoom, TaobaoAccount taobaoAccount, Product product);
+    public R publishProductWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, ProductEntity productEntity);
 
     /**
      * 访问商品的详细页面
-     * @param taobaoAccount
+     * @param taobaoAccountEntity
      * @param productId
      * @return
      */
-    public R openProduct(TaobaoAccount taobaoAccount, String productId);
+    public R openProduct(TaobaoAccountEntity taobaoAccountEntity, String productId);
 
     /**
      * 开始讲解
-     * @param liveRoom
-     * @param taobaoAccount
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
      * @param productId
      * @return
      */
-    public R addTimestamp(LiveRoom liveRoom, TaobaoAccount taobaoAccount, String productId);
+    public R addTimestamp(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, String productId);
 }

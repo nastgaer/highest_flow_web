@@ -20,6 +20,8 @@ public class SysMember {
     @JsonIgnore
     private String password;
 
+    private int level;
+
     @JsonIgnore
     private String salt;
 

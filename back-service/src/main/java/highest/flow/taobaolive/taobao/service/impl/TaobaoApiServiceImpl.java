@@ -33,7 +33,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     private SignService signService;
 
     @Override
-    public R getUserSimple(TaobaoAccount taobaoAccount) {
+    public R getUserSimple(TaobaoAccountEntity taobaoAccountEntity) {
         try {
             Map<String, Object> jsonParams = new HashMap<>();
             jsonParams.put("data", "{}");
@@ -44,7 +44,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String subUrl = "mtop.user.getusersimple";
             String url = "https://api.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
 
-            XHeader xHeader = new XHeader(taobaoAccount);
+            XHeader xHeader = new XHeader(taobaoAccountEntity);
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
@@ -55,7 +55,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
                             .addHeaders(xHeader.getHeaders()),
                     new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -221,18 +221,18 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R getLiveProducts(LiveRoom liveRoom, TaobaoAccount taobaoAccount) {
+    public R getLiveProducts(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             Map<String, Object> jsonParams = new HashMap<>();
             jsonParams.put("groupNum", "0");
-            jsonParams.put("liveId", liveRoom.getLiveId());
+            jsonParams.put("liveId", liveRoomEntity.getLiveId());
             jsonParams.put("n", "350");
             jsonParams.put("type", "0");
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
-            H5Header h5Header = new H5Header(taobaoAccount);
+            H5Header h5Header = new H5Header(taobaoAccountEntity);
             String subUrl = "mtop.mediaplatform.video.livedetail.itemlist.withpagination";
 
             Map<String, Object> urlParams = new HashMap<>();
@@ -253,7 +253,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     new SiteConfig()
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -271,7 +271,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
             int totalNum = Integer.parseInt(String.valueOf(mapData.get("totalNum")));
 
-            List<Product> products = new ArrayList<>();
+            List<ProductEntity> productEntities = new ArrayList<>();
             List<Map<String, Object>> itemList = (List<Map<String, Object>>) mapData.get("itemList");
             for (Map<String, Object> mapItem : itemList) {
                 List<Map<String, Object>> goodsList = (List<Map<String, Object>>) mapItem.get("goodsList");
@@ -286,29 +286,29 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     String itemPrice = String.valueOf(goodObj.get("itemPrice"));
                     String itemUrl = "https://item.taobao.com/item.htm?id=" + itemId; // String.valueOf(goodObj.get("itemUrl"));
 
-                    Product product = new Product();
-                    product.setProductId(itemId);
-                    product.setTitle(itemName);
-                    product.setPicurl(itemPic);
-                    product.setUrl(itemUrl);
-                    product.setPrice(itemPrice);
+                    ProductEntity productEntity = new ProductEntity();
+                    productEntity.setProductId(itemId);
+                    productEntity.setTitle(itemName);
+                    productEntity.setPicurl(itemPic);
+                    productEntity.setUrl(itemUrl);
+                    productEntity.setPrice(itemPrice);
 
                     Map<String, Object> mapExtendVal = (Map<String, Object>) goodObj.get("extendVal");
                     if (mapExtendVal != null) {
                         if (mapExtendVal.containsKey("timepoint")) {
-                            product.setTimepoint(Long.parseLong(String.valueOf(mapExtendVal.get("timepoint"))));
+                            productEntity.setTimepoint(Long.parseLong(String.valueOf(mapExtendVal.get("timepoint"))));
                         }
 
-                        product.setMonthSales(Integer.parseInt(String.valueOf(mapExtendVal.get("buyCount"))));
-                        product.setCategoryId(Integer.parseInt(String.valueOf(mapExtendVal.get("categoryLevelLeaf"))));
-                        product.setCategoryName(String.valueOf(mapExtendVal.get("categoryLevelOneName")));
+                        productEntity.setMonthSales(Integer.parseInt(String.valueOf(mapExtendVal.get("buyCount"))));
+                        productEntity.setCategoryId(Integer.parseInt(String.valueOf(mapExtendVal.get("categoryLevelLeaf"))));
+                        productEntity.setCategoryName(String.valueOf(mapExtendVal.get("categoryLevelOneName")));
 
                         String business = String.valueOf(mapExtendVal.get("business"));
                         Map<String, Object> mapBusiness = jsonParser.parseMap(business);
 
                         Map<String, Object> mapCpsTcpInfo = (Map<String, Object>) mapBusiness.get("cpsTcpInfo");
                         Map<String, Object> mapTaobaoLivetoc = (Map<String, Object>) mapCpsTcpInfo.get("taobaolivetoc");
-                        product.setBusinessSceneId(Integer.parseInt(String.valueOf(mapTaobaoLivetoc.get("businessScenceId"))));
+                        productEntity.setBusinessSceneId(Integer.parseInt(String.valueOf(mapTaobaoLivetoc.get("businessScenceId"))));
 
                         Map<String, Object> mapItemBizInfo = (Map<String, Object>) mapBusiness.get("itemBizInfo");
                         String itemJumpUrl = String.valueOf(mapItemBizInfo.get("itemJumpUrl"));
@@ -317,31 +317,31 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                         String [] words = itemJumpUrl.split("&");
                         for (String word : words) {
                             if (word.toLowerCase().startsWith("pg1stepk=")) {
-                                product.setPg1stepk(word.substring("pg1stepk=".length()));
+                                productEntity.setPg1stepk(word.substring("pg1stepk=".length()));
                             } else if (word.toLowerCase().startsWith("liveinfo=")) {
-                                product.setLiveInfo(word.substring("liveInfo=".length()));
+                                productEntity.setLiveInfo(word.substring("liveInfo=".length()));
                             } else if (word.toLowerCase().startsWith("descversion=")) {
-                                product.setDescVersion(word.substring("descversion=".length()));
+                                productEntity.setDescVersion(word.substring("descversion=".length()));
                             } else if (word.toLowerCase().startsWith("scm=")) {
-                                product.setScm(word.substring("scm=".length()));
+                                productEntity.setScm(word.substring("scm=".length()));
                             } else if (word.toLowerCase().startsWith("spm=")) {
-                                product.setSpm(word.substring("spm=".length()));
+                                productEntity.setSpm(word.substring("spm=".length()));
                             } else if (word.toLowerCase().startsWith("utparam=")) {
-                                product.setUtparam(word.substring("utparam=".length()));
+                                productEntity.setUtparam(word.substring("utparam=".length()));
                             } else if (word.toLowerCase().startsWith("biztype=")) {
-                                product.setBizType(word.substring("biztype=".length()));
+                                productEntity.setBizType(word.substring("biztype=".length()));
                             }
                         }
                     }
 
-                    products.add(product);
+                    productEntities.add(productEntity);
                 }
             }
 
-            liveRoom.setProducts(products);
+            liveRoomEntity.setProducts(productEntities);
 
             return R.ok()
-                    .put("products", products)
+                    .put("productEntities", productEntities)
                     .put("totalNum", totalNum);
 
         } catch (Exception ex) {
@@ -351,16 +351,16 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R getLiveEntry(LiveRoom liveRoom, TaobaoAccount taobaoAccount) {
+    public R getLiveEntry(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             Map<String, Object> jsonParams = new HashMap<>();
-            jsonParams.put("accountId", liveRoom.getAccountId());
-            jsonParams.put("liveId", liveRoom.getLiveId());
+            jsonParams.put("accountId", liveRoomEntity.getAccountId());
+            jsonParams.put("liveId", liveRoomEntity.getLiveId());
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
-            H5Header h5Header = new H5Header(taobaoAccount);
+            H5Header h5Header = new H5Header(taobaoAccountEntity);
             String subUrl = "mtop.mediaplatform.livedetail.entry";
 
             Map<String, Object> urlParams = new HashMap<>();
@@ -381,7 +381,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     new SiteConfig()
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -397,26 +397,26 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            liveRoom.setHasRankingEntry(Boolean.parseBoolean(String.valueOf(mapData.get("hasRankingListEntry"))));
-            if (!liveRoom.isHasRankingEntry()) {
-                liveRoom.setRankingScore(0);
-                liveRoom.setRankingNum(0);
-                liveRoom.setRankingName("");
+            liveRoomEntity.setHasRankingEntry(Boolean.parseBoolean(String.valueOf(mapData.get("hasRankingListEntry"))));
+            if (!liveRoomEntity.isHasRankingEntry()) {
+                liveRoomEntity.setRankingScore(0);
+                liveRoomEntity.setRankingNum(0);
+                liveRoomEntity.setRankingName("");
 
             } else {
                 Map<String, Object> mapRankingListData = (Map<String, Object>) mapData.get("rankingListData");
                 Map<String, Object> mapBizData = (Map<String, Object>) mapRankingListData.get("bizData");
-                liveRoom.setRankingScore(Integer.parseInt(String.valueOf(mapBizData.get("score"))));
-                liveRoom.setRankingNum(Integer.parseInt(String.valueOf(mapBizData.get("rankNum"))));
-                liveRoom.setRankingName(String.valueOf(mapBizData.get("name")));
+                liveRoomEntity.setRankingScore(Integer.parseInt(String.valueOf(mapBizData.get("score"))));
+                liveRoomEntity.setRankingNum(Integer.parseInt(String.valueOf(mapBizData.get("rankNum"))));
+                liveRoomEntity.setRankingName(String.valueOf(mapBizData.get("name")));
             }
 
             Map<String, Object> mapHierachyData = (Map<String, Object>) mapData.get("hierarchyData");
-            liveRoom.setScopeId(mapHierachyData == null ? "-1" : String.valueOf(mapHierachyData.get("scopeId")));
-            liveRoom.setSubScopeId(mapHierachyData == null ? "-1" : String.valueOf(mapHierachyData.get("subScopeId")));
+            liveRoomEntity.setScopeId(mapHierachyData == null ? "-1" : String.valueOf(mapHierachyData.get("scopeId")));
+            liveRoomEntity.setSubScopeId(mapHierachyData == null ? "-1" : String.valueOf(mapHierachyData.get("subScopeId")));
 
             return R.ok()
-                    .put("liveRoom", liveRoom);
+                    .put("liveRoomEntity", liveRoomEntity);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -425,28 +425,78 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R taskFollow(LiveRoom liveRoom, TaobaoAccount taobaoAccount) {
+    public R getLiveInfo(String taocode, TaobaoAccountEntity taobaoAccountEntity) {
+        try {
+            R r = this.parseTaoCode(taocode);
+            if (r.getCode() != ErrorCodes.SUCCESS) {
+                return r;
+            }
+
+            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+            liveRoomEntity.setLiveId((String) r.get("liveId"));
+            liveRoomEntity.setCreatorId((String) r.get("creatorId"));
+            liveRoomEntity.setTalentLiveUrl((String) r.get("talentLiveUrl"));
+
+            String liveId = (String) r.get("liveId");
+            r = this.getLiveDetail(liveId);
+            if (r.getCode() != ErrorCodes.SUCCESS) {
+                return r;
+            }
+
+            liveRoomEntity.setAccountId((String) r.get("accountId"));
+            liveRoomEntity.setAccountName((String) r.get("accountName"));
+            liveRoomEntity.setFansNum((int) r.get("fansNum"));
+            liveRoomEntity.setTopic((String) r.get("topic"));
+            liveRoomEntity.setViewCount((int) r.get("viewCount"));
+            liveRoomEntity.setPraiseCount((int) r.get("praiseCount"));
+            liveRoomEntity.setOnlineCount((int) r.get("onlineCount"));
+            liveRoomEntity.setCoverImg((String) r.get("coverImg"));
+            liveRoomEntity.setCoverImg169((String) r.get("coverImg169"));
+            liveRoomEntity.setTitle((String) r.get("title"));
+            liveRoomEntity.setIntro((String) r.get("intro"));
+            liveRoomEntity.setChannelId((int) r.get("channelId"));
+            liveRoomEntity.setColumnId((int) r.get("columnId"));
+            liveRoomEntity.setLocation((String) r.get("location"));
+
+            if (taobaoAccountEntity != null) {
+                r = this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+                if (r.getCode() != ErrorCodes.SUCCESS) {
+                    return r;
+                }
+            }
+
+            return R.ok().put("liveRoomEntity", liveRoomEntity);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+
+    @Override
+    public R taskFollow(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
             Map<String, Object> mapTrackParams = new HashMap<>();
-            mapTrackParams.put("activityId", liveRoom.getLiveId());
-            mapTrackParams.put("broadcasterId", liveRoom.getAccountId());
-            mapTrackParams.put("userId", taobaoAccount.getUid());
+            mapTrackParams.put("activityId", liveRoomEntity.getLiveId());
+            mapTrackParams.put("broadcasterId", liveRoomEntity.getAccountId());
+            mapTrackParams.put("userId", taobaoAccountEntity.getUid());
 
             Map<String, Object> mapParams = new HashMap<>();
-            mapParams.put("accountId", liveRoom.getAccountId());
+            mapParams.put("accountId", liveRoomEntity.getAccountId());
 
             Map<String, Object> jsonParams = new HashMap<>();
-            jsonParams.put("scopeId", liveRoom.getScopeId());
-            jsonParams.put("subScope", liveRoom.getSubScopeId());
+            jsonParams.put("scopeId", liveRoomEntity.getScopeId());
+            jsonParams.put("subScope", liveRoomEntity.getSubScopeId());
             jsonParams.put("trackParams", objectMapper.writeValueAsString(mapTrackParams));
             jsonParams.put("action", "follow");
             jsonParams.put("params", objectMapper.writeValueAsString(mapParams));
 
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
-            H5Header h5Header = new H5Header(taobaoAccount);
+            H5Header h5Header = new H5Header(taobaoAccountEntity);
             String subUrl = "mtop.taobao.iliad.task.action";
 
             Map<String, Object> urlParams = new HashMap<>();
@@ -467,7 +517,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     new SiteConfig()
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -491,28 +541,28 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R taskStay(LiveRoom liveRoom, TaobaoAccount taobaoAccount, int staySeconds) {
+    public R taskStay(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, int staySeconds) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
             Map<String, Object> mapTrackParams = new HashMap<>();
-            mapTrackParams.put("activityId", liveRoom.getLiveId());
-            mapTrackParams.put("broadcasterId", liveRoom.getAccountId());
-            mapTrackParams.put("userId", taobaoAccount.getUid());
+            mapTrackParams.put("activityId", liveRoomEntity.getLiveId());
+            mapTrackParams.put("broadcasterId", liveRoomEntity.getAccountId());
+            mapTrackParams.put("userId", taobaoAccountEntity.getUid());
 
             Map<String, Object> mapParams = new HashMap<>();
             mapParams.put("stayTime", staySeconds);
 
             Map<String, Object> jsonParams = new HashMap<>();
-            jsonParams.put("scopeId", liveRoom.getScopeId());
-            jsonParams.put("subScope", liveRoom.getSubScopeId());
+            jsonParams.put("scopeId", liveRoomEntity.getScopeId());
+            jsonParams.put("subScope", liveRoomEntity.getSubScopeId());
             jsonParams.put("trackParams", objectMapper.writeValueAsString(mapTrackParams));
             jsonParams.put("action", "stay");
             jsonParams.put("params", objectMapper.writeValueAsString(mapParams));
 
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
-            H5Header h5Header = new H5Header(taobaoAccount);
+            H5Header h5Header = new H5Header(taobaoAccountEntity);
             String subUrl = "mtop.taobao.iliad.task.action";
 
             Map<String, Object> urlParams = new HashMap<>();
@@ -533,7 +583,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     new SiteConfig()
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -557,29 +607,29 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R taskBuy(LiveRoom liveRoom, TaobaoAccount taobaoAccount, String productId) {
+    public R taskBuy(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, String productId) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
             Map<String, Object> mapTrackParams = new HashMap<>();
-            mapTrackParams.put("activityId", liveRoom.getLiveId());
-            mapTrackParams.put("broadcasterId", liveRoom.getAccountId());
-            mapTrackParams.put("userId", taobaoAccount.getUid());
+            mapTrackParams.put("activityId", liveRoomEntity.getLiveId());
+            mapTrackParams.put("broadcasterId", liveRoomEntity.getAccountId());
+            mapTrackParams.put("userId", taobaoAccountEntity.getUid());
 
             Map<String, Object> mapParams = new HashMap<>();
             mapParams.put("itemId", productId);
             mapParams.put("cost", 50);
 
             Map<String, Object> jsonParams = new HashMap<>();
-            jsonParams.put("scopeId", liveRoom.getScopeId());
-            jsonParams.put("subScope", liveRoom.getSubScopeId());
+            jsonParams.put("scopeId", liveRoomEntity.getScopeId());
+            jsonParams.put("subScope", liveRoomEntity.getSubScopeId());
             jsonParams.put("trackParams", objectMapper.writeValueAsString(mapTrackParams));
             jsonParams.put("action", "payCarts");
             jsonParams.put("params", objectMapper.writeValueAsString(mapParams));
 
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
-            H5Header h5Header = new H5Header(taobaoAccount);
+            H5Header h5Header = new H5Header(taobaoAccountEntity);
             String subUrl = "mtop.taobao.iliad.task.action";
 
             Map<String, Object> urlParams = new HashMap<>();
@@ -600,7 +650,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     new SiteConfig()
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -624,22 +674,22 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R createLiveRoomWeb(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccount taobaoAccount) {
+    public R createLiveRoomWeb(PreLiveRoomSpecEntity preLiveRoomSpecEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
-            String url = "https://liveplatform.taobao.com/live/action.do?api=publish_pre_live&_tb_token_=" + taobaoAccount.getToken() + "&_input_charset=utf-8";
+            String url = "https://liveplatform.taobao.com/live/action.do?api=publish_pre_live&_tb_token_=" + taobaoAccountEntity.getToken() + "&_input_charset=utf-8";
             String refererUrl = "https://liveplatform.taobao.com/live/addLive.htm";
 
             Map<String, String> postParams = new HashMap<>();
             postParams.put("landscape", "false");
-            postParams.put("title", preLiveRoomSpec.getTitle());
-            postParams.put("descInfo", preLiveRoomSpec.getIntro());
-            postParams.put("coverImg", preLiveRoomSpec.getCoverImg().replace("https:", ""));
-            postParams.put("coverImg169", preLiveRoomSpec.getCoverImg169().replace("https:", ""));
+            postParams.put("title", preLiveRoomSpecEntity.getTitle());
+            postParams.put("descInfo", preLiveRoomSpecEntity.getIntro());
+            postParams.put("coverImg", preLiveRoomSpecEntity.getCoverImg().replace("https:", ""));
+            postParams.put("coverImg169", preLiveRoomSpecEntity.getCoverImg169().replace("https:", ""));
             postParams.put("coverImg916", "null");
             postParams.put("uploadId", "undefined");
             postParams.put("roomType", "0");
-            postParams.put("liveChannelId", String.valueOf(preLiveRoomSpec.getChannelId()));
-            postParams.put("liveColumnId", String.valueOf(preLiveRoomSpec.getColumnId()));
+            postParams.put("liveChannelId", String.valueOf(preLiveRoomSpecEntity.getChannelId()));
+            postParams.put("liveColumnId", String.valueOf(preLiveRoomSpecEntity.getColumnId()));
             postParams.put("syncYouku", "false");
             postParams.put("useLcps", "false");
             postParams.put("itemList", "[]");
@@ -654,14 +704,14 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             postParams.put("provinceCode", "");
             postParams.put("cityCode", "");
             postParams.put("districtCode", "");
-            postParams.put("addressDetail", preLiveRoomSpec.getLocation());
+            postParams.put("addressDetail", preLiveRoomSpecEntity.getLocation());
             postParams.put("appId", "");
             postParams.put("notice", "");
             postParams.put("country", "");
             postParams.put("province", "");
-            postParams.put("city", preLiveRoomSpec.getLocation());
-            postParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpec.getStartTime())));
-            postParams.put("liveEndTime", String.valueOf(CommonUtils.dateToTimestamp(CommonUtils.addDays(preLiveRoomSpec.getStartTime(), 30))));
+            postParams.put("city", preLiveRoomSpecEntity.getLocation());
+            postParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpecEntity.getStartTime())));
+            postParams.put("liveEndTime", String.valueOf(CommonUtils.dateToTimestamp(CommonUtils.addDays(preLiveRoomSpecEntity.getStartTime(), 30))));
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -670,7 +720,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
                     new Request("POST", url, ResponseType.TEXT)
                             .setParameters(postParams),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
@@ -686,19 +736,19 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> mapModel = (Map<String, Object>) map.get("model");
 
-            LiveRoom liveRoom = new LiveRoom();
-            liveRoom.setLiveId(String.valueOf(mapModel.get("preLiveId")));
-            liveRoom.setStartTime(preLiveRoomSpec.getStartTime());
-            liveRoom.setCoverImg(preLiveRoomSpec.getCoverImg());
-            liveRoom.setCoverImg169(preLiveRoomSpec.getCoverImg169());
-            liveRoom.setTitle(preLiveRoomSpec.getTitle());
-            liveRoom.setIntro(preLiveRoomSpec.getIntro());
-            liveRoom.setChannelId(preLiveRoomSpec.getChannelId());
-            liveRoom.setColumnId(preLiveRoomSpec.getColumnId());
-            liveRoom.setLocation(preLiveRoomSpec.getLocation());
+            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+            liveRoomEntity.setLiveId(String.valueOf(mapModel.get("preLiveId")));
+            liveRoomEntity.setStartTime(preLiveRoomSpecEntity.getStartTime());
+            liveRoomEntity.setCoverImg(preLiveRoomSpecEntity.getCoverImg());
+            liveRoomEntity.setCoverImg169(preLiveRoomSpecEntity.getCoverImg169());
+            liveRoomEntity.setTitle(preLiveRoomSpecEntity.getTitle());
+            liveRoomEntity.setIntro(preLiveRoomSpecEntity.getIntro());
+            liveRoomEntity.setChannelId(preLiveRoomSpecEntity.getChannelId());
+            liveRoomEntity.setColumnId(preLiveRoomSpecEntity.getColumnId());
+            liveRoomEntity.setLocation(preLiveRoomSpecEntity.getLocation());
 
             return R.ok()
-                    .put("liveRoom", liveRoom);
+                    .put("liveRoomEntity", liveRoomEntity);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -707,18 +757,18 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R createLiveRoom(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccount taobaoAccount) {
+    public R createLiveRoom(PreLiveRoomSpecEntity preLiveRoomSpecEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             Map<String, String> jsonParams = new HashMap<>();
-            jsonParams.put("coverImg", preLiveRoomSpec.getCoverImg());
-            jsonParams.put("coverImg169", preLiveRoomSpec.getCoverImg169());
-            jsonParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpec.getStartTime())));
-            jsonParams.put("title", preLiveRoomSpec.getTitle());
-            jsonParams.put("descInfo", preLiveRoomSpec.getIntro());
+            jsonParams.put("coverImg", preLiveRoomSpecEntity.getCoverImg());
+            jsonParams.put("coverImg169", preLiveRoomSpecEntity.getCoverImg169());
+            jsonParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpecEntity.getStartTime())));
+            jsonParams.put("title", preLiveRoomSpecEntity.getTitle());
+            jsonParams.put("descInfo", preLiveRoomSpecEntity.getIntro());
             jsonParams.put("itemIds", "");
-            jsonParams.put("liveChannelId", String.valueOf(preLiveRoomSpec.getChannelId()));
-            jsonParams.put("liveColumnId", String.valueOf(preLiveRoomSpec.getColumnId()));
-            jsonParams.put("location", preLiveRoomSpec.getLocation());
+            jsonParams.put("liveChannelId", String.valueOf(preLiveRoomSpecEntity.getChannelId()));
+            jsonParams.put("liveColumnId", String.valueOf(preLiveRoomSpecEntity.getColumnId()));
+            jsonParams.put("location", preLiveRoomSpecEntity.getLocation());
             jsonParams.put("landScape", "false");
             jsonParams.put("useLcps", "false");
             jsonParams.put("tidbitsUrl", "");
@@ -729,7 +779,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String subUrl = "mtop.mediaplatform.live.create";
             String url = "https://acs.m.taobao.com/gw/" + subUrl + "/3.0/?data=" + URLEncoder.encode(jsonText);
 
-            XHeader xHeader = new XHeader(taobaoAccount);
+            XHeader xHeader = new XHeader(taobaoAccountEntity);
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("3.0");
             xHeader.setData(jsonText);
@@ -740,7 +790,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
                             .addHeaders(xHeader.getHeaders()),
                     new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -756,23 +806,23 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            LiveRoom liveRoom = new LiveRoom();
-            liveRoom.setLiveId(String.valueOf(mapData.get("liveId")));
-            liveRoom.setAccountId(String.valueOf(mapData.get("accountId")));
-            liveRoom.setTopic(String.valueOf(mapData.get("topic")));
-            liveRoom.setViewCount(Integer.parseInt(String.valueOf(mapData.get("viewCount"))));
-            liveRoom.setPraiseCount(Integer.parseInt(String.valueOf(mapData.get("praiseCount"))));
-            liveRoom.setStartTime(preLiveRoomSpec.getStartTime());
-            liveRoom.setCoverImg(String.valueOf(mapData.get("coverImg")));
-            liveRoom.setCoverImg169(String.valueOf(mapData.get("coverImg169")));
-            liveRoom.setTitle(String.valueOf(mapData.get("title")));
-            liveRoom.setIntro(String.valueOf(mapData.get("intro")));
-            liveRoom.setChannelId(Integer.parseInt(String.valueOf(mapData.get("liveChannelId"))));
-            liveRoom.setColumnId(Integer.parseInt(String.valueOf(mapData.get("liveColumnId"))));
-            liveRoom.setLocation(String.valueOf(mapData.get("location")));
+            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+            liveRoomEntity.setLiveId(String.valueOf(mapData.get("liveId")));
+            liveRoomEntity.setAccountId(String.valueOf(mapData.get("accountId")));
+            liveRoomEntity.setTopic(String.valueOf(mapData.get("topic")));
+            liveRoomEntity.setViewCount(Integer.parseInt(String.valueOf(mapData.get("viewCount"))));
+            liveRoomEntity.setPraiseCount(Integer.parseInt(String.valueOf(mapData.get("praiseCount"))));
+            liveRoomEntity.setStartTime(preLiveRoomSpecEntity.getStartTime());
+            liveRoomEntity.setCoverImg(String.valueOf(mapData.get("coverImg")));
+            liveRoomEntity.setCoverImg169(String.valueOf(mapData.get("coverImg169")));
+            liveRoomEntity.setTitle(String.valueOf(mapData.get("title")));
+            liveRoomEntity.setIntro(String.valueOf(mapData.get("intro")));
+            liveRoomEntity.setChannelId(Integer.parseInt(String.valueOf(mapData.get("liveChannelId"))));
+            liveRoomEntity.setColumnId(Integer.parseInt(String.valueOf(mapData.get("liveColumnId"))));
+            liveRoomEntity.setLocation(String.valueOf(mapData.get("location")));
 
             return R.ok()
-                    .put("liveRoom", liveRoom);
+                    .put("liveRoomEntity", liveRoomEntity);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -781,15 +831,15 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R startLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount) {
+    public R startLive(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
-            String url = "https://liveplatform.taobao.com/live/action.do?api=start_live_from_pre&_tb_token_=" + taobaoAccount.getToken();
-            String refererUrl = "https://liveplatform.taobao.com/live/liveDetail.htm?id=" + liveRoom.getLiveId() + "&openHlvPush=true";
+            String url = "https://liveplatform.taobao.com/live/action.do?api=start_live_from_pre&_tb_token_=" + taobaoAccountEntity.getToken();
+            String refererUrl = "https://liveplatform.taobao.com/live/liveDetail.htm?id=" + liveRoomEntity.getLiveId() + "&openHlvPush=true";
 
             Map<String, String> postParams = new HashMap<>();
-            postParams.put("liveVideoId", liveRoom.getLiveId());
-            postParams.put("accountId", taobaoAccount.getUid());
-            postParams.put("location", HFStringUtils.isNullOrEmpty(liveRoom.getLocation()) ? "中国" : liveRoom.getLocation());
+            postParams.put("liveVideoId", liveRoomEntity.getLiveId());
+            postParams.put("accountId", taobaoAccountEntity.getUid());
+            postParams.put("location", HFStringUtils.isNullOrEmpty(liveRoomEntity.getLocation()) ? "中国" : liveRoomEntity.getLocation());
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -798,7 +848,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
                     new Request("POST", url, ResponseType.TEXT)
                             .setParameters(postParams),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
@@ -821,14 +871,14 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R stopLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount) {
+    public R stopLive(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             String url = "https://liveplatform.taobao.com/live/action.do?api=stop_live";
-            String refererUrl = "https://liveplatform.taobao.com/live/live_detail.htm?id=" + liveRoom.getLiveId() + "&openHlvPush=true";
+            String refererUrl = "https://liveplatform.taobao.com/live/live_detail.htm?id=" + liveRoomEntity.getLiveId() + "&openHlvPush=true";
 
             Map<String, String> postParams = new HashMap<>();
-            postParams.put("pFeedId", liveRoom.getLiveId());
-            postParams.put("_tb_token_", taobaoAccount.getToken());
+            postParams.put("pFeedId", liveRoomEntity.getLiveId());
+            postParams.put("_tb_token_", taobaoAccountEntity.getToken());
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -837,7 +887,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
                     new Request("POST", url, ResponseType.TEXT)
                             .setParameters(postParams),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
@@ -860,14 +910,14 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R deleteLive(LiveRoom liveRoom, TaobaoAccount taobaoAccount) {
+    public R deleteLive(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
-            String url = "https://liveplatform.taobao.com/live/action.do?api=delete_live&liveId=" + liveRoom.getLiveId();
+            String url = "https://liveplatform.taobao.com/live/action.do?api=delete_live&liveId=" + liveRoomEntity.getLiveId();
             String refererUrl = "https://liveplatform.taobao.com/live/liveList.htm?spm=a1z9u.8142865.0.0.3d067997jRNQCS";
 
             Map<String, String> postParams = new HashMap<>();
-            postParams.put("pFeedId", liveRoom.getLiveId());
-            postParams.put("_tb_token_", taobaoAccount.getToken());
+            postParams.put("pFeedId", liveRoomEntity.getLiveId());
+            postParams.put("_tb_token_", taobaoAccountEntity.getToken());
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -876,7 +926,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
                     new Request("POST", url, ResponseType.TEXT)
                             .setParameters(postParams),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
@@ -900,7 +950,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R getProductItemInfo(TaobaoAccount taobaoAccount, String productId) {
+    public R getProductItemInfo(TaobaoAccountEntity taobaoAccountEntity, String productId) {
         try {
             String url = "https://liveplatform.taobao.com/live/action.do?api=item_getItem";
             String refererUrl = "https://liveplatform.taobao.com/live/liveDetail.htm?spm=a1z9u.8142865.0.0.1cb534edxcANsb&id=261569222510";
@@ -914,7 +964,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .addHeader("Referer", refererUrl)
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
                     new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
@@ -946,13 +996,13 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R publishProductWeb(LiveRoom liveRoom, TaobaoAccount taobaoAccount, Product product) {
+    public R publishProductWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, ProductEntity productEntity) {
         try {
             Map<String, Object> mapNode = new HashMap<>();
             mapNode.put("type", "picItem");
-            mapNode.put("path", product.getPicurl().replace("https:", ""));
-            mapNode.put("content", product.getTitle());
-            mapNode.put("bizId", product.getProductId());
+            mapNode.put("path", productEntity.getPicurl().replace("https:", ""));
+            mapNode.put("content", productEntity.getTitle());
+            mapNode.put("bizId", productEntity.getProductId());
             mapNode.put("right", "");
             List lstNodes = new ArrayList();
             lstNodes.add(mapNode);
@@ -961,19 +1011,19 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             jsonParams.put("feedType", "502");
             jsonParams.put("roomType", 0);
             jsonParams.put("nodes", lstNodes);
-            jsonParams.put("parentId", liveRoom.getLiveId());
+            jsonParams.put("parentId", liveRoomEntity.getLiveId());
             jsonParams.put("feedId", "");
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
             String url = "https://liveplatform.taobao.com/live/action.do?api=publish_content_feed";
-            String refererUrl = "https://liveplatform.taobao.com/live/liveDetail.htm?id=" + liveRoom.getLiveId();
+            String refererUrl = "https://liveplatform.taobao.com/live/liveDetail.htm?id=" + liveRoomEntity.getLiveId();
 
             Map<String, String> postParams = new HashMap<>();
             postParams.put("_input_charset", "utf-8");
             postParams.put("draft", URLEncoder.encode(URLEncoder.encode(jsonText)));
-            postParams.put("_tb_token_", taobaoAccount.getToken());
+            postParams.put("_tb_token_", taobaoAccountEntity.getToken());
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -982,7 +1032,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
                     new Request("POST", url, ResponseType.TEXT)
                             .setParameters(postParams),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -1006,9 +1056,9 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R openProduct(TaobaoAccount taobaoAccount, String productId) {
+    public R openProduct(TaobaoAccountEntity taobaoAccountEntity, String productId) {
         try {
-            XHeader xHeader = new XHeader(taobaoAccount);
+            XHeader xHeader = new XHeader(taobaoAccountEntity);
             ObjectMapper objectMapper = new ObjectMapper();
 
             Map<String, Object> mapExParams = new HashMap<>();
@@ -1025,7 +1075,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             mapExParams.put("id", productId);
             mapExParams.put("item_id", productId);
             mapExParams.put("list_type", "search");
-            mapExParams.put("nick", taobaoAccount.getNick());
+            mapExParams.put("nick", taobaoAccountEntity.getNick());
             mapExParams.put("osVersion", "23");
             mapExParams.put("phoneType", "NCE-AL10");
             mapExParams.put("search_action", "initiative");
@@ -1055,7 +1105,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
                             .addHeaders(xHeader.getHeaders()),
                     new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -1079,17 +1129,17 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R addTimestamp(LiveRoom liveRoom, TaobaoAccount taobaoAccount, String productId) {
+    public R addTimestamp(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, String productId) {
         try {
             Map<String, Object> jsonParams = new HashMap<>();
-            jsonParams.put("liveId", liveRoom.getLiveId());
+            jsonParams.put("liveId", liveRoomEntity.getLiveId());
             jsonParams.put("itemId", productId);
-            jsonParams.put("creatorId", liveRoom.getAccountId());
+            jsonParams.put("creatorId", liveRoomEntity.getAccountId());
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
-            H5Header h5Header = new H5Header(taobaoAccount, "12574478");
+            H5Header h5Header = new H5Header(taobaoAccountEntity, "12574478");
             String subUrl = "mtop.mediaplatform.video.livedetail.itemlist.addTimeStamp";
 
             Map<String, Object> urlParams = new HashMap<>();
@@ -1115,7 +1165,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     new SiteConfig()
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -1141,7 +1191,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R autoLogin(TaobaoAccount taobaoAccount) {
+    public R autoLogin(TaobaoAccountEntity taobaoAccountEntity) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
@@ -1160,19 +1210,19 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, Object> tokenInfo = new HashMap<>();
             tokenInfo.put("appName", "25443018");
             tokenInfo.put("appVersion", "android_7.6.0");
-            tokenInfo.put("deviceId", taobaoAccount.getDevid());
+            tokenInfo.put("deviceId", taobaoAccountEntity.getDevid());
             tokenInfo.put("deviceName", "");
             tokenInfo.put("locale", "zh_CN");
             tokenInfo.put("sdkVersion", "android_3.8.1");
             tokenInfo.put("site", 0);
             tokenInfo.put("t", new Date().getTime());
-            tokenInfo.put("token", taobaoAccount.getAutoLoginToken());
+            tokenInfo.put("token", taobaoAccountEntity.getAutoLoginToken());
             tokenInfo.put("ttid", "600000@taobao_android_7.6.0");
             tokenInfo.put("useAcitonType", true);
             tokenInfo.put("useDeviceToken", true);
 
             Map<String, Object> umidTokenMap = new HashMap<>();
-            umidTokenMap.put("umidToken", taobaoAccount.getUmidToken());
+            umidTokenMap.put("umidToken", taobaoAccountEntity.getUmidToken());
 
             Map<String, Object> jsonParams = new HashMap<>();
             jsonParams.put("ext", objectMapper.writeValueAsString(extMap));
@@ -1185,7 +1235,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String subUrl = "com.taobao.mtop.mloginunitservice.autologin";
             String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/";
 
-            XHeader xHeader = new XHeader(taobaoAccount);
+            XHeader xHeader = new XHeader(taobaoAccountEntity);
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
@@ -1201,9 +1251,9 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
                     new Request("POST", url, ResponseType.TEXT)
                             .setParameters(postParams),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed.getState());
+                taobaoAccountEntity.setState(TaobaoAccountState.AutoLoginFailed.getState());
                 return R.error();
             }
 
@@ -1213,7 +1263,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed.getState());
+                taobaoAccountEntity.setState(TaobaoAccountState.AutoLoginFailed.getState());
                 return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
@@ -1232,7 +1282,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String uid = String.valueOf(mapRetData.get("userId"));
             String nick = String.valueOf(mapRetData.get("nick"));
 
-            taobaoAccount.setState(TaobaoAccountState.Normal.getState());
+            taobaoAccountEntity.setState(TaobaoAccountState.Normal.getState());
 
             return R.ok()
                     .put("expires", expires)
@@ -1260,7 +1310,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .setContentType("application/x-www-form-urlencoded"),
                     new Request("GET", url, ResponseType.TEXT));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                return R.error();
+                return R.error("获取二维码失败");
             }
 
             String respText = response.getResult();
@@ -1288,11 +1338,11 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return R.error();
+        return R.error("获取二维码失败");
     }
 
     @Override
-    public R getLoginQRCodeCsrfToken(TaobaoAccount taobaoAccount, QRCode qrCode) {
+    public R getLoginQRCodeCsrfToken(TaobaoAccountEntity taobaoAccountEntity, QRCode qrCode) {
         try {
             Map<String, Object> jsonParams = new HashMap<>();
             jsonParams.put("_tbScancodeApproach_", "scan");
@@ -1311,7 +1361,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .addHeader("Accept-Language", "zh-CN,en-US;q=0.9")
                             .addHeader("x-requested-with", "com.taobao.taobao"),
                     new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
@@ -1342,7 +1392,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R authQRCode(TaobaoAccount taobaoAccount, QRCode qrCode, String csrfToken) {
+    public R authQRCode(TaobaoAccountEntity taobaoAccountEntity, QRCode qrCode, String csrfToken) {
         try {
             String url = "https://login.m.taobao.com/qrcodeLoginAuthor.do?qr_t=s";
 
@@ -1354,7 +1404,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .addParameter("csrftoken", csrfToken)
                             .addParameter("shortURL", qrCode.getNavigateUrl())
                             .addParameter("ql", "true"),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
@@ -1368,18 +1418,19 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R checkLoginByQRCode(TaobaoAccount taobaoAccount, QRCode qrCode) {
+    public R checkLoginByQRCode(TaobaoAccountEntity taobaoAccountEntity, QRCode qrCode) {
         try {
+            XHeader xHeader = new XHeader(new Date());
             ObjectMapper objectMapper = new ObjectMapper();
 
             Map<String, String> tokenInfo = new HashMap<>();
-            tokenInfo.put("utdid", taobaoAccount.getUtdid());
+            tokenInfo.put("utdid", taobaoAccountEntity.getUtdid());
             tokenInfo.put("appName", "25443018");
             tokenInfo.put("token", qrCode.getAccessToken());
             tokenInfo.put("t", String.valueOf(qrCode.getTimestamp()));
 
             Map<String, String> umidToken = new HashMap<>();
-            umidToken.put("umidToken", taobaoAccount.getUmidToken());
+            umidToken.put("umidToken", taobaoAccountEntity.getUmidToken());
 
             Map<String, String> paramMap = new HashMap<>();
             paramMap.put("tokenInfo", objectMapper.writeValueAsString(tokenInfo));
@@ -1391,7 +1442,6 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String subUrl = "mtop.taobao.havana.mlogin.qrcodelogin";
             String url = "https://api.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
 
-            XHeader xHeader = new XHeader(new Date());
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
@@ -1404,7 +1454,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .addHeaders(xHeader.getHeaders()),
                     new Request("GET", url, ResponseType.TEXT));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                return R.error();
+                return R.error("验证登录二维码失败");
             }
 
             String respText = response.getResult();
@@ -1442,31 +1492,31 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return R.error();
+        return R.error("验证登录二维码失败");
     }
 
     @Override
-    public R postpone(TaobaoAccount taobaoAccount) {
+    public R postpone(TaobaoAccountEntity taobaoAccountEntity) {
         try {
             R r = this.getLoginQRCodeURL();
             if (r.getCode() != ErrorCodes.SUCCESS) {
                 return r;
             }
             QRCode qrCode = (QRCode) r.get("qrCode");
-            r = this.getLoginQRCodeCsrfToken(taobaoAccount, qrCode);
+            r = this.getLoginQRCodeCsrfToken(taobaoAccountEntity, qrCode);
             String csrfToken = (String) r.get("csrfToken");
             if (r.getCode() != ErrorCodes.SUCCESS || HFStringUtils.isNullOrEmpty(csrfToken)) {
-                taobaoAccount.setState(TaobaoAccountState.AutoLoginFailed.getState());
+                taobaoAccountEntity.setState(TaobaoAccountState.AutoLoginFailed.getState());
                 return r;
             }
 
-            this.checkLoginByQRCode(taobaoAccount, qrCode);
-            r = this.authQRCode(taobaoAccount, qrCode, csrfToken);
+            this.checkLoginByQRCode(taobaoAccountEntity, qrCode);
+            r = this.authQRCode(taobaoAccountEntity, qrCode, csrfToken);
 
             boolean success = r.getCode() == ErrorCodes.SUCCESS ? true : false;
             int retry = 0;
             while (success && retry < Config.MAX_RETRY) {
-                r = this.checkLoginByQRCode(taobaoAccount, qrCode);
+                r = this.checkLoginByQRCode(taobaoAccountEntity, qrCode);
                 if (r.getCode() != ErrorCodes.SUCCESS) {
                     retry++;
                     Thread.sleep(100);
@@ -1505,7 +1555,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                 new Request("GET", url, ResponseType.TEXT));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                return R.error();
+                return R.error("生成UmtidToken失败");
             }
 
             String respText = response.getResult();
@@ -1525,11 +1575,11 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return R.error();
+        return R.error("生成UmtidToken失败");
     }
 
     @Override
-    public R getH5Token(TaobaoAccount taobaoAccount) {
+    public R getH5Token(TaobaoAccountEntity taobaoAccountEntity) {
         try {
             String subUrl = "mtop.taobao.baichuan.smb.get";
 
@@ -1552,14 +1602,14 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                 new SiteConfig()
                     .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                 new Request("GET", url, ResponseType.TEXT),
-                new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
 
             List<Cookie> cookies = response.getCookieStore().getCookies();
-            taobaoAccount.mergeCookies(cookies);
+            taobaoAccountEntity.mergeCookies(cookies);
 
             return R.ok();
 
@@ -1570,7 +1620,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R getNewDeviceId(TaobaoAccount taobaoAccount) {
+    public R getNewDeviceId(TaobaoAccountEntity taobaoAccountEntity) {
         try {
             String c2 = DeviceUtils.generateIMEI();
             String c3 = DeviceUtils.generatePhoneC3();
@@ -1582,7 +1632,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             jsonParams.put("c1", "HUAWEI(EVA-AL00)");
             jsonParams.put("c2", c2);
             jsonParams.put("c0", "HUAWEI");
-            jsonParams.put("device_global_id", taobaoAccount.getUtdid() + c2 + c3);
+            jsonParams.put("device_global_id", taobaoAccountEntity.getUtdid() + c2 + c3);
             jsonParams.put("c6", c6);
             jsonParams.put("c4", c4);
             jsonParams.put("new_device", "true");
@@ -1592,7 +1642,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
-            H5Header h5Header = new H5Header(taobaoAccount, "21523971");
+            H5Header h5Header = new H5Header(taobaoAccountEntity, "21523971");
             String subUrl = "mtop.sys.newdeviceid";
 
             Map<String, Object> urlParams = new HashMap<>();
@@ -1613,10 +1663,10 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     new SiteConfig()
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccount.getCookieStore()));
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                return R.error();
+                return R.error("获取机器码失败");
             }
 
             String respText = response.getResult();
@@ -1637,6 +1687,6 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return R.error();
+        return R.error("获取机器码失败");
     }
 }
