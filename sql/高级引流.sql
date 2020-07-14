@@ -1,8 +1,124 @@
 -- Project Name : 高级引流
--- Date/Time    : 2020/6/25 0:16:45
+-- Date/Time    : 2020/7/9 23:58:16
 -- Author       : KKK
 -- RDBMS Type   : MySQL
 -- Application  : A5:SQL Mk-2
+
+-- 直播间引流操作
+create table tbl_liveroom_strategy (
+  id INT not null AUTO_INCREMENT comment 'ID'
+  , taobao_account_nick VARCHAR(20) comment '淘宝账号昵称'
+  , template_kind TINYINT comment '模板类型:0：灵魂模板，1：盲眼模板'
+  , live_kind TINYINT comment '预告类型'
+  , live_cover_img VARCHAR(256) comment '封面图'
+  , live_cover_img169 VARCHAR(256) comment '封面图'
+  , live_title VARCHAR(32) comment '标题'
+  , live_intro VARCHAR(256) comment '简介'
+  , live_start_time DATETIME comment '开始时间'
+  , live_end_time DATETIME comment '结束时间'
+  , live_channel_id TINYINT comment '频道'
+  , live_column_id TINYINT comment '分类'
+  , live_location VARCHAR(32) comment '地点'
+  , hot_product_url VARCHAR(256) comment '热门连接'
+  , psc_channel_id TINYINT comment '商品频道'
+  , psc_category_id TINYINT comment '商品类目'
+  , psc_start_price TINYINT comment '商品低价格'
+  , psc_end_price TINYINT comment '商品高价格'
+  , psc_min_sales TINYINT comment '商品最小销量'
+  , psc_product_count TINYINT comment '商品数'
+  , psc_is_tmall TINYINT comment '是否天猫'
+  , psc_sort_kind TINYINT comment '排序'
+  , is_del BOOLEAN comment '是否删除'
+  , created_time DATETIME comment '创建时间'
+  , updated_time DATETIME comment '更新时间'
+  , constraint tbl_liveroom_strategy_PKC primary key (id)
+) comment '直播间引流操作' ;
+
+-- 模板
+create table tbl_template (
+  id INT not null AUTO_INCREMENT comment 'ID'
+  , member_id INT comment '会员ID'
+  , template_name VARCHAR(32) comment '模板名称'
+  , is_del BOOLEAN comment '是否删除'
+  , created_time DATETIME comment '创建时间'
+  , updated_time DATETIME comment '更新时间'
+  , constraint tbl_template_PKC primary key (id)
+) comment '模板' ;
+
+-- 打助力任务
+create table tbl_ranking_task (
+  id INT not null AUTO_INCREMENT comment 'ID'
+  , member_id INT comment '会员ID'
+  , taocode VARCHAR(24) comment '淘口令'
+  , live_id VARCHAR(32) comment '直播间ID'
+  , room_name VARCHAR(32) comment '直播间名称'
+  , start_score INT comment '起始助力值'
+  , end_score INT comment '最后助力值'
+  , target_score INT comment '目标助力值'
+  , double_buy BOOLEAN comment '是否加购'
+  , start_time DATETIME comment '开始时间'
+  , end_time DATETIME comment '停止时间'
+  , state TINYINT comment '状态:0：未开始，1：错误，2：执行中，3：暂停，4：结束'
+  , msg VARCHAR(256) comment '错误内容'
+  , created_time DATETIME comment '创建时间'
+  , updated_time DATETIME comment '更新时间'
+  , constraint tbl_ranking_task_PKC primary key (id)
+) comment '打助力任务' ;
+
+-- 引流预告模板
+create table tbl_prelive_template (
+  id INT not null AUTO_INCREMENT comment 'ID'
+  , template_id INT not null comment '模板ID'
+  , template_kind TINYINT comment '模板类型:0：灵魂模板，1：盲眼模板'
+  , live_kind TINYINT comment '预告类型:0: 正式预告，1：高级预告'
+  , live_channel_id TINYINT comment '直播频道'
+  , live_column_id TINYINT comment '直播标签'
+  , psc_channel_id TINYINT comment '商品频道'
+  , psc_category_id TINYINT comment '商品分类'
+  , psc_start_price TINYINT comment '商品低价格'
+  , psc_end_price TINYINT comment '商品高价格'
+  , psc_min_sales TINYINT comment '商品最小销量'
+  , psc_product_count TINYINT comment '商品数'
+  , psc_is_tmall BOOLEAN comment '是否天猫'
+  , psc_sort_kind TINYINT comment '排序:0：综合排序，1：销量排序'
+  , created_time DATETIME comment '创建时间'
+  , updated_time DATETIME comment '更新时间'
+  , constraint tbl_prelive_template_PKC primary key (id,template_id)
+) comment '引流预告模板' ;
+
+-- 会员与淘宝账号
+create table tbl_member_tcc (
+  id INT not null AUTO_INCREMENT comment 'ID'
+  , member_id INT not null comment '会员ID'
+  , taobao_account_nick VARCHAR(32) comment '淘宝用户昵称'
+  , room_name VARCHAR(32) comment '直播间名称'
+  , comment TEXT comment '备注'
+  , state TINYINT comment '直播间状态:0：等待，1：正常，2：暂停，3：停止'
+  , service_start_date DATETIME comment '服务开始时间'
+  , service_end_date DATETIME comment '服务停止时间'
+  , created_time DATETIME comment '创建时间'
+  , updated_time DATETIME comment '更新时间'
+  , constraint tbl_member_tcc_PKC primary key (id)
+) comment '会员与淘宝账号' ;
+
+-- 直播间信息
+create table tbl_prelive_spec (
+  id INT not null AUTO_INCREMENT comment 'ID'
+  , taobao_account_nick VARCHAR(20) comment '淘宝用户昵称'
+  , live_cover_img VARCHAR(256) comment '封面图'
+  , live_cover_img169 VARCHAR(256) comment '封面图'
+  , live_title VARCHAR(32) comment '标题'
+  , live_intro VARCHAR(256) comment '简介'
+  , live_start_time DATETIME comment '开始时间'
+  , live_end_time DATETIME comment '结束时间'
+  , live_channel_id INT comment '频道'
+  , live_column_id INT comment '分类'
+  , live_location VARCHAR(32) comment '地点'
+  , hot_product_url VARCHAR(256) comment '热门连接'
+  , created_time DATETIME comment '创建时间'
+  , updated_time DATETIME comment '更新时间'
+  , constraint tbl_prelive_spec_PKC primary key (id)
+) comment '直播间信息' ;
 
 -- 权限表
 create table tbl_member_roles (
@@ -89,8 +205,9 @@ create table tbl_logs (
 ) comment '操作记录' ;
 
 -- 商品列表
-create table tbl_products (
+create table tbl_liveroom_products (
   id INT not null AUTO_INCREMENT comment 'ID'
+  , live_id VARCHAR(32) not null comment '直播间ID'
   , category_id INT comment '类目'
   , category_title VARCHAR(48) comment '类目名称'
   , product_id VARCHAR(32) comment '商品ID'
@@ -104,38 +221,46 @@ create table tbl_products (
   , remark VARCHAR(256) comment '备注'
   , created_time DATETIME comment '创建时间'
   , updated_time DATETIME comment '更新时间'
-  , constraint tbl_products_PKC primary key (id)
+  , constraint tbl_liveroom_products_PKC primary key (id)
 ) comment '商品列表' ;
 
 -- 直播间列表
-create table tbl_liverooms (
+create table tbl_liveroom_history (
   id INT not null AUTO_INCREMENT comment 'ID'
-  , member_id INT not null comment '用户id'
-  , taobao_account_id VARCHAR(20) not null comment '淘宝用户id'
-  , room_name VARCHAR(32) comment '直播间名称'
-  , cover_img VARCHAR(256) comment '主封面图'
-  , cover_img169 VARCHAR(256) comment '附封面图'
-  , title VARCHAR(32) comment '标题'
-  , intro VARCHAR(256) comment '简介'
-  , start_time DATETIME comment '开播时间'
-  , end_time DATETIME comment '结束时间'
-  , channel_id TINYINT comment '直播频道'
-  , column_id TINYINT comment '直播标签'
+  , taobao_account_nick VARCHAR(20) comment '淘宝用户昵称'
+  , live_room_name VARCHAR(32) comment '直播间名称'
+  , live_id VARCHAR(32) comment '直播间ID'
+  , live_kind TINYINT comment '预告类型:0: 正式预告，1：高级预告'
+  , live_cover_img VARCHAR(256) comment '主封面图'
+  , live_cover_img169 VARCHAR(256) comment '附封面图'
+  , live_title VARCHAR(32) comment '标题'
+  , live_intro VARCHAR(256) comment '简介'
+  , live_start_time DATETIME comment '开播时间'
+  , live_end_time DATETIME comment '结束时间'
+  , live_channel_id TINYINT comment '直播频道'
+  , live_column_id TINYINT comment '直播标签'
+  , live_location VARCHAR(32) comment '地点'
   , hot_product_url VARCHAR(256) comment '热推商品链接'
-  , state TINYINT comment '状态:0：正常，1：删除，2：停止'
-  , keywords TEXT comment '主关键词:用;来区分'
-  , created_time DATETIME comment '创建时间'
+  , psc_channel_id TINYINT comment '商品大分类'
+  , psc_category_id TINYINT comment '商品小分类'
+  , psc_start_price TINYINT comment '商品价格范围'
+  , psc_end_price TINYINT comment '商品价格范围'
+  , psc_min_sales TINYINT comment '商品最小销量'
+  , psc_product_count TINYINT comment '商品数'
+  , psc_is_tmall BOOLEAN comment '是否天猫'
+  , psc_sort_kind TINYINT comment '商品采集排序'
+  , live_state TINYINT comment '直播间状态'
+  , created_time DATETIME comment '创建使劲'
   , updated_time DATETIME comment '更新时间'
-  , constraint tbl_liverooms_PKC primary key (id)
+  , constraint tbl_liveroom_history_PKC primary key (id)
 ) comment '直播间列表' ;
 
 -- 淘宝小号
 create table tbl_accounts (
   id INT not null AUTO_INCREMENT comment 'ID'
-  , account_id VARCHAR(32) comment '用户名'
   , nick VARCHAR(32) comment '会员名'
   , sid VARCHAR(48) comment 'SID'
-  , uid VARCHAR(32) comment 'UserID'
+  , uid VARCHAR(32) not null comment 'UserID'
   , utdid VARCHAR(32) comment 'Utdid'
   , devid VARCHAR(48) comment 'Devid'
   , auto_login_token TEXT comment 'AutoLoginToken'
@@ -145,14 +270,15 @@ create table tbl_accounts (
   , state TINYINT comment '状态:0：正常，1：过期，2：失败'
   , created_time DATETIME comment '创建时间'
   , updated_time DATETIME comment '更新时间'
-  , constraint tbl_accounts_PKC primary key (id,account_id)
+  , constraint tbl_accounts_PKC primary key (id)
 ) comment '淘宝小号' ;
 
 -- 会员
 create table tbl_members (
-  id INT not null AUTO_INCREMENT comment 'id'
+  id INT AUTO_INCREMENT comment 'id'
   , member_name VARCHAR(20) not null comment '用户名'
   , password VARCHAR(72) comment '密码'
+  , level TINYINT comment '会员等级:0：普通会员，999：管理员'
   , salt VARCHAR(48) comment 'Salt'
   , mobile VARCHAR(20) comment '手机号'
   , comment TEXT comment '备注'

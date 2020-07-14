@@ -57,7 +57,7 @@ public class ProductSearchServiceImpl implements ProductSearchService {
 
                 ProductChannel productChannel = new ProductChannel();
                 productChannel.setId(channelId);
-                productChannel.setTitle(title);
+                productChannel.setTitle(channelTitle);
                 productChannel.setCategories(categories);
 
                 channels.add(productChannel);

@@ -9,6 +9,7 @@ import highest.flow.taobaolive.common.http.httpclient.response.Response;
 import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.R;
+import highest.flow.taobaolive.taobao.defines.LiveRoomState;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.*;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
@@ -16,7 +17,9 @@ import highest.flow.taobaolive.taobao.service.SignService;
 import highest.flow.taobaolive.taobao.utils.DeviceUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
@@ -128,9 +131,9 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             return R.ok()
-                    .put("creatorId", creatorId)
-                    .put("talentLiveUrl", talentLiveUrl)
-                    .put("liveId", liveId);
+                    .put("creator_id", creatorId)
+                    .put("talent_live_url", talentLiveUrl)
+                    .put("live_id", liveId);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -198,20 +201,20 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String location = String.valueOf(mapData.get("location"));
 
             return R.ok()
-                    .put("accountId", accountId)
-                    .put("accountName", accountName)
-                    .put("fansNum", fansNum)
+                    .put("account_id", accountId)
+                    .put("account_name", accountName)
+                    .put("fans_num", fansNum)
                     .put("topic", topic)
-                    .put("viewCount", viewCount)
-                    .put("praiseCount", praiseCount)
-                    .put("onlineCount", onlineCount)
-                    .put("startTime", startTime)
-                    .put("coverImg", coverImg)
-                    .put("coverImg169", coverImg169)
+                    .put("view_count", viewCount)
+                    .put("praise_count", praiseCount)
+                    .put("online_count", onlineCount)
+                    .put("start_time", startTime)
+                    .put("cover_img", coverImg)
+                    .put("cover_img169", coverImg169)
                     .put("title", title)
                     .put("intro", intro)
-                    .put("channelId", channelId)
-                    .put("columnId", columnId)
+                    .put("channel_id", channelId)
+                    .put("column_id", columnId)
                     .put("location", location);
 
         } catch (Exception ex) {
@@ -301,7 +304,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
                         productEntity.setMonthSales(Integer.parseInt(String.valueOf(mapExtendVal.get("buyCount"))));
                         productEntity.setCategoryId(Integer.parseInt(String.valueOf(mapExtendVal.get("categoryLevelLeaf"))));
-                        productEntity.setCategoryName(String.valueOf(mapExtendVal.get("categoryLevelOneName")));
+                        productEntity.setCategoryTitle(String.valueOf(mapExtendVal.get("categoryLevelOneName")));
 
                         String business = String.valueOf(mapExtendVal.get("business"));
                         Map<String, Object> mapBusiness = jsonParser.parseMap(business);
@@ -334,6 +337,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                         }
                     }
 
+                    productEntity.setLiveId(String.valueOf(goodObj.get("liveId")));
+
                     productEntities.add(productEntity);
                 }
             }
@@ -341,8 +346,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             liveRoomEntity.setProducts(productEntities);
 
             return R.ok()
-                    .put("productEntities", productEntities)
-                    .put("totalNum", totalNum);
+                    .put("products", productEntities)
+                    .put("total_num", totalNum);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -399,24 +404,25 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
             liveRoomEntity.setHasRankingEntry(Boolean.parseBoolean(String.valueOf(mapData.get("hasRankingListEntry"))));
             if (!liveRoomEntity.isHasRankingEntry()) {
-                liveRoomEntity.setRankingScore(0);
-                liveRoomEntity.setRankingNum(0);
-                liveRoomEntity.setRankingName("");
+                liveRoomEntity.getRankingListData().setRankingScore(0);
+                liveRoomEntity.getRankingListData().setRankingNum(0);
+                liveRoomEntity.getRankingListData().setRankingName("");
 
             } else {
                 Map<String, Object> mapRankingListData = (Map<String, Object>) mapData.get("rankingListData");
                 Map<String, Object> mapBizData = (Map<String, Object>) mapRankingListData.get("bizData");
-                liveRoomEntity.setRankingScore(Integer.parseInt(String.valueOf(mapBizData.get("score"))));
-                liveRoomEntity.setRankingNum(Integer.parseInt(String.valueOf(mapBizData.get("rankNum"))));
-                liveRoomEntity.setRankingName(String.valueOf(mapBizData.get("name")));
+
+                liveRoomEntity.getRankingListData().setRankingScore(Integer.parseInt(String.valueOf(mapBizData.get("score"))));
+                liveRoomEntity.getRankingListData().setRankingNum(Integer.parseInt(String.valueOf(mapBizData.get("rankNum"))));
+                liveRoomEntity.getRankingListData().setRankingName(String.valueOf(mapBizData.get("name")));
             }
 
             Map<String, Object> mapHierachyData = (Map<String, Object>) mapData.get("hierarchyData");
-            liveRoomEntity.setScopeId(mapHierachyData == null ? "-1" : String.valueOf(mapHierachyData.get("scopeId")));
-            liveRoomEntity.setSubScopeId(mapHierachyData == null ? "-1" : String.valueOf(mapHierachyData.get("subScopeId")));
+            liveRoomEntity.getHierarchyData().setScopeId(mapHierachyData == null ? "-1" : String.valueOf(mapHierachyData.get("scopeId")));
+            liveRoomEntity.getHierarchyData().setSubScopeId(mapHierachyData == null ? "-1" : String.valueOf(mapHierachyData.get("subScopeId")));
 
             return R.ok()
-                    .put("liveRoomEntity", liveRoomEntity);
+                    .put("live_room", liveRoomEntity);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -433,39 +439,40 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
-            liveRoomEntity.setLiveId((String) r.get("liveId"));
-            liveRoomEntity.setCreatorId((String) r.get("creatorId"));
-            liveRoomEntity.setTalentLiveUrl((String) r.get("talentLiveUrl"));
+            liveRoomEntity.setLiveId((String) r.get("live_id"));
+            liveRoomEntity.setCreatorId((String) r.get("creator_id"));
+            liveRoomEntity.setTalentLiveUrl((String) r.get("talent_live_url"));
 
-            String liveId = (String) r.get("liveId");
+            String liveId = (String) r.get("live_id");
             r = this.getLiveDetail(liveId);
             if (r.getCode() != ErrorCodes.SUCCESS) {
                 return r;
             }
 
-            liveRoomEntity.setAccountId((String) r.get("accountId"));
-            liveRoomEntity.setAccountName((String) r.get("accountName"));
-            liveRoomEntity.setFansNum((int) r.get("fansNum"));
+            liveRoomEntity.setAccountId((String) r.get("account_id"));
+            liveRoomEntity.setAccountName((String) r.get("account_name"));
+            liveRoomEntity.setFansNum((int) r.get("fans_num"));
             liveRoomEntity.setTopic((String) r.get("topic"));
-            liveRoomEntity.setViewCount((int) r.get("viewCount"));
-            liveRoomEntity.setPraiseCount((int) r.get("praiseCount"));
-            liveRoomEntity.setOnlineCount((int) r.get("onlineCount"));
-            liveRoomEntity.setCoverImg((String) r.get("coverImg"));
-            liveRoomEntity.setCoverImg169((String) r.get("coverImg169"));
-            liveRoomEntity.setTitle((String) r.get("title"));
-            liveRoomEntity.setIntro((String) r.get("intro"));
-            liveRoomEntity.setChannelId((int) r.get("channelId"));
-            liveRoomEntity.setColumnId((int) r.get("columnId"));
-            liveRoomEntity.setLocation((String) r.get("location"));
+            liveRoomEntity.setViewCount((int) r.get("view_count"));
+            liveRoomEntity.setPraiseCount((int) r.get("praise_count"));
+            liveRoomEntity.setOnlineCount((int) r.get("online_count"));
+            liveRoomEntity.setLiveCoverImg((String) r.get("cover_img"));
+            liveRoomEntity.setLiveCoverImg169((String) r.get("cover_img169"));
+            liveRoomEntity.setLiveTitle((String) r.get("title"));
+            liveRoomEntity.setLiveIntro((String) r.get("intro"));
+            liveRoomEntity.setLiveChannelId((int) r.get("channel_id"));
+            liveRoomEntity.setLiveColumnId((int) r.get("column_id"));
+            liveRoomEntity.setLiveLocation((String) r.get("location"));
 
             if (taobaoAccountEntity != null) {
+                this.getH5Token(taobaoAccountEntity);
                 r = this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
                 if (r.getCode() != ErrorCodes.SUCCESS) {
                     return r;
                 }
             }
 
-            return R.ok().put("liveRoomEntity", liveRoomEntity);
+            return R.ok().put("live_room", liveRoomEntity);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -473,6 +480,86 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
         return R.error();
     }
 
+    @Override
+    public R getLiveList(TaobaoAccountEntity taobaoAccountEntity, int pageNo, int pageSize) {
+        try {
+            Map<String, Object> urlParams = new HashMap<>();
+            urlParams.put("currentPage", String.valueOf(pageNo));
+            urlParams.put("pagesize", String.valueOf(pageSize));
+            urlParams.put("api", "get_live_list");
+
+            String url = "https://liveplatform.taobao.com/live/action.do?";
+
+            for (String key : urlParams.keySet()) {
+                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
+            }
+
+            String refererUrl = "https://liveplatform.taobao.com/live/liveList.htm";
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+                            .addHeader("Referer", refererUrl),
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            Map<String, Object> mapModel = (Map<String, Object>) map.get("model");
+            List<Map<String, Object>> lstData = (List<Map<String, Object>>) mapModel.get("data");
+
+            List<LiveRoomEntity> liveRoomEntities = new ArrayList<>();
+
+            for (Map<String, Object> objData : lstData) {
+                LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+
+                liveRoomEntity.setLiveId(String.valueOf(objData.get("id")));
+                liveRoomEntity.setAccountId(String.valueOf(objData.get("accountId")));
+                liveRoomEntity.setAccountName(String.valueOf(objData.get("nick")));
+                liveRoomEntity.setTalentLiveUrl(String.valueOf(objData.get("liveUrl")));
+                liveRoomEntity.setTopic(String.valueOf(objData.get("topic")));
+                long startTimestamp = Long.parseLong(String.valueOf(objData.get("startTime")));
+                liveRoomEntity.setLiveStartTime(CommonUtils.timestampToDate(startTimestamp));
+                liveRoomEntity.setLiveCoverImg(String.valueOf(objData.get("coverImg")));
+                int channelId = Integer.parseInt(String.valueOf(objData.get("liveChannelId")));
+                int columnId = Integer.parseInt(String.valueOf(objData.get("liveColumnId")));
+                liveRoomEntity.setLiveChannelId(channelId);
+                liveRoomEntity.setLiveColumnId(columnId);
+                liveRoomEntity.setLiveLocation(String.valueOf(objData.get("location")));
+                int status = Integer.parseInt(String.valueOf(objData.get("roomStatus")));
+                if (status == 0) { // 预告
+                    liveRoomEntity.setLiveState(LiveRoomState.Published.getState());
+                } else if (status == 1) { // 正在直播
+                    liveRoomEntity.setLiveState(LiveRoomState.Started.getState());
+                } else if (status == 2) { // 回放
+                    liveRoomEntity.setLiveState(LiveRoomState.Stopped.getState());
+                } else if (status == 4) { // 正在推流
+                    liveRoomEntity.setLiveState(LiveRoomState.Pushing.getState());
+                }
+
+                liveRoomEntities.add(liveRoomEntity);
+            }
+
+            return R.ok()
+                    .put("live_rooms", liveRoomEntities);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
 
     @Override
     public R taskFollow(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
@@ -488,8 +575,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             mapParams.put("accountId", liveRoomEntity.getAccountId());
 
             Map<String, Object> jsonParams = new HashMap<>();
-            jsonParams.put("scopeId", liveRoomEntity.getScopeId());
-            jsonParams.put("subScope", liveRoomEntity.getSubScopeId());
+            jsonParams.put("scopeId", liveRoomEntity.getHierarchyData().getScopeId());
+            jsonParams.put("subScope", liveRoomEntity.getHierarchyData().getSubScopeId());
             jsonParams.put("trackParams", objectMapper.writeValueAsString(mapTrackParams));
             jsonParams.put("action", "follow");
             jsonParams.put("params", objectMapper.writeValueAsString(mapParams));
@@ -554,8 +641,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             mapParams.put("stayTime", staySeconds);
 
             Map<String, Object> jsonParams = new HashMap<>();
-            jsonParams.put("scopeId", liveRoomEntity.getScopeId());
-            jsonParams.put("subScope", liveRoomEntity.getSubScopeId());
+            jsonParams.put("scopeId", liveRoomEntity.getHierarchyData().getScopeId());
+            jsonParams.put("subScope", liveRoomEntity.getHierarchyData().getSubScopeId());
             jsonParams.put("trackParams", objectMapper.writeValueAsString(mapTrackParams));
             jsonParams.put("action", "stay");
             jsonParams.put("params", objectMapper.writeValueAsString(mapParams));
@@ -621,8 +708,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             mapParams.put("cost", 50);
 
             Map<String, Object> jsonParams = new HashMap<>();
-            jsonParams.put("scopeId", liveRoomEntity.getScopeId());
-            jsonParams.put("subScope", liveRoomEntity.getSubScopeId());
+            jsonParams.put("scopeId", liveRoomEntity.getHierarchyData().getScopeId());
+            jsonParams.put("subScope", liveRoomEntity.getHierarchyData().getSubScopeId());
             jsonParams.put("trackParams", objectMapper.writeValueAsString(mapTrackParams));
             jsonParams.put("action", "payCarts");
             jsonParams.put("params", objectMapper.writeValueAsString(mapParams));
@@ -681,15 +768,15 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, String> postParams = new HashMap<>();
             postParams.put("landscape", "false");
-            postParams.put("title", preLiveRoomSpecEntity.getTitle());
-            postParams.put("descInfo", preLiveRoomSpecEntity.getIntro());
-            postParams.put("coverImg", preLiveRoomSpecEntity.getCoverImg().replace("https:", ""));
-            postParams.put("coverImg169", preLiveRoomSpecEntity.getCoverImg169().replace("https:", ""));
+            postParams.put("title", preLiveRoomSpecEntity.getLiveTitle());
+            postParams.put("descInfo", preLiveRoomSpecEntity.getLiveIntro());
+            postParams.put("coverImg", preLiveRoomSpecEntity.getLiveCoverImg().replace("https:", ""));
+            postParams.put("coverImg169", preLiveRoomSpecEntity.getLiveCoverImg169().replace("https:", ""));
             postParams.put("coverImg916", "null");
             postParams.put("uploadId", "undefined");
             postParams.put("roomType", "0");
-            postParams.put("liveChannelId", String.valueOf(preLiveRoomSpecEntity.getChannelId()));
-            postParams.put("liveColumnId", String.valueOf(preLiveRoomSpecEntity.getColumnId()));
+            postParams.put("liveChannelId", String.valueOf(preLiveRoomSpecEntity.getLiveChannelId()));
+            postParams.put("liveColumnId", String.valueOf(preLiveRoomSpecEntity.getLiveColumnId()));
             postParams.put("syncYouku", "false");
             postParams.put("useLcps", "false");
             postParams.put("itemList", "[]");
@@ -704,14 +791,14 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             postParams.put("provinceCode", "");
             postParams.put("cityCode", "");
             postParams.put("districtCode", "");
-            postParams.put("addressDetail", preLiveRoomSpecEntity.getLocation());
+            postParams.put("addressDetail", preLiveRoomSpecEntity.getLiveLocation());
             postParams.put("appId", "");
             postParams.put("notice", "");
             postParams.put("country", "");
             postParams.put("province", "");
-            postParams.put("city", preLiveRoomSpecEntity.getLocation());
-            postParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpecEntity.getStartTime())));
-            postParams.put("liveEndTime", String.valueOf(CommonUtils.dateToTimestamp(CommonUtils.addDays(preLiveRoomSpecEntity.getStartTime(), 30))));
+            postParams.put("city", preLiveRoomSpecEntity.getLiveLocation());
+            postParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpecEntity.getLiveStartTime())));
+            postParams.put("liveEndTime", String.valueOf(CommonUtils.dateToTimestamp(CommonUtils.addDays(preLiveRoomSpecEntity.getLiveStartTime(), 30))));
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -738,17 +825,17 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
             liveRoomEntity.setLiveId(String.valueOf(mapModel.get("preLiveId")));
-            liveRoomEntity.setStartTime(preLiveRoomSpecEntity.getStartTime());
-            liveRoomEntity.setCoverImg(preLiveRoomSpecEntity.getCoverImg());
-            liveRoomEntity.setCoverImg169(preLiveRoomSpecEntity.getCoverImg169());
-            liveRoomEntity.setTitle(preLiveRoomSpecEntity.getTitle());
-            liveRoomEntity.setIntro(preLiveRoomSpecEntity.getIntro());
-            liveRoomEntity.setChannelId(preLiveRoomSpecEntity.getChannelId());
-            liveRoomEntity.setColumnId(preLiveRoomSpecEntity.getColumnId());
-            liveRoomEntity.setLocation(preLiveRoomSpecEntity.getLocation());
+            liveRoomEntity.setLiveStartTime(preLiveRoomSpecEntity.getLiveStartTime());
+            liveRoomEntity.setLiveCoverImg(preLiveRoomSpecEntity.getLiveCoverImg());
+            liveRoomEntity.setLiveCoverImg169(preLiveRoomSpecEntity.getLiveCoverImg169());
+            liveRoomEntity.setLiveTitle(preLiveRoomSpecEntity.getLiveTitle());
+            liveRoomEntity.setLiveIntro(preLiveRoomSpecEntity.getLiveIntro());
+            liveRoomEntity.setLiveChannelId(preLiveRoomSpecEntity.getLiveChannelId());
+            liveRoomEntity.setLiveColumnId(preLiveRoomSpecEntity.getLiveColumnId());
+            liveRoomEntity.setLiveLocation(preLiveRoomSpecEntity.getLiveLocation());
 
             return R.ok()
-                    .put("liveRoomEntity", liveRoomEntity);
+                    .put("live_room", liveRoomEntity);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -760,15 +847,15 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     public R createLiveRoom(PreLiveRoomSpecEntity preLiveRoomSpecEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             Map<String, String> jsonParams = new HashMap<>();
-            jsonParams.put("coverImg", preLiveRoomSpecEntity.getCoverImg());
-            jsonParams.put("coverImg169", preLiveRoomSpecEntity.getCoverImg169());
-            jsonParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpecEntity.getStartTime())));
-            jsonParams.put("title", preLiveRoomSpecEntity.getTitle());
-            jsonParams.put("descInfo", preLiveRoomSpecEntity.getIntro());
+            jsonParams.put("coverImg", preLiveRoomSpecEntity.getLiveCoverImg());
+            jsonParams.put("coverImg169", preLiveRoomSpecEntity.getLiveCoverImg169());
+            jsonParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpecEntity.getLiveStartTime())));
+            jsonParams.put("title", preLiveRoomSpecEntity.getLiveTitle());
+            jsonParams.put("intro", preLiveRoomSpecEntity.getLiveIntro());
             jsonParams.put("itemIds", "");
-            jsonParams.put("liveChannelId", String.valueOf(preLiveRoomSpecEntity.getChannelId()));
-            jsonParams.put("liveColumnId", String.valueOf(preLiveRoomSpecEntity.getColumnId()));
-            jsonParams.put("location", preLiveRoomSpecEntity.getLocation());
+            jsonParams.put("liveChannelId", String.valueOf(preLiveRoomSpecEntity.getLiveChannelId()));
+            jsonParams.put("liveColumnId", String.valueOf(preLiveRoomSpecEntity.getLiveColumnId()));
+            jsonParams.put("location", preLiveRoomSpecEntity.getLiveLocation());
             jsonParams.put("landScape", "false");
             jsonParams.put("useLcps", "false");
             jsonParams.put("tidbitsUrl", "");
@@ -812,17 +899,17 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             liveRoomEntity.setTopic(String.valueOf(mapData.get("topic")));
             liveRoomEntity.setViewCount(Integer.parseInt(String.valueOf(mapData.get("viewCount"))));
             liveRoomEntity.setPraiseCount(Integer.parseInt(String.valueOf(mapData.get("praiseCount"))));
-            liveRoomEntity.setStartTime(preLiveRoomSpecEntity.getStartTime());
-            liveRoomEntity.setCoverImg(String.valueOf(mapData.get("coverImg")));
-            liveRoomEntity.setCoverImg169(String.valueOf(mapData.get("coverImg169")));
-            liveRoomEntity.setTitle(String.valueOf(mapData.get("title")));
-            liveRoomEntity.setIntro(String.valueOf(mapData.get("intro")));
-            liveRoomEntity.setChannelId(Integer.parseInt(String.valueOf(mapData.get("liveChannelId"))));
-            liveRoomEntity.setColumnId(Integer.parseInt(String.valueOf(mapData.get("liveColumnId"))));
-            liveRoomEntity.setLocation(String.valueOf(mapData.get("location")));
+            liveRoomEntity.setLiveStartTime(preLiveRoomSpecEntity.getLiveStartTime());
+            liveRoomEntity.setLiveCoverImg(String.valueOf(mapData.get("coverImg")));
+            liveRoomEntity.setLiveCoverImg169(String.valueOf(mapData.get("coverImg169")));
+            liveRoomEntity.setLiveTitle(String.valueOf(mapData.get("title")));
+            liveRoomEntity.setLiveIntro(String.valueOf(mapData.get("intro")));
+            liveRoomEntity.setLiveChannelId(Integer.parseInt(String.valueOf(mapData.get("liveChannelId"))));
+            liveRoomEntity.setLiveColumnId(Integer.parseInt(String.valueOf(mapData.get("liveColumnId"))));
+            liveRoomEntity.setLiveLocation(String.valueOf(mapData.get("location")));
 
             return R.ok()
-                    .put("liveRoomEntity", liveRoomEntity);
+                    .put("live_room", liveRoomEntity);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -839,7 +926,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, String> postParams = new HashMap<>();
             postParams.put("liveVideoId", liveRoomEntity.getLiveId());
             postParams.put("accountId", taobaoAccountEntity.getUid());
-            postParams.put("location", HFStringUtils.isNullOrEmpty(liveRoomEntity.getLocation()) ? "中国" : liveRoomEntity.getLocation());
+            postParams.put("location", HFStringUtils.isNullOrEmpty(liveRoomEntity.getLiveLocation()) ? "中国" : liveRoomEntity.getLiveLocation());
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -979,13 +1066,13 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapModel = (Map<String, Object>) map.get("model");
-            String imgUrl = String.valueOf(mapModel.get("imgUrl"));
+            String imgUrl = "//gw.alicdn.com/img/bao/uploaded/" + String.valueOf(mapModel.get("imgUrl"));
             String title = String.valueOf(mapModel.get("itemTitle"));
             String price = String.valueOf(mapModel.get("itemPrice"));
 
             return R.ok()
-                    .put("productId", productId)
-                    .put("imgUrl", imgUrl)
+                    .put("product_id", productId)
+                    .put("img_url", imgUrl)
                     .put("title", title)
                     .put("price", price);
 
@@ -1022,7 +1109,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, String> postParams = new HashMap<>();
             postParams.put("_input_charset", "utf-8");
-            postParams.put("draft", URLEncoder.encode(URLEncoder.encode(jsonText)));
+            postParams.put("draft", URLEncoder.encode(jsonText));
             postParams.put("_tb_token_", taobaoAccountEntity.getToken());
 
             Response<String> response = HttpHelper.execute(
@@ -1253,7 +1340,6 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .setParameters(postParams),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                taobaoAccountEntity.setState(TaobaoAccountState.AutoLoginFailed.getState());
                 return R.error();
             }
 
@@ -1264,6 +1350,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             TaobaoReturn taobaoReturn = new TaobaoReturn(map);
             if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
                 taobaoAccountEntity.setState(TaobaoAccountState.AutoLoginFailed.getState());
+                taobaoAccountEntity.setUpdatedTime(new Date());
                 return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
             }
 
@@ -1282,15 +1369,23 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String uid = String.valueOf(mapRetData.get("userId"));
             String nick = String.valueOf(mapRetData.get("nick"));
 
+            taobaoAccountEntity.setAutoLoginToken(autoLoginToken);
+            taobaoAccountEntity.setSid(sid);
+            taobaoAccountEntity.setUid(uid);
+            taobaoAccountEntity.setNick(nick);
+            taobaoAccountEntity.setExpires(CommonUtils.timestampToDate(expires * 1000));
+
+            CookieStore cookieStore = new BasicCookieStore();
+            for (Cookie cookie : lstCookies) {
+                cookieStore.addCookie(cookie);
+            }
+            taobaoAccountEntity.setCookieStore(cookieStore);
+
             taobaoAccountEntity.setState(TaobaoAccountState.Normal.getState());
+            taobaoAccountEntity.setUpdatedTime(new Date());
 
             return R.ok()
-                    .put("expires", expires)
-                    .put("autoLoginToken", autoLoginToken)
-                    .put("cookie", lstCookies)
-                    .put("sid", sid)
-                    .put("uid", uid)
-                    .put("nick", nick);
+                    .put("taobao_account", taobaoAccountEntity);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -1333,7 +1428,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             qrCode.setImageUrl("https://gqrcode.alicdn.com/img?type=hv&text=" + URLEncoder.encode(qrCodeUrl) + "&h=160&w=160");
 
             return R.ok()
-                    .put("qrCode", qrCode);
+                    .put("qrcode", qrCode);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -1383,7 +1478,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String csrfToken = respText.substring(startPos, endPos);
 
             return R.ok()
-                    .put("csrfToken", csrfToken);
+                    .put("csrftoken", csrfToken);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -1481,13 +1576,23 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String uid = String.valueOf(mapRetData.get("userId"));
             String nick = String.valueOf(mapRetData.get("nick"));
 
+            taobaoAccountEntity.setAutoLoginToken(autoLoginToken);
+            taobaoAccountEntity.setSid(sid);
+            taobaoAccountEntity.setUid(uid);
+            taobaoAccountEntity.setNick(nick);
+            taobaoAccountEntity.setExpires(CommonUtils.timestampToDate(expires * 1000));
+
+            CookieStore cookieStore = new BasicCookieStore();
+            for (Cookie cookie : lstCookies) {
+                cookieStore.addCookie(cookie);
+            }
+            taobaoAccountEntity.setCookieStore(cookieStore);
+
+            taobaoAccountEntity.setState(TaobaoAccountState.Normal.getState());
+            taobaoAccountEntity.setUpdatedTime(new Date());
+
             return R.ok()
-                    .put("expires", expires)
-                    .put("autoLoginToken", autoLoginToken)
-                    .put("cookie", lstCookies)
-                    .put("sid", sid)
-                    .put("uid", uid)
-                    .put("nick", nick);
+                    .put("taobao_account", taobaoAccountEntity);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -1502,11 +1607,10 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             if (r.getCode() != ErrorCodes.SUCCESS) {
                 return r;
             }
-            QRCode qrCode = (QRCode) r.get("qrCode");
+            QRCode qrCode = (QRCode) r.get("qrcode");
             r = this.getLoginQRCodeCsrfToken(taobaoAccountEntity, qrCode);
-            String csrfToken = (String) r.get("csrfToken");
+            String csrfToken = (String) r.get("csrftoken");
             if (r.getCode() != ErrorCodes.SUCCESS || HFStringUtils.isNullOrEmpty(csrfToken)) {
-                taobaoAccountEntity.setState(TaobaoAccountState.AutoLoginFailed.getState());
                 return r;
             }
 
@@ -1523,21 +1627,13 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     continue;
                 }
 
-                long expires = Long.parseLong(String.valueOf(r.get("expires")));
-                String autoLoginToken = String.valueOf(r.get("autoLoginToken"));
-                List<Cookie> lstCookies = (List<Cookie>) r.get("cookie");
-                String sid = String.valueOf(r.get("sid"));
-                String uid = String.valueOf(r.get("uid"));
-                String nick = String.valueOf(r.get("nick"));
-
-                return R.ok()
-                        .put("expires", expires)
-                        .put("autoLoginToken", autoLoginToken)
-                        .put("cookie", lstCookies)
-                        .put("sid", sid)
-                        .put("uid", uid)
-                        .put("nick", nick);
+                return r;
             }
+
+            taobaoAccountEntity.setState(TaobaoAccountState.Expired.getState());
+            taobaoAccountEntity.setUpdatedTime(new Date());
+
+            return r;
 
         } catch (Exception ex) {
             ex.printStackTrace();

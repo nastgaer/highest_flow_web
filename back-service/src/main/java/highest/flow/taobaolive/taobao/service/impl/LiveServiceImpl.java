@@ -56,6 +56,7 @@ public class LiveServiceImpl implements LiveService {
                 channel.setId(channelId);
                 channel.setTitle(channelTitle);
                 channel.setDescInfo(channelDescInfo);
+                channel.setColumns(columns);
 
                 channels.add(channel);
             }

@@ -17,9 +17,7 @@ public class PreLiveRoomSpecEntity extends PreLiveRoomSpec {
     @TableId(type = IdType.AUTO)
     private int id;
 
-    private String taobaoAccountId;
-
-    private String roomName;
+    private String taobaoAccountNick;
 
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

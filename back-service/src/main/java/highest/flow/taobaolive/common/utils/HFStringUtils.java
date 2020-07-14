@@ -2,6 +2,9 @@ package highest.flow.taobaolive.common.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -202,5 +205,19 @@ public class HFStringUtils {
             data[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4) + Character.digit(hexString.charAt(i + 1), 16));
         }
         return data;
+    }
+
+    public static String convertToUtf8(String rawString) {
+//        ByteBuffer buffer = StandardCharsets.UTF_8.encode(rawString);
+//        String utf8Encoded = StandardCharsets.UTF_8.decode(buffer).toString();
+//        return utf8Encoded;
+
+        byte[] bytes = rawString.getBytes(StandardCharsets.UTF_8);
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    public static String convertToGBK(String rawString) {
+        byte[] bytes = rawString.getBytes(Charset.defaultCharset());
+        return new String(bytes, Charset.defaultCharset());
     }
 }

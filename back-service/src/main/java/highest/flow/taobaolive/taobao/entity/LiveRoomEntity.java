@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -14,12 +15,12 @@ import java.util.List;
 
 @Data
 @TableName("tbl_liveroom_history")
-public class LiveRoomEntity extends LiveRoom {
+public class LiveRoomEntity extends BaseLiveRoom {
 
     @TableId(type = IdType.AUTO)
     private int id;
 
-    private String taobaoAccountId;
+    private String taobaoAccountNick;
 
     /**
      * LiveRoomKind
@@ -42,24 +43,35 @@ public class LiveRoomEntity extends LiveRoom {
     private Date updatedTime;
 
     @TableField(exist = false)
+    @JsonIgnore
     private String creatorId = "";
 
     @TableField(exist = false)
+    @JsonIgnore
     private String talentLiveUrl = "";
 
     @TableField(exist = false)
+    @JsonIgnore
     private String accountId = "";
 
     @TableField(exist = false)
+    @JsonIgnore
     private String topic = "";
 
-    @TableField(exist = false)
-    private String scopeId = "";
+    @Data
+    public class HierarchyData {
+
+        private String scopeId = "";
+
+        private String subScopeId = "";
+    }
 
     @TableField(exist = false)
-    private String subScopeId = "";
+    @JsonIgnore
+    private HierarchyData hierarchyData = new HierarchyData();
 
     @TableField(exist = false)
+    @JsonIgnore
     /**
      *
      */
@@ -113,33 +125,37 @@ public class LiveRoomEntity extends LiveRoom {
     @TableField(exist = false)
     private boolean hasRankingEntry = false;
 
-    /**
-     * 当前的热度值
-     */
-    @TableField(exist = false)
-    private int rankingScore = 0;
+    @Data
+    public class RankingListData {
 
-    /**
-     * 当前的排位
-     */
-    @TableField(exist = false)
-    private int rankingNum = 0;
+        /**
+         * 当前的热度值
+         */
+        private int rankingScore = 0;
 
-    /**
-     * 排位赛赛道
-     */
+        /**
+         * 当前的排位
+         */
+        private int rankingNum = 0;
+
+        /**
+         * 排位赛赛道
+         */
+        private String rankingName = "";
+    }
+
     @TableField(exist = false)
-    private String rankingName = "";
+    private RankingListData rankingListData = new RankingListData();
 
     /**
      * 采集的商品
      */
     @TableField(exist = false)
-    private List<ProductEntity> reservedProductEntities = new ArrayList<>();
+    private List<ProductEntity> reservedProducts = new ArrayList<>();
 
     /**
      * 上架的商品
      */
     @TableField(exist = false)
-    private List<ProductEntity> productEntities = new ArrayList<>();
+    private List<ProductEntity> products = new ArrayList<>();
 }

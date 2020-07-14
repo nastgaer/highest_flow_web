@@ -2,8 +2,8 @@ package highest.flow.taobaolive.sys.controller;
 
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.utils.R;
-import highest.flow.taobaolive.sys.entity.LoginEntity;
-import highest.flow.taobaolive.sys.entity.LogoutEntity;
+import highest.flow.taobaolive.api.param.LoginParam;
+import highest.flow.taobaolive.api.param.LogoutParam;
 import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.sys.service.MemberService;
 import highest.flow.taobaolive.sys.service.MemberTokenService;
@@ -27,14 +27,14 @@ public class LoginController {
     private MemberTokenService memberTokenService;
 
     @PostMapping("/login")
-    public R login(@RequestBody LoginEntity loginEntity) {
+    public R login(@RequestBody LoginParam loginParam) {
         try {
-            SysMember sysMember = memberService.getMemberByName(loginEntity.getMemberName());
+            SysMember sysMember = memberService.getMemberByName(loginParam.getMemberName());
             if (sysMember == null) {
                 return R.error(ErrorCodes.NOT_FOUND_USER, "找不到用户");
             }
 
-            if (!sysMember.getPassword().equals(new Sha256Hash(loginEntity.getPassword(), sysMember.getSalt()).toHex())) {
+            if (!sysMember.getPassword().equals(new Sha256Hash(loginParam.getPassword(), sysMember.getSalt()).toHex())) {
                 return R.error(ErrorCodes.INVALID_PASSWORD, "账号或密码不正确");
             }
 
@@ -50,9 +50,9 @@ public class LoginController {
     }
 
     @PostMapping("/logout")
-    public R logout(@RequestBody LogoutEntity logoutEntity) {
+    public R logout(@RequestBody LogoutParam logoutParam) {
         try {
-            SysMember sysMember = memberService.getMemberByName(logoutEntity.getMemberName());
+            SysMember sysMember = memberService.getMemberByName(logoutParam.getMemberName());
             if (sysMember == null) {
                 return R.error(ErrorCodes.NOT_FOUND_USER, "找不到用户");
             }

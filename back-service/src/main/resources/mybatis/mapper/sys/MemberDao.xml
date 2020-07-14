@@ -18,6 +18,7 @@
         <result property="mobile" column="mobile"/>
         <result property="comment" column="comment"/>
         <result property="state" column="state"/>
+        <result property="level" column="level"/>
         <result property="createdTime" column="created_time"/>
         <result property="updatedTime" column="updated_time"/>
     </resultMap>

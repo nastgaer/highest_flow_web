@@ -11,7 +11,7 @@
         <result property="updatedTime" column="updated_time"/>
     </resultMap>
 
-    <select id="getMemberTokenByToken" resultType="memberTokenMap">
+    <select id="getMemberTokenByToken" resultMap="memberTokenMap">
         select * from tbl_member_tokens where token = #{token}
     </select>
 

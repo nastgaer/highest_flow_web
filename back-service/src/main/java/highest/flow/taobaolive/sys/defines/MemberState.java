@@ -3,8 +3,8 @@ package highest.flow.taobaolive.sys.defines;
 public enum MemberState {
 
     Normal(0),
-    Deleted(1),
-    Suspended(2);
+    Suspended(1),
+    Deleted(2);
 
     private int state = 0;
 

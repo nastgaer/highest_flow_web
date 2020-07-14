@@ -1,5 +1,6 @@
 package highest.flow.taobaolive.taobao.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -27,10 +28,8 @@ import java.util.List;
 @TableName("tbl_accounts")
 public class TaobaoAccountEntity {
 
-    @TableId
+    @TableId(type = IdType.AUTO)
     private int id;
-
-    private String accountId;
 
     private String nick;
 
@@ -68,6 +67,7 @@ public class TaobaoAccountEntity {
     private Date updatedTime;
 
     @TableField(exist = false)
+    @JsonIgnore
     private CookieStore cookieStore = new BasicCookieStore();
 
 //    public String getCookie() {

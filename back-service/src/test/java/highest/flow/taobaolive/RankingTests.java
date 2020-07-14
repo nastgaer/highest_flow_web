@@ -1,23 +1,33 @@
 package highest.flow.taobaolive;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import highest.flow.taobaolive.common.config.Config;
+import highest.flow.taobaolive.common.http.HttpHelper;
+import highest.flow.taobaolive.common.http.Request;
+import highest.flow.taobaolive.common.http.ResponseType;
+import highest.flow.taobaolive.common.http.SiteConfig;
+import highest.flow.taobaolive.common.http.httpclient.response.Response;
 import highest.flow.taobaolive.common.utils.R;
+import highest.flow.taobaolive.taobao.defines.RankingEntityState;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.LiveRoomEntity;
 import highest.flow.taobaolive.taobao.entity.ProductEntity;
+import highest.flow.taobaolive.taobao.entity.RankingEntity;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
+import org.apache.commons.lang.time.DateUtils;
+import org.apache.http.entity.StringEntity;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-@SpringBootTest(classes = TaobaoliveApplication.class, args = "test")
-public class RankingTests {
+public class RankingTests extends BaseTests {
 
     @Autowired
     private TaobaoApiService taobaoApiService;
@@ -34,33 +44,6 @@ public class RankingTests {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
-            R r = taobaoApiService.parseTaoCode(taocode);
-            System.out.println(objectMapper.writeValueAsString(r));
-
-            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
-            liveRoomEntity.setLiveId((String) r.get("liveId"));
-            liveRoomEntity.setCreatorId((String) r.get("creatorId"));
-            liveRoomEntity.setTalentLiveUrl((String) r.get("talentLiveUrl"));
-
-            String liveId = (String) r.get("liveId");
-            r = taobaoApiService.getLiveDetail(liveId);
-            System.out.println(objectMapper.writeValueAsString(r));
-
-            liveRoomEntity.setAccountId((String) r.get("accountId"));
-            liveRoomEntity.setAccountName((String) r.get("accountName"));
-            liveRoomEntity.setFansNum((int) r.get("fansNum"));
-            liveRoomEntity.setTopic((String) r.get("topic"));
-            liveRoomEntity.setViewCount((int) r.get("viewCount"));
-            liveRoomEntity.setPraiseCount((int) r.get("praiseCount"));
-            liveRoomEntity.setOnlineCount((int) r.get("onlineCount"));
-            liveRoomEntity.setCoverImg((String) r.get("coverImg"));
-            liveRoomEntity.setCoverImg169((String) r.get("coverImg169"));
-            liveRoomEntity.setTitle((String) r.get("title"));
-            liveRoomEntity.setIntro((String) r.get("intro"));
-            liveRoomEntity.setChannelId((int) r.get("channelId"));
-            liveRoomEntity.setColumnId((int) r.get("columnId"));
-            liveRoomEntity.setLocation((String) r.get("location"));
-
             TaobaoAccountEntity activeAccount = null;
             List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.list();
             for (TaobaoAccountEntity taobaoAccountEntity : taobaoAccountEntities) {
@@ -70,14 +53,12 @@ public class RankingTests {
                 }
             }
 
+            R r = taobaoApiService.getLiveInfo(taocode, null);
+            System.out.println(objectMapper.writeValueAsString(r));
+
+            LiveRoomEntity liveRoomEntity = (LiveRoomEntity) r.get("live_room");
+
             if (activeAccount != null) {
-                taobaoApiService.getH5Token(activeAccount);
-                r = taobaoApiService.getLiveEntry(liveRoomEntity, activeAccount);
-                System.out.println(objectMapper.writeValueAsString(r));
-
-                liveRoomEntity.setScopeId((String) r.get("scopeId"));
-                liveRoomEntity.setSubScopeId((String) r.get("subScopeId"));
-
                 r = taobaoApiService.getLiveProducts(liveRoomEntity, activeAccount);
                 System.out.println(objectMapper.writeValueAsString(r));
             }
@@ -88,42 +69,14 @@ public class RankingTests {
     }
 
     @Test
-    void ranking() {
+    void rankingApi() {
         String taocode = "￥EwwQ1Esktcm￥";
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
-            R r = taobaoApiService.parseTaoCode(taocode);
-            System.out.println(objectMapper.writeValueAsString(r));
-
-            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
-            liveRoomEntity.setLiveId((String) r.get("liveId"));
-            liveRoomEntity.setCreatorId((String) r.get("creatorId"));
-            liveRoomEntity.setTalentLiveUrl((String) r.get("talentLiveUrl"));
-
-            String liveId = (String) r.get("liveId");
-            r = taobaoApiService.getLiveDetail(liveId);
-            System.out.println(objectMapper.writeValueAsString(r));
-
-            liveRoomEntity.setAccountId((String) r.get("accountId"));
-            liveRoomEntity.setAccountName((String) r.get("accountName"));
-            liveRoomEntity.setFansNum((int) r.get("fansNum"));
-            liveRoomEntity.setTopic((String) r.get("topic"));
-            liveRoomEntity.setViewCount((int) r.get("viewCount"));
-            liveRoomEntity.setPraiseCount((int) r.get("praiseCount"));
-            liveRoomEntity.setOnlineCount((int) r.get("onlineCount"));
-            liveRoomEntity.setCoverImg((String) r.get("coverImg"));
-            liveRoomEntity.setCoverImg169((String) r.get("coverImg169"));
-            liveRoomEntity.setTitle((String) r.get("title"));
-            liveRoomEntity.setIntro((String) r.get("intro"));
-            liveRoomEntity.setChannelId((int) r.get("channelId"));
-            liveRoomEntity.setColumnId((int) r.get("columnId"));
-            liveRoomEntity.setLocation((String) r.get("location"));
-
-            List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.list();
-
             TaobaoAccountEntity activeAccount = null;
+            List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.list();
             for (TaobaoAccountEntity taobaoAccountEntity : taobaoAccountEntities) {
                 if (taobaoAccountEntity.getState() == TaobaoAccountState.Normal.getState()) {
                     activeAccount = taobaoAccountEntity;
@@ -131,10 +84,14 @@ public class RankingTests {
                 }
             }
 
-            taobaoApiService.getH5Token(activeAccount);
-            taobaoApiService.getLiveEntry(liveRoomEntity, activeAccount);
+            R r = taobaoApiService.getLiveInfo(taocode, null);
+            System.out.println(objectMapper.writeValueAsString(r));
+
+            LiveRoomEntity liveRoomEntity = (LiveRoomEntity) r.get("live_room");
             r = taobaoApiService.getLiveProducts(liveRoomEntity, activeAccount);
-            List<ProductEntity> productEntities = (List<ProductEntity>) r.get("productEntities");
+            System.out.println(objectMapper.writeValueAsString(r));
+
+            List<ProductEntity> productEntities = (List<ProductEntity>) r.get("products");
 
             for (TaobaoAccountEntity taobaoAccountEntity : taobaoAccountEntities) {
                 if (taobaoAccountEntity.getState() == TaobaoAccountState.Normal.getState()) {
@@ -150,6 +107,168 @@ public class RankingTests {
                     System.out.println(objectMapper.writeValueAsString(r));
                 }
             }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Test
+    void addRankingTask() {
+        try {
+            contextLoads();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = new Date();
+            date = DateUtils.addHours(date, 1);
+
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("taocode", "￥RTQB1Czo2gO￥");
+            paramMap.put("target_score", "100000");
+            paramMap.put("double_buy", false);
+            paramMap.put("start_time", "2020-07-14 22:30:00");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(paramMap);
+
+            String url = "http://localhost:8080/ranking/add_task";
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/json")
+                            .addHeader("token", accessToken),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .setEntity(new StringEntity(json, "UTF-8")));
+
+            System.out.println(response.getResult());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Test
+    void startTodaysTask() {
+        try {
+            contextLoads();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("current_date", sdf.format(new Date()));
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(paramMap);
+
+            String url = "http://localhost:8080/ranking/todays";
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/json")
+                            .addHeader("token", accessToken),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .setEntity(new StringEntity(json)));
+
+            System.out.println(response.getResult());
+
+            R r = objectMapper.readValue(response.getResult(), R.class);
+
+            List<Map<String, Object>> rankingEntities = (List<Map<String, Object>>) r.get("ranking");
+
+            int taskId = -1;
+            for (Map<String, Object> map : rankingEntities) {
+                int state = (int) map.get("state");
+                if (state == RankingEntityState.Waiting.getState()) {
+                    taskId = (int) map.get("id");
+                    break;
+                }
+            }
+
+            if (taskId < 0) {
+                return;
+            }
+
+            // Start first ranking
+
+            url = "http://localhost:8080/ranking/start_task";
+
+            paramMap.clear();
+            paramMap.put("task_id", taskId);
+
+            json = objectMapper.writeValueAsString(paramMap);
+
+            response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/json")
+                            .addHeader("token", accessToken),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .setEntity(new StringEntity(json)));
+
+            System.out.println(response.getResult());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Test
+    void stopTask() {
+        try {
+            contextLoads();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("current_date", sdf.format(new Date()));
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(paramMap);
+
+            String url = "http://localhost:8080/ranking/todays";
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/json")
+                            .addHeader("token", accessToken),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .setEntity(new StringEntity(json)));
+
+            System.out.println(response.getResult());
+
+            R r = objectMapper.readValue(response.getResult(), R.class);
+
+            List<Map<String, Object>> rankingEntities = (List<Map<String, Object>>) r.get("ranking");
+
+            int taskId = -1;
+            for (Map<String, Object> map : rankingEntities) {
+                int state = (int) map.get("state");
+                if (state == RankingEntityState.Running.getState()) {
+                    taskId = (int) map.get("id");
+                    break;
+                }
+            }
+
+            if (taskId < 0) {
+                return;
+            }
+
+            // Start first ranking
+
+            url = "http://localhost:8080/ranking/stop_task";
+
+            paramMap.clear();
+            paramMap.put("task_id", taskId);
+
+            json = objectMapper.writeValueAsString(paramMap);
+
+            response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/json")
+                            .addHeader("token", accessToken),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .setEntity(new StringEntity(json)));
+
+            System.out.println(response.getResult());
 
         } catch (Exception ex) {
             ex.printStackTrace();

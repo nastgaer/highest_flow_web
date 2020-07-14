@@ -11,12 +11,12 @@ import java.util.Date;
 
 @Data
 @TableName("tbl_liveroom_strategy")
-public class LiveRoomStrategyEntity extends LiveRoom {
+public class LiveRoomStrategyEntity extends BaseLiveRoom {
 
     @TableId(type = IdType.AUTO)
     private int id;
 
-    private String taobaoAccountId;
+    private String taobaoAccountNick;
 
     /**
      * TemplateKind

@@ -38,7 +38,7 @@ public class LiveTemplateController extends AbstractController {
 
                 Map<String, Object> templateMap = new HashMap<>();
                 templateMap.put("id", templateEntity.getId());
-                templateMap.put("name", templateEntity.getName());
+                templateMap.put("name", templateEntity.getTemplateName());
                 templateMap.put("blocks", preLiveTemplateEntities);
 
                 templates.add(templateMap);
@@ -53,8 +53,10 @@ public class LiveTemplateController extends AbstractController {
     }
 
     @PostMapping("/get")
-    public R get(@RequestParam(name = "id") String templateId) {
+    public R get(@RequestBody Map<String, Object> params) {
         try {
+            String templateId = (String) params.get("id");
+
             TemplateEntity templateEntity = templateService.getById(templateId);
             if (templateEntity == null) {
                 return R.error("找不到模板");
@@ -67,7 +69,7 @@ public class LiveTemplateController extends AbstractController {
 
             return R.ok()
                     .put("id", templateEntity.getId())
-                    .put("name", templateEntity.getName())
+                    .put("name", templateEntity.getTemplateName())
                     .put("blocks", preLiveTemplateEntities);
 
         } catch (Exception ex) {
@@ -77,10 +79,12 @@ public class LiveTemplateController extends AbstractController {
     }
 
     @PostMapping("/add")
-    public R add(@RequestParam(name = "name") String templateName,
-                 @RequestParam(name = "blocks[]") PreLiveTemplateEntity[] preLiveTemplateEntities) {
+    public R add(@RequestBody Map<String, Object> params) {
         try {
-            TemplateEntity templateEntity = templateService.getOne(Wrappers.<TemplateEntity>lambdaQuery().eq(TemplateEntity::getName, templateName));
+            String templateName = (String) params.get("name");
+            List<PreLiveTemplateEntity> preLiveTemplateEntities = (List<PreLiveTemplateEntity>) params.get("blocks");
+
+            TemplateEntity templateEntity = templateService.getOne(Wrappers.<TemplateEntity>lambdaQuery().eq(TemplateEntity::getTemplateName, templateName));
             if (templateEntity != null) {
                 return R.error("已注册的模板");
             }
@@ -90,7 +94,7 @@ public class LiveTemplateController extends AbstractController {
             templateEntity = new TemplateEntity();
             templateEntity.setMemberId(sysMember.getId());
             templateEntity.setTemplateName(templateName);
-            templateEntity.setIsDel(false);
+            templateEntity.setDel(false);
             templateEntity.setCreatedTime(new Date());
             templateEntity.setUpdatedTime(new Date());
 
@@ -100,7 +104,7 @@ public class LiveTemplateController extends AbstractController {
                 preLiveTemplateEntity.setTemplateId(templateEntity.getId());
             }
 
-            preLiveTemplateService.saveBatch(Arrays.asList(preLiveTemplateEntities));
+            preLiveTemplateService.saveBatch(preLiveTemplateEntities);
 
             return R.ok()
                     .put("id", templateEntity.getId());
@@ -112,9 +116,11 @@ public class LiveTemplateController extends AbstractController {
     }
 
     @PostMapping("/delete")
-    public R delete(@RequestParam(name = "id") int templateId) {
+    public R delete(@RequestBody Map<String, Object> params) {
         try {
-            TemplateEntity templateEntity = templateService.getOne(Wrappers.<TemplateEntity>lambdaQuery().eq(TemplateEntity::getName, templateName));
+            int templateId = (int) params.get("id");
+
+            TemplateEntity templateEntity = templateService.getById(templateId);
             if (templateEntity == null) {
                 return R.error("找不到模板");
             }

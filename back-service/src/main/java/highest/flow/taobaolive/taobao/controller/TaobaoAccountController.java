@@ -1,26 +1,37 @@
 package highest.flow.taobaolive.taobao.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.http.CookieHelper;
+import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.common.utils.SelfExpiringHashMap;
 import highest.flow.taobaolive.common.utils.SelfExpiringMap;
-import highest.flow.taobaolive.sys.entity.PageEntity;
+import highest.flow.taobaolive.api.param.PageParam;
+import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
+import highest.flow.taobaolive.job.service.ScheduleJobService;
+import highest.flow.taobaolive.job.utils.ScheduleUtils;
 import highest.flow.taobaolive.sys.controller.AbstractController;
+import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.QRCode;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
 import highest.flow.taobaolive.taobao.utils.DeviceUtils;
+import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
 import java.util.*;
 
 @RestController
@@ -33,18 +44,24 @@ public class TaobaoAccountController extends AbstractController {
     @Autowired
     private TaobaoApiService taobaoApiService;
 
+    @Autowired
+    private Scheduler scheduler;
+
+    @Autowired
+    private ScheduleJobService schedulerJobService;
+
     private SelfExpiringMap<String, TaobaoAccountEntity> waitingAccounts = new SelfExpiringHashMap<>(30 * 60 * 1000);
     private SelfExpiringMap<String, QRCode> waitingQRCodes = new SelfExpiringHashMap<>(30 * 60 * 1000);
 
     @PostMapping("/list")
-    public R list(@RequestBody PageEntity pageEntity) {
+    public R list(@RequestBody PageParam pageParam) {
         try {
-            int pageNo = pageEntity.getPageNo();
-            int pageSize = pageEntity.getPageSize();
+            int pageNo = pageParam.getPageNo();
+            int pageSize = pageParam.getPageSize();
             IPage<TaobaoAccountEntity> page = this.taobaoAccountService.page(new Page<>((pageNo - 1) * pageSize, pageSize));
             List<TaobaoAccountEntity> taobaoAccountEntities = this.taobaoAccountService.list();
 
-            return R.ok().put("users", taobaoAccountEntities).put("total_count", taobaoAccountService.size());
+            return R.ok().put("users", taobaoAccountEntities).put("total_count", taobaoAccountService.count());
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -60,7 +77,7 @@ public class TaobaoAccountController extends AbstractController {
                 return r;
             }
 
-            QRCode qrCode = (QRCode) r.get("qrCode");
+            QRCode qrCode = (QRCode) r.get("qrcode");
 
             String accessToken = qrCode.getAccessToken();
             String url = qrCode.getNavigateUrl();
@@ -88,7 +105,7 @@ public class TaobaoAccountController extends AbstractController {
                 return r;
             }
 
-            newAccount.setDevid((String) r.get("devid"));
+            newAccount.setDevid((String) r.get("device_id"));
 
             waitingAccounts.put(accessToken, newAccount);
             waitingQRCodes.put(accessToken, qrCode);
@@ -104,8 +121,10 @@ public class TaobaoAccountController extends AbstractController {
     }
 
     @PostMapping("/verify_qrcode")
-    public R verifyQRCode(@RequestParam(name = "access_token") String accessToken) {
+    public R verifyQRCode(@RequestBody Map<String, Object> params) {
         try {
+            String accessToken = String.valueOf(params.get("access_token"));
+
             if (!waitingAccounts.containsKey(accessToken) || !waitingQRCodes.containsKey(accessToken)) {
                 return R.error(ErrorCodes.INVALID_QRCODE_TOKEN, "请求Token无效");
             }
@@ -116,7 +135,19 @@ public class TaobaoAccountController extends AbstractController {
                 return R.error(ErrorCodes.INVALID_QRCODE_TOKEN, "请求Token无效");
             }
 
-            return taobaoApiService.checkLoginByQRCode(taobaoAccountEntity, qrCode);
+            R r = taobaoApiService.checkLoginByQRCode(taobaoAccountEntity, qrCode);
+            if (r.getCode() != ErrorCodes.SUCCESS) {
+                return r;
+            }
+
+            taobaoAccountEntity.setCreatedTime(new Date());
+
+            taobaoAccountService.save(taobaoAccountEntity);
+
+            waitingAccounts.remove(accessToken);
+            waitingQRCodes.remove(accessToken);
+
+            return r;
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -124,19 +155,17 @@ public class TaobaoAccountController extends AbstractController {
         return R.error("验证二维码失败");
     }
 
-    @PostMapping("/delete")
-    public R delete(@RequestParam(name = "user_ids") String param) {
+    @PostMapping(value = "/batch_delete")
+    public R batchDelete(@RequestBody Map<String, Object> params) {
         try {
-            JsonParser jsonParser = JsonParserFactory.getJsonParser();
-            List userIds = jsonParser.parseList(param);
+            List<String> nicks = (List<String>) params.get("nicks");
 
-            List<String> ids = new ArrayList<>();
-            for (Object obj : userIds) {
-                ids.add(String.valueOf(obj));
-            }
-            if (taobaoAccountService.removeByIds(ids)) {
+            if (taobaoAccountService.remove(Wrappers.<TaobaoAccountEntity>lambdaQuery()
+                    .in(TaobaoAccountEntity::getNick, nicks))) {
                 return R.ok();
             }
+
+            return R.error();
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -145,9 +174,19 @@ public class TaobaoAccountController extends AbstractController {
     }
 
     @PostMapping("/postpone")
-    public R postpone(@RequestParam(name = "crond") String crond) {
+    public R postpone(@RequestBody Map<String, Object> params) {
         try {
-            // TODO
+            String crond = (String) params.get("crond");
+
+            ScheduleJobEntity scheduleJobEntity = this.schedulerJobService.getOne(Wrappers.<ScheduleJobEntity>lambdaQuery()
+                    .eq(ScheduleJobEntity::getBeanName, "autoLoginTask"));
+            if (scheduleJobEntity == null) {
+                return R.error("找不到延期JOB");
+            }
+
+            scheduleJobEntity.setCronExpression(crond);
+            ScheduleUtils.updateScheduleJob(scheduler, scheduleJobEntity);
+
             return R.ok();
 
         } catch (Exception ex) {
@@ -157,7 +196,7 @@ public class TaobaoAccountController extends AbstractController {
     }
 
     @PostMapping("/logs")
-    public R logs(@RequestBody PageEntity pageEntity) {
+    public R logs(@RequestBody PageParam pageParam) {
         try {
             // TODO
             return R.ok()
@@ -195,7 +234,7 @@ public class TaobaoAccountController extends AbstractController {
                 }
             }
 
-            TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.register(nick, nick, userId,
+            TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.register(nick, userId,
                     sid, utdid, devid, autoLoginToken, umidToken, cookies, expires, state, created, updated);
             if (taobaoAccountEntity == null) {
                 return R.error("保存数据库失败");

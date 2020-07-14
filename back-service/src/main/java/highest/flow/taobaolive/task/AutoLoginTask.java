@@ -3,6 +3,7 @@ package highest.flow.taobaolive.task;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.R;
+import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
@@ -30,7 +31,8 @@ public class AutoLoginTask implements ITask {
     private TaobaoAccountService taobaoAccountService;
 
     @Override
-    public void run(String params) {
+    public void run(ScheduleJobEntity scheduleJobEntity) {
+        String params = scheduleJobEntity.getParams();
         List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.list();
 
         logger.info("重登延期开始, accountCount=" + taobaoAccountEntities.size());
@@ -50,30 +52,8 @@ public class AutoLoginTask implements ITask {
                     if (r.getCode() == ErrorCodes.SUCCESS) {
                         logger.info("[" + taobaoAccountEntity.getNick() + "] 用户延期成功");
 
-                        long expires = (long) r.get("expires");
-                        String autoLoginToken = (String) r.get("autoLoginToken");
-                        List<Cookie> lstCookies = (List<Cookie>) r.get("cookie");
-                        String sid = (String) r.get("sid");
-                        String uid = (String) r.get("uid");
-                        String nick = (String) r.get("nick");
-
-                        taobaoAccountEntity.setAutoLoginToken(autoLoginToken);
-                        taobaoAccountEntity.setSid(sid);
-                        taobaoAccountEntity.setUid(uid);
-                        taobaoAccountEntity.setNick(nick);
-                        taobaoAccountEntity.setExpires(CommonUtils.timestampToDate(expires * 1000));
-
-                        CookieStore cookieStore = new BasicCookieStore();
-                        for (Cookie cookie : lstCookies) {
-                            cookieStore.addCookie(cookie);
-                        }
-                        taobaoAccountEntity.setCookieStore(cookieStore);
-
-                        taobaoAccountEntity.setState(TaobaoAccountState.Normal.getState());
-
                     } else {
                         logger.error("[" + taobaoAccountEntity.getNick() + "] 用户延期失败：" + r.getMsg());
-                        taobaoAccountEntity.setState(TaobaoAccountState.Expired.getState());
                     }
                 }
 
@@ -84,30 +64,8 @@ public class AutoLoginTask implements ITask {
                     if (r.getCode() == ErrorCodes.SUCCESS) {
                         logger.info("[" + taobaoAccountEntity.getNick() + "] 用户重登成功");
 
-                        long expires = (long) r.get("expires");
-                        String autoLoginToken = (String) r.get("autoLoginToken");
-                        List<Cookie> lstCookies = (List<Cookie>) r.get("cookie");
-                        String sid = (String) r.get("sid");
-                        String uid = (String) r.get("uid");
-                        String nick = (String) r.get("nick");
-
-                        taobaoAccountEntity.setAutoLoginToken(autoLoginToken);
-                        taobaoAccountEntity.setSid(sid);
-                        taobaoAccountEntity.setUid(uid);
-                        taobaoAccountEntity.setNick(nick);
-                        taobaoAccountEntity.setExpires(CommonUtils.timestampToDate(expires * 1000));
-
-                        CookieStore cookieStore = new BasicCookieStore();
-                        for (Cookie cookie : lstCookies) {
-                            cookieStore.addCookie(cookie);
-                        }
-                        taobaoAccountEntity.setCookieStore(cookieStore);
-
-                        taobaoAccountEntity.setState(TaobaoAccountState.Normal.getState());
-
                     } else {
                         logger.error("[" + taobaoAccountEntity.getNick() + "] 用户重登失败：" + r.getMsg());
-                        taobaoAccountEntity.setState(TaobaoAccountState.Expired.getState());
                     }
                 }
 
@@ -115,7 +73,6 @@ public class AutoLoginTask implements ITask {
                     activeCount++;
                 }
 
-                taobaoAccountEntity.setUpdatedTime(new Date());
                 taobaoAccountService.updateById(taobaoAccountEntity);
 
                 Thread.sleep(100);

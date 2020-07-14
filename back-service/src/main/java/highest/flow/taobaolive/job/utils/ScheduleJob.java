@@ -39,8 +39,8 @@ public class ScheduleJob extends QuartzJobBean {
             logger.debug("任务准备执行，任务ID：" + scheduleJob.getId());
 
             Object target = SpringContextUtils.getBean(scheduleJob.getBeanName());
-            Method method = target.getClass().getDeclaredMethod("run", String.class);
-            method.invoke(target, scheduleJob.getParams());
+            Method method = target.getClass().getDeclaredMethod("run", ScheduleJobEntity.class);
+            method.invoke(target, scheduleJob);
 
             // 任务执行总时长
             long times = System.currentTimeMillis() - startTime;

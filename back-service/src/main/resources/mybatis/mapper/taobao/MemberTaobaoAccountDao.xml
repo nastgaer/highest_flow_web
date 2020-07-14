@@ -8,8 +8,12 @@
         <result property="memberId" column="member_id"/>
         <result property="taobaoAccountId" column="taobao_account_id"/>
         <result property="roomName" column="room_name"/>
-        <result property="taocode" column="taocode"/>
+        <result property="comment" column="comment"/>
+        <result property="state" column="state"/>
+        <result property="serviceStartDate" column="service_start_date"/>
+        <result property="serviceEndDate" column="service_end_date"/>
         <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
     </resultMap>
 
 </mapper>

@@ -23,9 +23,6 @@ import java.util.List;
 public class MemberServiceImpl extends ServiceImpl<MemberDao, SysMember> implements MemberService {
 
     @Autowired
-    private MemberRoleService memberRoleService;
-
-    @Autowired
     private MemberRoleGroupService memberRoleGroupService;
 
     @Override
@@ -36,7 +33,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, SysMember> impleme
         member.setPassword(password);
         member.setMobile(mobile);
         member.setComment(comment);
-        member.setState(MemberState.Normal.getState());
+        member.setState(state);
         member.setCreatedTime(new Date());
         member.setUpdatedTime(new Date());
 
@@ -46,24 +43,60 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, SysMember> impleme
         member.setSalt(salt);
 
         this.save(member);
+        memberRoleGroupService.saveOrUpdate(member.getId(), roles);
 
-        SysMember newMember = baseMapper.selectOne(Wrappers.<SysMember>lambdaQuery().eq(SysMember::getMemberName, memberName));
+        return member;
+    }
 
-        List<SysMemberRole> memberRoles = memberRoleService.list();
-        for (String role : roles) {
-            for (SysMemberRole memberRole : memberRoles) {
-                if (role.compareTo(memberRole.getName()) == 0) {
-                    SysMemberRoleGroup sysMemberRoleGroup = new SysMemberRoleGroup();
-                    sysMemberRoleGroup.setMemberId(newMember.getId());
-                    sysMemberRoleGroup.setRoleId(memberRole.getId());
+    @Override
+    public boolean update(int id, String memberName, String password, String mobile, String comment, List<String> roles, int state) {
+        try {
+            SysMember member = this.getById(id);
 
-                    memberRoleGroupService.save(sysMemberRoleGroup);
-                    break;
-                }
+            if (member == null) {
+                return false;
             }
-        }
 
-        return newMember;
+            SysMember memberOther = this.getOne(Wrappers.<SysMember>lambdaQuery().eq(SysMember::getMemberName, memberName));
+            if (memberOther.getId() != member.getId()) {
+                return false;
+            }
+
+            member.setMemberName(memberName);
+            member.setPassword(password);
+            member.setMobile(mobile);
+            member.setComment(comment);
+            member.setState(state);
+            member.setUpdatedTime(new Date());
+
+            // sha256加密
+            String salt = RandomStringUtils.randomAlphanumeric(20);
+            member.setPassword(new Sha256Hash(member.getPassword(), salt).toHex());
+            member.setSalt(salt);
+
+            this.updateById(member);
+            memberRoleGroupService.saveOrUpdate(member.getId(), roles);
+
+            return true;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean deleteBatch(List<Integer> ids) {
+        try {
+            for (Integer id : ids) {
+                this.memberRoleGroupService.deleteRole(id);
+            }
+            this.removeByIds(ids);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
     }
 
     @Override
@@ -73,14 +106,6 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, SysMember> impleme
 
     @Override
     public List<String> getRoles(SysMember sysMember) {
-        List<SysMemberRoleGroup> sysMemberRoleGroups = memberRoleGroupService.list(Wrappers.<SysMemberRoleGroup>lambdaQuery().eq(SysMemberRoleGroup::getMemberId, sysMember.getId()));
-
-        List<String> roles = new ArrayList<>();
-        for (SysMemberRoleGroup sysMemberRoleGroup : sysMemberRoleGroups) {
-            SysMemberRole sysMemberRole = memberRoleService.getById(sysMemberRoleGroup.getRoleId());
-
-            roles.add(sysMemberRole.getName());
-        }
-        return roles;
+        return this.memberRoleGroupService.queryRoleList(sysMember.getId());
     }
 }

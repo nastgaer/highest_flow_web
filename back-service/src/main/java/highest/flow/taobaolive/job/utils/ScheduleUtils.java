@@ -152,4 +152,19 @@ public class ScheduleUtils {
 			throw new RRException("删除定时任务失败", e);
 		}
 	}
+
+	public static boolean isRunning(Scheduler scheduler, Long jobId) {
+		try {
+			Trigger.TriggerState triggerState = scheduler.getTriggerState(getTriggerKey(jobId));
+			if (triggerState == Trigger.TriggerState.NORMAL) {
+				return true;
+			}
+
+			return false;
+
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 }

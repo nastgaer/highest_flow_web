@@ -1,5 +1,6 @@
 package highest.flow.taobaolive.job.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,7 +16,7 @@ public class ScheduleJobEntity implements Serializable {
 
     public static final String JOB_PARAM_KEY = "JOB_PARAM_KEY";
 
-    @TableId
+    @TableId(type = IdType.AUTO)
     private long id;
 
     /**

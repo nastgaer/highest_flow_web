@@ -8,30 +8,28 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.nio.file.Files;
+import java.util.stream.Collectors;
 
 @Configuration
 public class ResourceReader {
 
-    @Value("classpath:static/ProductCategoryList.json")
-    private static Resource productCategoryResource;
-
-    @Value("classpath:static/LiveColumnList.json")
-    private static Resource liveColumnResource;
-
-    public static String getResourceAsString(Resource resource) throws IOException {
-        String list = new String(Files.readAllBytes(productCategoryResource.getFile().toPath()));
-        return list;
-    }
-
     public static String getProductCategoryList() throws IOException {
-        return getResourceAsString(productCategoryResource);
+        final InputStream resource = new ClassPathResource("static/ProductCategoryList.json").getInputStream();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource))) {
+            final String text = reader.lines()
+                    .collect(Collectors.joining("\n"));
+            return text;
+        }
     }
 
     public static String getLiveColumnList() throws IOException {
-        return getResourceAsString(liveColumnResource);
+        final InputStream resource = new ClassPathResource("static/LiveColumnList.json").getInputStream();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource))) {
+            final String text = reader.lines()
+                    .collect(Collectors.joining("\n"));
+            return text;
+        }
     }
 }

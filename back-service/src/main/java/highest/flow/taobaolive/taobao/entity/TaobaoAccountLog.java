@@ -14,8 +14,6 @@ public class TaobaoAccountLog {
     // 0: 重登，1 : 延期
     private int category;
 
-    private String accountId;
-
     private String nick;
 
     private int expires;

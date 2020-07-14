@@ -30,11 +30,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-@SpringBootTest
+@SpringBootTest(classes = TaobaoliveApplication.class, args = "test")
 class XSignTests {
-
-    @Autowired
-    DataSource dataSource;
 
     @Autowired
     private CryptoService cryptoService;
@@ -123,19 +120,6 @@ class XSignTests {
 
         } catch (Exception ex) {
             ex.printStackTrace();
-        }
-    }
-
-    @Test
-    public void testMySQL() {
-        Connection connection = null;
-        try {
-            connection = dataSource.getConnection();
-            System.out.println(connection);
-            connection.close();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 

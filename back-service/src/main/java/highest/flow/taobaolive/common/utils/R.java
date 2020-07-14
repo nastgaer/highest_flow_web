@@ -1,5 +1,7 @@
 package highest.flow.taobaolive.common.utils;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 
 import java.util.HashMap;

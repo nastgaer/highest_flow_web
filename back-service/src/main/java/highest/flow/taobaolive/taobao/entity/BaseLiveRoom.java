@@ -3,7 +3,7 @@ package highest.flow.taobaolive.taobao.entity;
 import lombok.Data;
 
 @Data
-public class LiveRoom extends PreLiveRoomSpec {
+public class BaseLiveRoom extends PreLiveRoomSpec {
 
     private int pscChannelId;
 

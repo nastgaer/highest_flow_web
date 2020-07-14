@@ -10,9 +10,13 @@ import java.util.List;
 @Service
 public interface MemberService extends IService<SysMember> {
 
-    public SysMember register(String memberName, String password, String mobile, String comment, List<String> roles, int state);
+    SysMember register(String memberName, String password, String mobile, String comment, List<String> roles, int state);
 
-    public SysMember getMemberByName(String memberName);
+    boolean update(int id, String memberName, String password, String mobile, String comment, List<String> roles, int state);
 
-    public List<String> getRoles(SysMember sysMember);
+    boolean deleteBatch(List<Integer> ids);
+
+    SysMember getMemberByName(String memberName);
+
+    List<String> getRoles(SysMember sysMember);
 }

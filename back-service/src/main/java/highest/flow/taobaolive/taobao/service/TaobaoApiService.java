@@ -105,6 +105,15 @@ public interface TaobaoApiService {
     public R getLiveInfo(String taocode, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
+     * 获取直播列表
+     * @param taobaoAccountEntity
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+    public R getLiveList(TaobaoAccountEntity taobaoAccountEntity, int pageNo, int pageSize);
+
+    /**
      * 助力：关注任务
      * @param liveRoomEntity
      * @param taobaoAccountEntity

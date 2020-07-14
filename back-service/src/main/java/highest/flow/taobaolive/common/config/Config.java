@@ -12,4 +12,6 @@ public class Config {
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public static final int MAX_RETRY = 10;
+
+    public static final String ADMINISTRATOR = "administrator";
 }

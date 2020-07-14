@@ -9,6 +9,6 @@ public class LiveColumn {
 
     private String title;
 
-    private String decInfo;
+    private String descInfo;
 
 }

@@ -1,11 +1,11 @@
-package highest.flow.taobaolive.sys.entity;
+package highest.flow.taobaolive.api.param;
 
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class RegisterUserEntity {
+public class RegisterMemberParam {
 
     private String memberName;
 
@@ -15,7 +15,7 @@ public class RegisterUserEntity {
 
     private String comment;
 
-    private List<String> role;
+    private List<String> roles;
 
     private int state;
 }

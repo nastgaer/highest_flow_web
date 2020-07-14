@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
 
-    public TaobaoAccountEntity register(String accountId, String nick,
+    TaobaoAccountEntity register(String nick,
                                         String uid,
                                         String sid,
                                         String utdid,
@@ -24,5 +24,5 @@ public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
                                         Date created,
                                         Date updated);
 
-    public TaobaoAccountEntity getInfo(String accountId);
+    TaobaoAccountEntity getInfo(String accountId);
 }

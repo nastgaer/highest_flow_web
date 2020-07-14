@@ -15,7 +15,6 @@ import java.util.Date;
 public class RankingEntity {
 
     @TableId(type = IdType.AUTO)
-    @JsonProperty("task_id")
     private int id;
 
     private int memberId;

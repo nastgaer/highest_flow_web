@@ -18,13 +18,12 @@ import java.util.List;
 public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAccountEntity> implements TaobaoAccountService {
 
     @Override
-    public TaobaoAccountEntity register(String accountId, String nick, String uid, String sid, String utdid, String devid,
+    public TaobaoAccountEntity register(String nick, String uid, String sid, String utdid, String devid,
                                         String autoLoginToken, String umidToken, List<Cookie> cookies, long expires, int state,
                                         Date created, Date updated) {
         try {
             TaobaoAccountEntity taobaoAccountEntity = new TaobaoAccountEntity();
 
-            taobaoAccountEntity.setAccountId(accountId);
             taobaoAccountEntity.setNick(nick);
             taobaoAccountEntity.setUid(uid);
             taobaoAccountEntity.setSid(sid);
@@ -46,7 +45,13 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
             taobaoAccountEntity.setCreatedTime(created);
             taobaoAccountEntity.setUpdatedTime(updated);
 
-            this.save(taobaoAccountEntity);
+            TaobaoAccountEntity selected = this.getOne(Wrappers.<TaobaoAccountEntity>lambdaQuery().eq(TaobaoAccountEntity::getUid, uid));
+            if (selected != null) {
+                taobaoAccountEntity.setId(selected.getId());
+                this.updateById(taobaoAccountEntity);
+            } else {
+                this.save(taobaoAccountEntity);
+            }
             return taobaoAccountEntity;
 
         } catch (Exception ex) {
@@ -56,7 +61,7 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     }
 
     @Override
-    public TaobaoAccountEntity getInfo(String accountId) {
-        return baseMapper.selectOne(Wrappers.<TaobaoAccountEntity>lambdaQuery().eq(TaobaoAccountEntity::getAccountId, accountId));
+    public TaobaoAccountEntity getInfo(String nick) {
+        return baseMapper.selectOne(Wrappers.<TaobaoAccountEntity>lambdaQuery().eq(TaobaoAccountEntity::getNick, nick));
     }
 }

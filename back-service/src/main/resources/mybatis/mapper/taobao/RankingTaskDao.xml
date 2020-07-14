@@ -7,15 +7,22 @@
         <result property="id" column="id"/>
         <result property="memberId" column="member_id"/>
         <result property="taocode" column="taocode"/>
+        <result property="liveId" column="live_id"/>
         <result property="roomName" column="room_name"/>
         <result property="startScore" column="start_score"/>
+        <result property="endScore" column="end_score"/>
         <result property="targetScore" column="target_score"/>
         <result property="doubleBuy" column="double_buy"/>
         <result property="startTime" column="start_time"/>
         <result property="endTime" column="end_time"/>
         <result property="state" column="state"/>
+        <result property="msg" column="msg"/>
         <result property="createdTime" column="created_time"/>
         <result property="updatedTime" column="updated_time"/>
     </resultMap>
+
+    <select id="queryTodaysTask" resultMap="rankingTaskMap">
+        select * from tbl_ranking_task where DATE_FORMAT(start_time, "%Y-%m-%d") like #{today};
+    </select>
 
 </mapper>

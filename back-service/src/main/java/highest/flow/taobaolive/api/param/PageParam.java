@@ -1,9 +1,9 @@
-package highest.flow.taobaolive.sys.entity;
+package highest.flow.taobaolive.api.param;
 
 import lombok.Data;
 
 @Data
-public class PageEntity {
+public class PageParam {
 
     private int pageNo;
 

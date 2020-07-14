@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @EnableAsync
 public class ThreadPoolInitializer {
 
-    @Bean(name = "rankingThreadPool")
+    @Bean(name = "rankingExecutor")
     public Executor rankingExecutor() {
         ThreadPoolTaskExecutor threadPoolExecutor = new ThreadPoolTaskExecutor();
         threadPoolExecutor.setCorePoolSize(1);
