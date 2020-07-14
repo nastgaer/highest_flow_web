@@ -13,6 +13,8 @@ import highest.flow.taobaolive.common.exception.RRException;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import org.quartz.*;
 
+import java.util.List;
+
 /**
  * 定时任务工具类
  *
@@ -155,9 +157,14 @@ public class ScheduleUtils {
 
 	public static boolean isRunning(Scheduler scheduler, Long jobId) {
 		try {
-			Trigger.TriggerState triggerState = scheduler.getTriggerState(getTriggerKey(jobId));
-			if (triggerState == Trigger.TriggerState.NORMAL) {
-				return true;
+			List<JobExecutionContext> currentJobs = scheduler.getCurrentlyExecutingJobs();
+			if (currentJobs != null) {
+				for (JobExecutionContext jobExecutionContext : currentJobs) {
+					ScheduleJobEntity scheduleJob = (ScheduleJobEntity)jobExecutionContext.getMergedJobDataMap().get(ScheduleJobEntity.JOB_PARAM_KEY);
+					if (scheduleJob != null && scheduleJob.getId() == jobId) {
+						return true;
+					}
+				}
 			}
 
 			return false;
