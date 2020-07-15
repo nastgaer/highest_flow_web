@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="highest.flow.taobaolive.taobao.dao.TaobaoAccountDao">
+
+    <resultMap id="taobaoAccountMap" type="highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity">
+        <result property="id" column="id"/>
+        <result property="accountId" column="account_id"/>
+        <result property="nick" column="nick"/>
+        <result property="sid" column="sid"/>
+        <result property="uid" column="uid"/>
+        <result property="utdid" column="utdid"/>
+        <result property="devid" column="devid"/>
+        <result property="autoLoginToken" column="auto_login_token"/>
+        <result property="cookie" column="cookie"/>
+        <result property="expires" column="expires"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+</mapper>

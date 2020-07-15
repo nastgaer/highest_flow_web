@@ -8,7 +8,6 @@ public class TaobaoliveApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(TaobaoliveApplication.class, new String[] {
-                "test"
         });
     }
 
