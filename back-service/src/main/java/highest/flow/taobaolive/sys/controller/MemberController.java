@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@RequestMapping("/sys")
+@RequestMapping("/v1.0/sys")
 public class MemberController extends AbstractController {
 
     @Autowired

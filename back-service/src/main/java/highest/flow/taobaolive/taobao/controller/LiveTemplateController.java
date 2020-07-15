@@ -1,6 +1,10 @@
 package highest.flow.taobaolive.taobao.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import highest.flow.taobaolive.api.param.PageParam;
+import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.sys.controller.AbstractController;
 import highest.flow.taobaolive.sys.entity.SysMember;
@@ -14,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@RequestMapping("/live/template")
+@RequestMapping("/v1.0/live/template")
 public class LiveTemplateController extends AbstractController {
 
     @Autowired
@@ -23,28 +27,30 @@ public class LiveTemplateController extends AbstractController {
     @Autowired
     private PreLiveTemplateService preLiveTemplateService;
 
-    @GetMapping("/list")
-    public R list() {
+    @PostMapping("/list")
+    public R list(@RequestBody PageParam pageParam) {
         try {
-            List<TemplateEntity> templateEntities = templateService.list();
+            int pageNo = pageParam.getPageNo();
+            int pageSize = pageParam.getPageSize();
+            String keyword = pageParam.getKeyword();
 
-            List<Map> templates = new ArrayList<>();
+            IPage<TemplateEntity> page = HFStringUtils.isNullOrEmpty(keyword) ?
+                    this.templateService.page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
+                    this.templateService.page(new Page<>((pageNo - 1) * pageSize, pageSize),
+                            Wrappers.<TemplateEntity>lambdaQuery().like(TemplateEntity::getTemplateName, keyword));
+
+            List<TemplateEntity> templateEntities = page.getRecords();
+
             for (TemplateEntity templateEntity : templateEntities) {
                 if (templateEntity.isDel()) {
                     continue;
                 }
 
                 List<PreLiveTemplateEntity> preLiveTemplateEntities = preLiveTemplateService.list(Wrappers.<PreLiveTemplateEntity>lambdaQuery().eq(PreLiveTemplateEntity::getTemplateId, templateEntity.getId()));
-
-                Map<String, Object> templateMap = new HashMap<>();
-                templateMap.put("id", templateEntity.getId());
-                templateMap.put("name", templateEntity.getTemplateName());
-                templateMap.put("blocks", preLiveTemplateEntities);
-
-                templates.add(templateMap);
+                templateEntity.setBlocks(preLiveTemplateEntities);
             }
 
-            return R.ok().put("templates", templates);
+            return R.ok().put("templates", templateEntities);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -55,9 +61,9 @@ public class LiveTemplateController extends AbstractController {
     @PostMapping("/get")
     public R get(@RequestBody Map<String, Object> params) {
         try {
-            String templateId = (String) params.get("id");
+            String templateName = (String) params.get("template_name");
 
-            TemplateEntity templateEntity = templateService.getById(templateId);
+            TemplateEntity templateEntity = this.templateService.getOne(Wrappers.<TemplateEntity>lambdaQuery().eq(TemplateEntity::getTemplateName, templateName));
             if (templateEntity == null) {
                 return R.error("找不到模板");
             }
@@ -65,12 +71,7 @@ public class LiveTemplateController extends AbstractController {
                 return R.error("已删除的模板");
             }
 
-            List<PreLiveTemplateEntity> preLiveTemplateEntities = preLiveTemplateService.list(Wrappers.<PreLiveTemplateEntity>lambdaQuery().eq(PreLiveTemplateEntity::getTemplateId, templateEntity.getId()));
-
-            return R.ok()
-                    .put("id", templateEntity.getId())
-                    .put("name", templateEntity.getTemplateName())
-                    .put("blocks", preLiveTemplateEntities);
+            return R.ok().put("template", templateEntity);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -79,35 +80,30 @@ public class LiveTemplateController extends AbstractController {
     }
 
     @PostMapping("/add")
-    public R add(@RequestBody Map<String, Object> params) {
+    public R add(@RequestBody TemplateEntity templateEntity) {
         try {
-            String templateName = (String) params.get("name");
-            List<PreLiveTemplateEntity> preLiveTemplateEntities = (List<PreLiveTemplateEntity>) params.get("blocks");
-
-            TemplateEntity templateEntity = templateService.getOne(Wrappers.<TemplateEntity>lambdaQuery().eq(TemplateEntity::getTemplateName, templateName));
-            if (templateEntity != null) {
+            TemplateEntity templateEntityOther = this.templateService.getOne(Wrappers.<TemplateEntity>lambdaQuery().eq(TemplateEntity::getTemplateName, templateEntity.getTemplateName()));
+            if (templateEntityOther != null) {
                 return R.error("已注册的模板");
             }
 
             SysMember sysMember = this.getUser();
 
-            templateEntity = new TemplateEntity();
             templateEntity.setMemberId(sysMember.getId());
-            templateEntity.setTemplateName(templateName);
             templateEntity.setDel(false);
             templateEntity.setCreatedTime(new Date());
             templateEntity.setUpdatedTime(new Date());
 
-            templateService.save(templateEntity);
+            this.templateService.save(templateEntity);
 
-            for (PreLiveTemplateEntity preLiveTemplateEntity : preLiveTemplateEntities) {
+            for (PreLiveTemplateEntity preLiveTemplateEntity : templateEntity.getBlocks()) {
                 preLiveTemplateEntity.setTemplateId(templateEntity.getId());
             }
 
-            preLiveTemplateService.saveBatch(preLiveTemplateEntities);
+            preLiveTemplateService.saveBatch(templateEntity.getBlocks());
 
             return R.ok()
-                    .put("id", templateEntity.getId());
+                    .put("template_id", templateEntity.getId());
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -118,14 +114,15 @@ public class LiveTemplateController extends AbstractController {
     @PostMapping("/delete")
     public R delete(@RequestBody Map<String, Object> params) {
         try {
-            int templateId = (int) params.get("id");
+            String templateName = (String) params.get("template_name");
 
-            TemplateEntity templateEntity = templateService.getById(templateId);
+            TemplateEntity templateEntity = this.templateService.getOne(Wrappers.<TemplateEntity>lambdaQuery().eq(TemplateEntity::getTemplateName, templateName));
             if (templateEntity == null) {
                 return R.error("找不到模板");
             }
 
-            templateService.removeById(templateId);
+            this.preLiveTemplateService.remove(Wrappers.<PreLiveTemplateEntity>lambdaQuery().eq(PreLiveTemplateEntity::getTemplateId, templateEntity.getId()));
+            this.templateService.removeById(templateEntity.getId());
 
             return R.ok();
 

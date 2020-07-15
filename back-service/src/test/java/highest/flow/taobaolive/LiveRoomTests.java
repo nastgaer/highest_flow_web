@@ -44,7 +44,7 @@ public class LiveRoomTests extends BaseTests {
             liveSpecsMap.add(liveSpecMap);
 
             Map<String, Object> paramMap = new HashMap<>();
-            paramMap.put("taobao_account_nick", "zhaoxiangchi00");
+            paramMap.put("taobao_account_nick", "tb150494815");
             paramMap.put("comment", "");
             paramMap.put("service", serviceMap);
             paramMap.put("live_specs", liveSpecsMap);

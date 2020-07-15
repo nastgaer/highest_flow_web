@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
-@RequestMapping("/live")
+@RequestMapping("/v1.0/live")
 public class LiveController extends AbstractController {
 
     @Autowired
@@ -106,11 +106,12 @@ public class LiveController extends AbstractController {
             memberTaoAccEntity.setComment(addRoomParam.getComment());
 
             Date startDate = addRoomParam.getService().getStartDate();
+            Date endDate = CommonUtils.addDays(startDate, addRoomParam.getService().getDays());
             memberTaoAccEntity.setServiceStartDate(startDate);
-            memberTaoAccEntity.setServiceEndDate(CommonUtils.addDays(startDate, addRoomParam.getService().getDays()));
+            memberTaoAccEntity.setServiceEndDate(endDate);
             if (startDate.getTime() > new Date().getTime()) {
                 memberTaoAccEntity.setState(ServiceState.Waiting.getState());
-            } else if (startDate.getTime() < new Date().getTime()) {
+            } else if (endDate.getTime() < new Date().getTime()) {
                 memberTaoAccEntity.setState(ServiceState.Stopped.getState());
             } else {
                 memberTaoAccEntity.setState(ServiceState.Normal.getState());
@@ -127,8 +128,6 @@ public class LiveController extends AbstractController {
             }
 
             this.preLiveRoomSpecService.saveBatch(addRoomParam.getLiveSpecs());
-
-            // TODO, add schedule service
 
             return R.ok().put("room_id", memberTaoAccEntity.getId());
 
@@ -266,7 +265,25 @@ public class LiveController extends AbstractController {
 
     @PostMapping("/logs")
     public R logs(@RequestBody PageParam pageParam) {
-        return R.error("TODO");
+        try {
+            int pageNo = pageParam.getPageNo();
+            int pageSize = pageParam.getPageSize();
+            String keyword = pageParam.getKeyword();
+
+            IPage<LiveRoom> page =
+                    HFStringUtils.isNullOrEmpty(keyword) ?
+                            this.rankingService
+                                    .page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
+                            this.rankingService
+                                    .page(new Page<>((pageNo - 1) * pageSize, pageSize),
+                                            Wrappers.<RankingEntity>lambdaQuery().like(RankingEntity::getRoomName, keyword));
+            List<RankingEntity> logs = page.getRecords();
+            return R.ok().put("logs", logs).put("total_count", rankingService.count());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
     }
 
     @PostMapping("/set_task")

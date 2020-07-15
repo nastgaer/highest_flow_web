@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/sys")
+@RequestMapping("/v1.0/sys")
 public class LoginController {
 
     @Autowired

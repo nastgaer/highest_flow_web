@@ -29,7 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
-@RequestMapping("/ranking")
+@RequestMapping("/v1.0/ranking")
 public class RankingController extends AbstractController {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -179,7 +179,7 @@ public class RankingController extends AbstractController {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return R.error("TODO");
+        return R.error();
     }
 }
 

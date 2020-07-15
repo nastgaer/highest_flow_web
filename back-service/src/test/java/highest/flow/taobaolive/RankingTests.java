@@ -126,7 +126,7 @@ public class RankingTests extends BaseTests {
             paramMap.put("taocode", "￥OoG21BgDahH￥");
             paramMap.put("target_score", "100000");
             paramMap.put("double_buy", false);
-            paramMap.put("start_time", "2020-07-15 22:30:00");
+            paramMap.put("start_time", "2020-07-16 22:30:00");
 
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);

@@ -20,14 +20,9 @@ public class PreLiveTemplateEntity {
     private int templateId;
 
     /**
-     * TemplateKind
-     */
-    private int templateKind;
-
-    /**
      * LiveRoomKind
      */
-    private int livekind;
+    private int liveKind;
 
     private int liveChannelId;
 

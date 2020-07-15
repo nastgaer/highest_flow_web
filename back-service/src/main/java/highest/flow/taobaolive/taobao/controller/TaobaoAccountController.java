@@ -35,7 +35,7 @@ import java.sql.Wrapper;
 import java.util.*;
 
 @RestController
-@RequestMapping("/tbacc")
+@RequestMapping("/v1.0/tbacc")
 public class TaobaoAccountController extends AbstractController {
 
     @Autowired
