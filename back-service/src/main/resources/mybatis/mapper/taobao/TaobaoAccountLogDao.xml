@@ -3,11 +3,12 @@
 
 <mapper namespace="highest.flow.taobaolive.taobao.dao.TaobaoAccountLogDao">
 
-    <resultMap id="logMap" type="highest.flow.taobaolive.taobao.entity.TaobaoAccountLog">
+    <resultMap id="logMap" type="highest.flow.taobaolive.taobao.entity.TaobaoAccountLogEntity">
         <result property="id" column="id"/>
-        <result property="category" column="category"/>
-        <result property="accountId" column="account_id"/>
+        <result property="kind" column="kind"/>
+        <result property="uid" column="uid"/>
         <result property="nick" column="nick"/>
+        <result property="success" column="success"/>
         <result property="expires" column="expires"/>
         <result property="content" column="content"/>
         <result property="createdTime" column="created_time"/>

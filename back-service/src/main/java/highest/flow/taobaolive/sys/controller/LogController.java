@@ -26,7 +26,7 @@ public class LogController {
         try {
             int pageNo = pageParam.getPageNo();
             int pageSize = pageParam.getPageSize();
-            String keyword = pageParam.getKeyword(); // TODO
+            String keyword = pageParam.getKeyword();
             IPage<SysLog> page = this.logService.page(new Page<>((pageNo - 1) * pageSize, pageSize));
             List<SysLog> logs = page.getRecords();
 

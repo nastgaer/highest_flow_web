@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import highest.flow.taobaolive.api.param.AddRoomParam;
 import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.DateUtils;
+import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.sys.controller.AbstractController;
 import highest.flow.taobaolive.api.param.PageParam;
@@ -142,8 +143,15 @@ public class LiveController extends AbstractController {
         try {
             int pageNo = pageParam.getPageNo();
             int pageSize = pageParam.getPageSize();
+            String keyword = pageParam.getKeyword();
 
-            IPage<MemberTaoAccEntity> page = this.memberTaoAccService.page(new Page<>((pageNo - 1) * pageSize, pageSize));
+            IPage<MemberTaoAccEntity> page = HFStringUtils.isNullOrEmpty(keyword) ?
+                    this.memberTaoAccService.page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
+                    this.memberTaoAccService.page(new Page<>((pageNo - 1) * pageSize, pageSize),
+                            Wrappers.<MemberTaoAccEntity>lambdaQuery()
+                                    .like(MemberTaoAccEntity::getRoomName, keyword)
+                                    .or()
+                                    .like(MemberTaoAccEntity::getTaobaoAccountNick, keyword));
             List<MemberTaoAccEntity> memberTaoAccEntities = page.getRecords();
 
             for (MemberTaoAccEntity memberTaoAccEntity : memberTaoAccEntities) {

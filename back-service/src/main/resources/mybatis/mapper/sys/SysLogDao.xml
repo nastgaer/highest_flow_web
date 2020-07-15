@@ -5,7 +5,7 @@
 
     <resultMap id="logMap" type="highest.flow.taobaolive.sys.entity.SysLog">
         <result property="id" column="id"/>
-        <result property="category" column="category"/>
+        <result property="kind" column="kind"/>
         <result property="content" column="content"/>
         <result property="createdTime" column="created_time"/>
     </resultMap>

@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.taobao.entity.LiveRoomEntity;
 import highest.flow.taobaolive.taobao.entity.RankingEntity;
-import highest.flow.taobaolive.taobao.entity.TaobaoAccountLog;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

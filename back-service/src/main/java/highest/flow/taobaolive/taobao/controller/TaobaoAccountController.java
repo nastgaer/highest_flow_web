@@ -5,10 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.http.CookieHelper;
-import highest.flow.taobaolive.common.utils.CommonUtils;
-import highest.flow.taobaolive.common.utils.R;
-import highest.flow.taobaolive.common.utils.SelfExpiringHashMap;
-import highest.flow.taobaolive.common.utils.SelfExpiringMap;
+import highest.flow.taobaolive.common.utils.*;
 import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import highest.flow.taobaolive.job.service.ScheduleJobService;
@@ -17,6 +14,8 @@ import highest.flow.taobaolive.sys.controller.AbstractController;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.QRCode;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
+import highest.flow.taobaolive.taobao.entity.TaobaoAccountLogEntity;
+import highest.flow.taobaolive.taobao.service.TaobaoAccountLogService;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
 import highest.flow.taobaolive.taobao.utils.DeviceUtils;
@@ -32,6 +31,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
+import java.sql.Wrapper;
 import java.util.*;
 
 @RestController
@@ -40,6 +40,9 @@ public class TaobaoAccountController extends AbstractController {
 
     @Autowired
     private TaobaoAccountService taobaoAccountService;
+
+    @Autowired
+    private TaobaoAccountLogService taobaoAccountLogService;
 
     @Autowired
     private TaobaoApiService taobaoApiService;
@@ -58,9 +61,13 @@ public class TaobaoAccountController extends AbstractController {
         try {
             int pageNo = pageParam.getPageNo();
             int pageSize = pageParam.getPageSize();
-            IPage<TaobaoAccountEntity> page = this.taobaoAccountService.page(new Page<>((pageNo - 1) * pageSize, pageSize));
-            List<TaobaoAccountEntity> taobaoAccountEntities = this.taobaoAccountService.list();
+            String keyword = pageParam.getKeyword();
 
+            IPage<TaobaoAccountEntity> page = HFStringUtils.isNullOrEmpty(keyword) ?
+                    this.taobaoAccountService.page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
+                    this.taobaoAccountService.page(new Page<>((pageNo - 1) * pageSize, pageSize),
+                            Wrappers.<TaobaoAccountEntity>lambdaQuery().like(TaobaoAccountEntity::getNick, keyword));
+            List<TaobaoAccountEntity> taobaoAccountEntities = page.getRecords();
             return R.ok().put("users", taobaoAccountEntities).put("total_count", taobaoAccountService.count());
 
         } catch (Exception ex) {
@@ -198,14 +205,21 @@ public class TaobaoAccountController extends AbstractController {
     @PostMapping("/logs")
     public R logs(@RequestBody PageParam pageParam) {
         try {
-            // TODO
-            return R.ok()
-                    .put("logs", new ArrayList<>());
+            int pageNo = pageParam.getPageNo();
+            int pageSize = pageParam.getPageSize();
+            String keyword = pageParam.getKeyword();
+
+            IPage<TaobaoAccountLogEntity> page = HFStringUtils.isNullOrEmpty(keyword) ?
+                    this.taobaoAccountLogService.page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
+                    this.taobaoAccountLogService.page(new Page<>((pageNo - 1) * pageSize, pageSize),
+                            Wrappers.<TaobaoAccountLogEntity>lambdaQuery().like(TaobaoAccountLogEntity::getNick, keyword));
+            List<TaobaoAccountLogEntity> logs = page.getRecords();
+            return R.ok().put("logs", logs).put("total_count", taobaoAccountLogService.count());
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return R.error("设置延期公式失败");
+        return R.error("获取账号操作记录失败");
     }
 
     @PostMapping("/upload")

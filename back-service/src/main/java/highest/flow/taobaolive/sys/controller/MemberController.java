@@ -9,6 +9,7 @@ import highest.flow.taobaolive.api.param.RegisterMemberParam;
 import highest.flow.taobaolive.api.param.UpdateMemberParam;
 import highest.flow.taobaolive.common.config.Config;
 import highest.flow.taobaolive.common.utils.CommonUtils;
+import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.sys.entity.*;
 import highest.flow.taobaolive.sys.service.MemberService;
@@ -57,10 +58,12 @@ public class MemberController extends AbstractController {
             int pageNo = pageParam.getPageNo();
             int pageSize = pageParam.getPageSize();
             String keyword = pageParam.getKeyword();
-            IPage<SysMember> page = this.memberService.page(new Page<>((pageNo - 1) * pageSize, pageSize),
-                    Wrappers.<SysMember>lambdaQuery().like(SysMember::getMemberName, keyword)
-                        .or()
-                        .like(SysMember::getComment, keyword));
+            IPage<SysMember> page = HFStringUtils.isNullOrEmpty(keyword) ?
+                    this.memberService.page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
+                    this.memberService.page(new Page<>((pageNo - 1) * pageSize, pageSize),
+                            Wrappers.<SysMember>lambdaQuery().like(SysMember::getMemberName, keyword)
+                                    .or()
+                                    .like(SysMember::getComment, keyword));
             List<SysMember> members = page.getRecords();
 
             List<Map<String, Object>> memberList = new ArrayList<>();
