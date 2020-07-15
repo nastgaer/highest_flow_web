@@ -8,6 +8,9 @@ server:
     connection-timeout: 5000ms
 
 spring:
+  profiles:
+    active: dev
+
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
@@ -63,3 +66,6 @@ license:
 
 ranking:
   simulate: true
+
+http:
+  inspect: true

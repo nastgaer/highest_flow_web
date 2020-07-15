@@ -20,7 +20,7 @@ import java.net.URLEncoder;
 public class SignServiceImpl implements SignService {
 
     private int[] availablePorts = new int[]{
-            59316, 58119, 58114, 58120
+            58119, 59316, 58114, 58120
     };
     private int port2 = 59316;
 

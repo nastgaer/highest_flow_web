@@ -38,11 +38,33 @@ ShowTag=1
 ShowCommonAttributes=0
 
 [Entity]
+PName=sys_log
+LName=系统记录
+Comment=
+TableOption=
+Page=Main
+Left=1850
+Top=350
+Field="ID","id","INT","NOT NULL",0,"","",$FFFFFFFF,"AUTO_INCREMENT"
+Field="会员名","member_name","VARCHAR(20）",,,"","",$FFFFFFFF,""
+Field="操作","operation","VARCHAR(32)",,,"","",$FFFFFFFF,""
+Field="请求方法","method","VARCHAR(32)",,,"","",$FFFFFFFF,""
+Field="请求参数","params","TEXT",,,"","",$FFFFFFFF,""
+Field="执行时长(毫秒)","time","INT",,,"","",$FFFFFFFF,""
+Field="IP地址","ip","VARCHAR(24)",,,"","",$FFFFFFFF,""
+Field="创建时间","created_time","DATETIME",,,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20200715162624
+Position="Main",1850,350
+
+[Entity]
 PName=tbl_accounts_logs
 LName=淘宝账号延期记录
 Comment=
 TableOption=
-Page=Main
+Page=MAIN
 Left=400
 Top=500
 Field="ID","id","INT","NOT NULL",0,"","",$FFFFFFFF,"AUTO_INCREMENT"
@@ -57,7 +79,7 @@ EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
 ModifiedDateTime=20200714162625
-Position="Main",400,500
+Position="MAIN",400,500
 
 [Entity]
 PName=tbl_members
@@ -80,7 +102,7 @@ Field="更新时间","updated_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200629222206
+ModifiedDateTime=20200715162157
 Position="MAIN",1100,500
 
 [Entity]

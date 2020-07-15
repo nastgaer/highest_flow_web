@@ -20,6 +20,8 @@ import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
 import highest.flow.taobaolive.taobao.service.RankingService;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +31,8 @@ import java.util.*;
 @RestController
 @RequestMapping("/ranking")
 public class RankingController extends AbstractController {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private TaobaoAccountService taobaoAccountService;
@@ -55,6 +59,8 @@ public class RankingController extends AbstractController {
             if (taobaoAccountEntity == null) {
                 return R.error("找不到活跃的用户");
             }
+
+            logger.debug("找到活跃用户：" + taobaoAccountEntity.getNick());
 
             R r = taobaoApiService.getLiveInfo(taocode, taobaoAccountEntity);
             if (r.getCode() != ErrorCodes.SUCCESS) {

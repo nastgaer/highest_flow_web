@@ -20,6 +20,8 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
@@ -31,6 +33,8 @@ import java.util.*;
 
 @Service("taobaoApiService")
 public class TaobaoApiServiceImpl implements TaobaoApiService {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private SignService signService;
