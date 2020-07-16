@@ -85,9 +85,9 @@ public class OAuth2Filter extends AuthenticatingFilter {
     }
 
     private String getRequestToken(HttpServletRequest request) {
-        String token = request.getHeader("token");
+        String token = request.getHeader("access_token");
         if (StringUtils.isBlank(token)) {
-            return request.getParameter("token");
+            return request.getParameter("access_token");
         }
         return token;
     }

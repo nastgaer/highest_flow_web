@@ -12,19 +12,27 @@ import highest.flow.taobaolive.sys.controller.AbstractController;
 import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.taobao.defines.ServiceState;
+import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.*;
 import highest.flow.taobaolive.taobao.service.*;
 import org.apache.shiro.crypto.hash.Hash;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
 @RequestMapping("/v1.0/live")
 public class LiveController extends AbstractController {
+
+    @Value("${upload.folder:./}")
+    private String uploadFolder;
 
     @Autowired
     private TaobaoAccountService taobaoAccountService;
@@ -37,6 +45,9 @@ public class LiveController extends AbstractController {
 
     @Autowired
     private MemberTaoAccService memberTaoAccService;
+
+    @Autowired
+    private LiveRoomService liveRoomService;
 
     @Autowired
     private PreLiveRoomSpecService preLiveRoomSpecService;
@@ -52,7 +63,7 @@ public class LiveController extends AbstractController {
             return R.ok().put("channels", channels);
 
         } catch (Exception ex) {
-            ex.printStackTrace();;
+            ex.printStackTrace();
         }
         return R.error();
     }
@@ -71,9 +82,30 @@ public class LiveController extends AbstractController {
     }
 
     @PostMapping("/upload_image")
-    public R uploadImage(@RequestBody MultipartFile file) {
+    public R uploadImage(@RequestParam(name = "taobao_account_nick") String taobaoAccountNick,
+                         @RequestParam(name = "file") MultipartFile file) {
         try {
-            // TODO
+            if (file.isEmpty()) {
+                return R.error("空文件");
+            }
+
+            TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.getOne(Wrappers.<TaobaoAccountEntity>lambdaQuery()
+                    .eq(TaobaoAccountEntity::getNick, taobaoAccountNick));
+            if (taobaoAccountEntity == null) {
+                return R.error("找不到淘宝账号");
+            }
+
+            if (taobaoAccountEntity.getState() != TaobaoAccountState.Normal.getState()) {
+                return R.error("不是正常账号");
+            }
+
+            byte [] bytes = file.getBytes();
+            Path path = Paths.get(uploadFolder, file.getOriginalFilename());
+            Files.write(path, bytes);
+
+            R r = this.taobaoApiService.uploadImage(path, taobaoAccountEntity);
+
+            return r;
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -270,15 +302,19 @@ public class LiveController extends AbstractController {
             int pageSize = pageParam.getPageSize();
             String keyword = pageParam.getKeyword();
 
-            IPage<LiveRoom> page =
+            IPage<LiveRoomEntity> page =
                     HFStringUtils.isNullOrEmpty(keyword) ?
-                            this.rankingService
+                            this.liveRoomService
                                     .page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
-                            this.rankingService
+                            this.liveRoomService
                                     .page(new Page<>((pageNo - 1) * pageSize, pageSize),
-                                            Wrappers.<RankingEntity>lambdaQuery().like(RankingEntity::getRoomName, keyword));
-            List<RankingEntity> logs = page.getRecords();
-            return R.ok().put("logs", logs).put("total_count", rankingService.count());
+                                            Wrappers.<LiveRoomEntity>lambdaQuery()
+                                                    .like(LiveRoomEntity::getTaobaoAccountNick, keyword)
+                                                    .or()
+                                                    .like(LiveRoomEntity::getAccountName, keyword));
+
+            List<LiveRoomEntity> logs = page.getRecords();
+            return R.ok().put("logs", logs).put("total_count", this.liveRoomService.count());
 
         } catch (Exception ex) {
             ex.printStackTrace();

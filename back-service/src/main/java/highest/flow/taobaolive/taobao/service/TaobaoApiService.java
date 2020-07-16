@@ -4,6 +4,9 @@ import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.taobao.entity.*;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.nio.file.Path;
+
 @Service
 public interface TaobaoApiService {
 
@@ -212,4 +215,6 @@ public interface TaobaoApiService {
      * @return
      */
     public R addTimestamp(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, String productId);
+
+    public R uploadImage(Path path, TaobaoAccountEntity taobaoAccountEntity);
 }

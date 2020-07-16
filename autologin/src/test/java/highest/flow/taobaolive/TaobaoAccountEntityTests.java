@@ -74,12 +74,12 @@ public class TaobaoAccountEntityTests extends BaseTests {
         try {
             contextLoads();
 
-            String url = "http://localhost:8080/tbacc/qrcode";
+            String url = "http://localhost:8080/v1.0/tbacc/qrcode";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT));
 
             System.out.println(response.getResult());
@@ -93,7 +93,7 @@ public class TaobaoAccountEntityTests extends BaseTests {
             System.out.println(imageUrl);
 
             for (int wait = 0; wait < 60; wait++) {
-                url = "http://localhost:8080/tbacc/verify_qrcode";
+                url = "http://localhost:8080/v1.0/tbacc/verify_qrcode";
 
                 Map<String, Object> paramMap = new HashMap<>();
                 paramMap.put("access_token", qrAccessToken);
@@ -103,7 +103,7 @@ public class TaobaoAccountEntityTests extends BaseTests {
                 response = HttpHelper.execute(
                         new SiteConfig()
                                 .setContentType("application/json")
-                                .addHeader("token", accessToken),
+                                .addHeader("access_token", accessToken),
                         new Request("POST", url, ResponseType.TEXT)
                                 .setEntity(new StringEntity(json)));
 
@@ -139,12 +139,12 @@ public class TaobaoAccountEntityTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/tbacc/batch_delete";
+            String url = "http://localhost:8080/v1.0/tbacc/batch_delete";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json; charset=utf-8")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT)
                             .setEntity(new StringEntity(json, "UTF-8")));
 
@@ -168,12 +168,12 @@ public class TaobaoAccountEntityTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/tbacc/list";
+            String url = "http://localhost:8080/v1.0/tbacc/list";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT)
                             .setEntity(new StringEntity(json)));
 

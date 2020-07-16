@@ -1,5 +1,7 @@
 package highest.flow.taobaolive.taobao.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -12,6 +14,7 @@ import java.util.List;
 @TableName("tbl_template")
 public class TemplateEntity {
 
+    @TableId(type = IdType.AUTO)
     private int id;
 
     private int memberId;

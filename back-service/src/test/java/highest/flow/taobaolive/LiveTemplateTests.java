@@ -29,12 +29,12 @@ public class LiveTemplateTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/live/template/list";
+            String url = "http://localhost:8080/v1.0/live/template/list";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT)
                             .setEntity(new StringEntity(json, "UTF-8")));
 
@@ -74,12 +74,12 @@ public class LiveTemplateTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/live/template/add";
+            String url = "http://localhost:8080/v1.0/live/template/add";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT)
                             .setEntity(new StringEntity(json, "UTF-8")));
 
@@ -101,12 +101,12 @@ public class LiveTemplateTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/live/template/get";
+            String url = "http://localhost:8080/v1.0/live/template/get";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT)
                             .setEntity(new StringEntity(json, "UTF-8")));
 

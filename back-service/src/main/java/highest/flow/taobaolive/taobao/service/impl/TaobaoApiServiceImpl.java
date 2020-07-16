@@ -16,10 +16,14 @@ import highest.flow.taobaolive.taobao.service.TaobaoApiService;
 import highest.flow.taobaolive.taobao.service.SignService;
 import highest.flow.taobaolive.taobao.utils.DeviceUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +31,10 @@ import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.file.Path;
 import java.util.*;
 
 @Service("taobaoApiService")
@@ -1788,5 +1794,49 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             ex.printStackTrace();
         }
         return R.error("获取机器码失败");
+    }
+
+    @Override
+    public R uploadImage(Path path, TaobaoAccountEntity taobaoAccountEntity) {
+        try {
+            String url = "https://liveplatform.taobao.com/live/action.do";
+
+            File file = path.toFile();
+            HttpEntity httpEntity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                    .addBinaryBody("filedata", file, ContentType.DEFAULT_BINARY, file.getName())
+                    .addTextBody("_tb_token_", taobaoAccountEntity.getToken())
+                    .addTextBody("api", "pic_common_upload")
+                    .addTextBody("name", path.toAbsolutePath().toString()).build();
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+                            .addHeader("Referer", "https://liveplatform.taobao.com/live/addLive.htm"),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .setEntity(httpEntity),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            Map<String, Object> mapModel = (Map<String, Object>) map.get("model");
+            String filePath = String.valueOf(mapModel.get("tfsFilePath"));
+
+            return R.ok().put("file_path", "https://gw.alicdn.com/tfscom/" + filePath);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("上传图片失败");
     }
 }

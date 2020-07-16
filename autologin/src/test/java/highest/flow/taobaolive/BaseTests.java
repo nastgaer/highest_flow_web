@@ -30,7 +30,7 @@ public class BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/sys/login";
+            String url = "http://localhost:8080/v1.0/sys/login";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()

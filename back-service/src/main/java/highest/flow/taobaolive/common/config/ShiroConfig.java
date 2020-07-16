@@ -35,10 +35,11 @@ public class ShiroConfig {
         shiroFilter.setFilters(filters);
 
         Map<String, String> filterMap = new LinkedHashMap<>();
-        filterMap.put("/xsign", "anon");
-        filterMap.put("/sys/login", "anon");
-        filterMap.put("/login", "anon");
-        filterMap.put("/tbacc/upload", "anon");
+        filterMap.put("/v1.0/xsign", "anon");
+        filterMap.put("/v1.0/sys/login", "anon");
+        filterMap.put("/v1.0/login", "anon");
+        filterMap.put("/v1.0/live/upload_image", "anon");
+        filterMap.put("/v1.0/tbacc/upload", "anon");
         filterMap.put("/**", "oauth2");
         shiroFilter.setFilterChainDefinitionMap(filterMap);
 

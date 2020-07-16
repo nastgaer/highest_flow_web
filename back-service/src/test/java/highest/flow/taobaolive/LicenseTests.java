@@ -55,7 +55,7 @@ public class LicenseTests {
 //            reqParamMap.put("data", encryptedData);
 //            reqParamMap.put("xsign", xsign);
 //
-//            String url = "http://localhost:8080/sys/register";
+//            String url = "http://localhost:8080/v1.0/sys/register";
 //
 //            Response<String> response = HttpHelper.execute(
 //                    new SiteConfig()
@@ -89,7 +89,7 @@ public class LicenseTests {
 //            paramMap.put("data", encryptedData);
 //            paramMap.put("xsign", xsign);
 //
-//            String url = "http://localhost:8080/sys/login";
+//            String url = "http://localhost:8080/v1.0/sys/login";
 //            Response<String> response = HttpHelper.execute(
 //                    new SiteConfig()
 //                            .setContentType("application/x-www-form-urlencoded"),
@@ -129,7 +129,7 @@ public class LicenseTests {
 //            paramMap1.put("data", encryptData);
 //            paramMap1.put("xsign", xsign);
 //
-//            String url = "http://localhost:8080/license/generate";
+//            String url = "http://localhost:8080/v1.0/license/generate";
 //            Response<String> response = HttpHelper.execute(
 //                    new SiteConfig()
 //                            .setContentType("application/x-www-form-urlencoded"),
@@ -163,7 +163,7 @@ public class LicenseTests {
 //            paramMap1.put("data", encryptData);
 //            paramMap1.put("xsign", xsign);
 //
-//            String url = "http://localhost:8080/license/accept";
+//            String url = "http://localhost:8080/v1.0/license/accept";
 //
 //            Response<String> response = HttpHelper.execute(
 //                    new SiteConfig()
@@ -198,7 +198,7 @@ public class LicenseTests {
 //            paramMap1.put("data", encryptData);
 //            paramMap1.put("xsign", xsign);
 //
-//            String url = "http://localhost:8080/license/bind";
+//            String url = "http://localhost:8080/v1.0/license/bind";
 //
 //            Response<String> response = HttpHelper.execute(
 //                    new SiteConfig()

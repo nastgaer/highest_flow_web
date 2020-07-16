@@ -131,12 +131,12 @@ public class RankingTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/ranking/add_task";
+            String url = "http://localhost:http://localhost:8080/v1.0//ranking/add_task";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT)
                             .setEntity(new StringEntity(json, "UTF-8")));
 
@@ -160,12 +160,12 @@ public class RankingTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/ranking/todays";
+            String url = "http://localhost:http://localhost:8080/v1.0//ranking/todays";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT)
                             .setEntity(new StringEntity(json)));
 
@@ -190,7 +190,7 @@ public class RankingTests extends BaseTests {
 
             // Start first ranking
 
-            url = "http://localhost:8080/ranking/start_task";
+            url = "http://localhost:http://localhost:8080/v1.0//ranking/start_task";
 
             paramMap.clear();
             paramMap.put("task_id", taskId);
@@ -200,7 +200,7 @@ public class RankingTests extends BaseTests {
             response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT)
                             .setEntity(new StringEntity(json)));
 
@@ -224,12 +224,12 @@ public class RankingTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/ranking/todays";
+            String url = "http://localhost:http://localhost:8080/v1.0//ranking/todays";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT)
                             .setEntity(new StringEntity(json)));
 
@@ -254,7 +254,7 @@ public class RankingTests extends BaseTests {
 
             // Start first ranking
 
-            url = "http://localhost:8080/ranking/stop_task";
+            url = "http://localhost:http://localhost:8080/v1.0//ranking/stop_task";
 
             paramMap.clear();
             paramMap.put("task_id", taskId);
@@ -264,7 +264,7 @@ public class RankingTests extends BaseTests {
             response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT)
                             .setEntity(new StringEntity(json)));
 
@@ -287,12 +287,12 @@ public class RankingTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/ranking/logs";
+            String url = "http://localhost:http://localhost:8080/v1.0//ranking/logs";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT)
                             .setEntity(new StringEntity(json)));
 

@@ -86,8 +86,8 @@ class XSignTests {
             System.out.println(data);
 
             // String url = "http://119.45.148.200:8080/highest/xsign";
-            String url = "http://localhost:8080/xsign";
-            // String url = "http://localhost:8080/taobaolive-0.0.1-SNAPSHOT/xsign";
+            String url = "http://localhost:8080/v1.0/xsign";
+            // String url = "http://localhost:8080/v1.0/taobaolive-0.0.1-SNAPSHOT/xsign";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()

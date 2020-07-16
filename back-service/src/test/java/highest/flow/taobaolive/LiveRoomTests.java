@@ -52,12 +52,12 @@ public class LiveRoomTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/live/add_room";
+            String url = "http://localhost:8080/v1.0/live/add_room";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT)
                             .setEntity(new StringEntity(json, "UTF-8")));
 
@@ -81,12 +81,12 @@ public class LiveRoomTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/live/list";
+            String url = "http://localhost:8080/v1.0/live/list";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setContentType("application/json")
-                            .addHeader("token", accessToken),
+                            .addHeader("access_token", accessToken),
                     new Request("POST", url, ResponseType.TEXT)
                             .setEntity(new StringEntity(json, "UTF-8")));
 
