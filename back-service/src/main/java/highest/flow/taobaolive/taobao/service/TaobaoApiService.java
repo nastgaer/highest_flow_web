@@ -147,18 +147,18 @@ public interface TaobaoApiService {
     /**
      * 发布预告（Web)
      * @param taobaoAccountEntity
-     * @param preLiveRoomSpecEntity
+     * @param preLiveRoomSpec
      * @return
      */
-    public R createLiveRoomWeb(PreLiveRoomSpecEntity preLiveRoomSpecEntity, TaobaoAccountEntity taobaoAccountEntity);
+    public R createLiveRoomWeb(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 发布预告（Mobile)
      * @param taobaoAccountEntity
-     * @param preLiveRoomSpecEntity
+     * @param preLiveRoomSpec
      * @return
      */
-    public R createLiveRoom(PreLiveRoomSpecEntity preLiveRoomSpecEntity, TaobaoAccountEntity taobaoAccountEntity);
+    public R createLiveRoom(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 开始直播

@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-@TableName("tbl_logs")
+@TableName("sys_log")
 public class SysLog {
 
     @TableId(type = IdType.AUTO)

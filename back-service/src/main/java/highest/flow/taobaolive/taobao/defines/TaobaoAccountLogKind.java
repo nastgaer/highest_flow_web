@@ -6,7 +6,7 @@ public enum TaobaoAccountLogKind {
     Postpone(1),
     New(2),
     Update(3),
-    Delete(3);
+    Delete(4);
 
     private int kind = 0;
 

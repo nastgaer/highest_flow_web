@@ -128,7 +128,7 @@ public class TaobaoAccountEntityTests extends BaseTests {
         try {
             contextLoads();
 
-            String nick = "简单点9791";
+            String nick = "天天发99088";
 
             List<String> accountIds = new ArrayList<>();
             accountIds.add(nick);

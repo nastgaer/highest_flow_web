@@ -130,7 +130,20 @@ public class BatchLiveRoomTask implements ITask {
                 liveRoomEntities.add(liveRoomEntity);
             }
 
-            // TODO
+            this.taobaoApiService.getUserSimple(taobaoAccountEntity);
+
+            for (LiveRoomEntity liveRoomEntity : liveRoomEntities) {
+                if (liveRoomEntity.getLiveState() == LiveRoomState.Stopped.getState() ||
+                        liveRoomEntity.getLiveState() == LiveRoomState.Deleted.getState()) {
+                    continue;
+                }
+
+                if (liveRoomEntity.getLiveState() == LiveRoomState.Preparing.getState()) {
+                    Date appointmentTime = liveRoomEntity.getLiveAppointmentTime();
+                    // TODO
+                    liveRoomEntity.setLiveAppointmentTime(appointmentTime);
+                }
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -30,7 +30,8 @@ public class LogController {
             return R.ok().put("logs", pageUtils.getList()).put("total_count", pageUtils.getTotalCount());
 
         } catch (Exception ex) {
-            return R.error("获取系统记录失败");
+            ex.printStackTrace();
         }
+        return R.error("获取系统记录失败");
     }
 }

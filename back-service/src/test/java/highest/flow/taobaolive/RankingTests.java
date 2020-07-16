@@ -126,12 +126,12 @@ public class RankingTests extends BaseTests {
             paramMap.put("taocode", "￥OoG21BgDahH￥");
             paramMap.put("target_score", "100000");
             paramMap.put("double_buy", false);
-            paramMap.put("start_time", "2020-07-16 22:30:00");
+            paramMap.put("start_time", "2020-07-17 22:30:00");
 
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:http://localhost:8080/v1.0//ranking/add_task";
+            String url = "http://localhost:8080/v1.0/ranking/add_task";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -160,7 +160,7 @@ public class RankingTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:http://localhost:8080/v1.0//ranking/todays";
+            String url = "http://localhost:8080/v1.0/ranking/todays";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -190,7 +190,7 @@ public class RankingTests extends BaseTests {
 
             // Start first ranking
 
-            url = "http://localhost:http://localhost:8080/v1.0//ranking/start_task";
+            url = "http://localhost:8080/v1.0/ranking/start_task";
 
             paramMap.clear();
             paramMap.put("task_id", taskId);
@@ -224,7 +224,7 @@ public class RankingTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:http://localhost:8080/v1.0//ranking/todays";
+            String url = "http://localhost:8080/v1.0/ranking/todays";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
