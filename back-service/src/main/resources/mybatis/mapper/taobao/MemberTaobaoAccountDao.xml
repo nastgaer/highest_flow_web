@@ -12,6 +12,7 @@
         <result property="state" column="state"/>
         <result property="serviceStartDate" column="service_start_date"/>
         <result property="serviceEndDate" column="service_end_date"/>
+        <result property="operationStartTime" column="operation_start_time" />
         <result property="createdTime" column="created_time"/>
         <result property="updatedTime" column="updated_time"/>
     </resultMap>

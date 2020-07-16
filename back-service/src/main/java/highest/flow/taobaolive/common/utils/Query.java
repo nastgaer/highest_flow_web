@@ -53,10 +53,10 @@ public class Query<T> {
 		long limit = 10;
 
 		if (params.get(PAGE) != null) {
-			curPage = Long.parseLong((String) params.get(PAGE));
+			curPage = Long.parseLong(String.valueOf(params.get(PAGE)));
 		}
 		if (params.get(LIMIT) != null) {
-			limit = Long.parseLong((String) params.get(LIMIT));
+			limit = Long.parseLong(String.valueOf(params.get(LIMIT)));
 		}
 
 		// 分页对象
@@ -67,8 +67,8 @@ public class Query<T> {
 
 		// 排序字段
 		// 防止SQL注入（因为sidx、order是通过拼接SQL实现排序的，会有SQL注入风险）
-		String orderField = SQLFilter.sqlInject((String) params.get(ORDER_FIELD));
-		String order = (String) params.get(ORDER);
+		String orderField = SQLFilter.sqlInject(String.valueOf(params.get(ORDER_FIELD)));
+		String order = String.valueOf(params.get(ORDER));
 
 		// 前端字段排序
 		if (StringUtils.isNotEmpty(orderField) && StringUtils.isNotEmpty(order)) {

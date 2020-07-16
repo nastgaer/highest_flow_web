@@ -1,6 +1,8 @@
 package highest.flow.taobaolive.taobao.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import highest.flow.taobaolive.api.param.PageParam;
+import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
 import org.apache.http.cookie.Cookie;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,8 @@ import java.util.List;
 
 @Service
 public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
+
+    PageUtils queryPage(PageParam pageParam);
 
     TaobaoAccountEntity register(String nick,
                                         String uid,
@@ -24,5 +28,7 @@ public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
                                         Date created,
                                         Date updated);
 
-    TaobaoAccountEntity getInfo(String accountId);
+    TaobaoAccountEntity getInfo(String nick);
+
+    TaobaoAccountEntity getInfoByUid(String uid);
 }

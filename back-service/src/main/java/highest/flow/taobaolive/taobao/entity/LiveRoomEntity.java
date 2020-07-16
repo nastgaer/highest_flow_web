@@ -29,6 +29,10 @@ public class LiveRoomEntity extends BaseLiveRoom {
 
     private String liveId;
 
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date liveStartedTime;
+
     /**
      * 直播间状态 LiveRoomState
      */

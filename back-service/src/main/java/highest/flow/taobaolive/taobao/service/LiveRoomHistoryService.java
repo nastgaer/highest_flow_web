@@ -1,17 +1,16 @@
 package highest.flow.taobaolive.taobao.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import highest.flow.taobaolive.common.utils.R;
+import highest.flow.taobaolive.taobao.entity.LiveRoomEntity;
 import highest.flow.taobaolive.taobao.entity.LiveRoomStrategyEntity;
 import highest.flow.taobaolive.taobao.entity.MemberTaoAccEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
-public interface LiveRoomStrategyService extends IService<LiveRoomStrategyEntity> {
+public interface LiveRoomHistoryService extends IService<LiveRoomEntity> {
 
-    boolean setTask(MemberTaoAccEntity memberTaoAccEntity, List<LiveRoomStrategyEntity> liveRoomStrategyEntities);
-
-    List<LiveRoomStrategyEntity> getStrategy(String taobaoAccountNick);
+    List<LiveRoomEntity> getTodays(Date today);
 }

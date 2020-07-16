@@ -209,6 +209,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             int channelId = Integer.parseInt(String.valueOf(mapData.get("liveChannelId")));
             int columnId = Integer.parseInt(String.valueOf(mapData.get("liveColumnId")));
             String location = String.valueOf(mapData.get("location"));
+            int roomStatus = Integer.parseInt(String.valueOf(mapData.get("roomStatus")));
 
             return R.ok()
                     .put("account_id", accountId)
@@ -225,7 +226,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     .put("intro", intro)
                     .put("channel_id", channelId)
                     .put("column_id", columnId)
-                    .put("location", location);
+                    .put("location", location)
+                    .put("room_status", roomStatus);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -541,7 +543,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                 liveRoomEntity.setTalentLiveUrl(String.valueOf(objData.get("liveUrl")));
                 liveRoomEntity.setTopic(String.valueOf(objData.get("topic")));
                 long startTimestamp = Long.parseLong(String.valueOf(objData.get("startTime")));
-                liveRoomEntity.setLiveStartTime(CommonUtils.timestampToDate(startTimestamp));
+                liveRoomEntity.setLiveAppointmentTime(CommonUtils.timestampToDate(startTimestamp));
                 liveRoomEntity.setLiveCoverImg(String.valueOf(objData.get("coverImg")));
                 int channelId = Integer.parseInt(String.valueOf(objData.get("liveChannelId")));
                 int columnId = Integer.parseInt(String.valueOf(objData.get("liveColumnId")));
@@ -564,6 +566,31 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             return R.ok()
                     .put("live_rooms", liveRoomEntities);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
+    public R getPlayingLiveRoom(TaobaoAccountEntity taobaoAccountEntity) {
+        try {
+            R r = this.getLiveList(taobaoAccountEntity, 1, 20);
+            if (r.getCode() != ErrorCodes.SUCCESS) {
+                return r;
+            }
+
+            List<LiveRoomEntity> liveRoomEntities = (List<LiveRoomEntity>) r.get("live_rooms");
+
+            for (LiveRoomEntity liveRoomEntity : liveRoomEntities) {
+                if (liveRoomEntity.getLiveState() == LiveRoomState.Started.getState()) {
+                    return R.ok().put("live_room", liveRoomEntity);
+                }
+            }
+
+            return R.ok()
+                    .put("live_room", null);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -807,8 +834,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             postParams.put("country", "");
             postParams.put("province", "");
             postParams.put("city", preLiveRoomSpecEntity.getLiveLocation());
-            postParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpecEntity.getLiveStartTime())));
-            postParams.put("liveEndTime", String.valueOf(CommonUtils.dateToTimestamp(CommonUtils.addDays(preLiveRoomSpecEntity.getLiveStartTime(), 30))));
+            postParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpecEntity.getLiveAppointmentTime())));
+            postParams.put("liveEndTime", String.valueOf(CommonUtils.dateToTimestamp(CommonUtils.addDays(preLiveRoomSpecEntity.getLiveAppointmentTime(), 30))));
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -835,7 +862,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
             liveRoomEntity.setLiveId(String.valueOf(mapModel.get("preLiveId")));
-            liveRoomEntity.setLiveStartTime(preLiveRoomSpecEntity.getLiveStartTime());
+            liveRoomEntity.setLiveAppointmentTime(preLiveRoomSpecEntity.getLiveAppointmentTime());
             liveRoomEntity.setLiveCoverImg(preLiveRoomSpecEntity.getLiveCoverImg());
             liveRoomEntity.setLiveCoverImg169(preLiveRoomSpecEntity.getLiveCoverImg169());
             liveRoomEntity.setLiveTitle(preLiveRoomSpecEntity.getLiveTitle());
@@ -859,7 +886,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, String> jsonParams = new HashMap<>();
             jsonParams.put("coverImg", preLiveRoomSpecEntity.getLiveCoverImg());
             jsonParams.put("coverImg169", preLiveRoomSpecEntity.getLiveCoverImg169());
-            jsonParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpecEntity.getLiveStartTime())));
+            jsonParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpecEntity.getLiveAppointmentTime())));
             jsonParams.put("title", preLiveRoomSpecEntity.getLiveTitle());
             jsonParams.put("intro", preLiveRoomSpecEntity.getLiveIntro());
             jsonParams.put("itemIds", "");
@@ -909,7 +936,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             liveRoomEntity.setTopic(String.valueOf(mapData.get("topic")));
             liveRoomEntity.setViewCount(Integer.parseInt(String.valueOf(mapData.get("viewCount"))));
             liveRoomEntity.setPraiseCount(Integer.parseInt(String.valueOf(mapData.get("praiseCount"))));
-            liveRoomEntity.setLiveStartTime(preLiveRoomSpecEntity.getLiveStartTime());
+            liveRoomEntity.setLiveAppointmentTime(preLiveRoomSpecEntity.getLiveAppointmentTime());
             liveRoomEntity.setLiveCoverImg(String.valueOf(mapData.get("coverImg")));
             liveRoomEntity.setLiveCoverImg169(String.valueOf(mapData.get("coverImg169")));
             liveRoomEntity.setLiveTitle(String.valueOf(mapData.get("title")));

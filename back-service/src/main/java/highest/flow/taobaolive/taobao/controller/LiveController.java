@@ -4,10 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import highest.flow.taobaolive.api.param.AddRoomParam;
-import highest.flow.taobaolive.common.utils.CommonUtils;
-import highest.flow.taobaolive.common.utils.DateUtils;
-import highest.flow.taobaolive.common.utils.HFStringUtils;
-import highest.flow.taobaolive.common.utils.R;
+import highest.flow.taobaolive.api.param.SetLiveRoomStrategyParam;
+import highest.flow.taobaolive.common.utils.*;
 import highest.flow.taobaolive.sys.controller.AbstractController;
 import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.sys.entity.SysMember;
@@ -89,8 +87,7 @@ public class LiveController extends AbstractController {
                 return R.error("空文件");
             }
 
-            TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.getOne(Wrappers.<TaobaoAccountEntity>lambdaQuery()
-                    .eq(TaobaoAccountEntity::getNick, taobaoAccountNick));
+            TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.getInfo(taobaoAccountNick);
             if (taobaoAccountEntity == null) {
                 return R.error("找不到淘宝账号");
             }
@@ -116,14 +113,12 @@ public class LiveController extends AbstractController {
     @PostMapping("/add_room")
     public R addRoom(@RequestBody AddRoomParam addRoomParam) {
         try {
-            TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.getOne(Wrappers.<TaobaoAccountEntity>lambdaQuery()
-                    .eq(TaobaoAccountEntity::getNick, addRoomParam.getTaobaoAccountNick()));
+            TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.getInfo(addRoomParam.getTaobaoAccountNick());
             if (taobaoAccountEntity == null) {
                 return R.error("找不到用户");
             }
 
-            MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getOne(Wrappers.<MemberTaoAccEntity>lambdaQuery()
-                    .eq(MemberTaoAccEntity::getTaobaoAccountNick, addRoomParam.getTaobaoAccountNick()));
+            MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getMemberByTaobaoAccountNick(addRoomParam.getTaobaoAccountNick());
             if (memberTaoAccEntity != null) {
                 return R.error("已经注册的直播间");
             }
@@ -172,18 +167,9 @@ public class LiveController extends AbstractController {
     @PostMapping("/list")
     public R list(@RequestBody PageParam pageParam) {
         try {
-            int pageNo = pageParam.getPageNo();
-            int pageSize = pageParam.getPageSize();
-            String keyword = pageParam.getKeyword();
+            PageUtils pageUtils = this.memberTaoAccService.queryPage(pageParam);
 
-            IPage<MemberTaoAccEntity> page = HFStringUtils.isNullOrEmpty(keyword) ?
-                    this.memberTaoAccService.page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
-                    this.memberTaoAccService.page(new Page<>((pageNo - 1) * pageSize, pageSize),
-                            Wrappers.<MemberTaoAccEntity>lambdaQuery()
-                                    .like(MemberTaoAccEntity::getRoomName, keyword)
-                                    .or()
-                                    .like(MemberTaoAccEntity::getTaobaoAccountNick, keyword));
-            List<MemberTaoAccEntity> memberTaoAccEntities = page.getRecords();
+            List<MemberTaoAccEntity> memberTaoAccEntities = pageUtils.getList();
 
             for (MemberTaoAccEntity memberTaoAccEntity : memberTaoAccEntities) {
                 String taobaoAccountNick = memberTaoAccEntity.getTaobaoAccountNick();
@@ -196,7 +182,7 @@ public class LiveController extends AbstractController {
 
             return R.ok()
                     .put("rooms", memberTaoAccEntities)
-                    .put("total_count", this.memberTaoAccService.count());
+                    .put("total_count", pageUtils.getTotalCount());
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -210,8 +196,7 @@ public class LiveController extends AbstractController {
             String taobaoAccountNick = (String) params.get("taobao_account_nick");
             int days = Integer.parseInt(String.valueOf(params.get("days")));
 
-            MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getOne(Wrappers.<MemberTaoAccEntity>lambdaQuery()
-                    .eq(MemberTaoAccEntity::getTaobaoAccountNick, taobaoAccountNick));
+            MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getMemberByTaobaoAccountNick(taobaoAccountNick);
 
             if (memberTaoAccEntity != null) {
                 return R.error("还没注册的直播间");
@@ -248,8 +233,7 @@ public class LiveController extends AbstractController {
         try {
             String taobaoAccountNick = (String) params.get("taobao_account_nick");
 
-            MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getOne(Wrappers.<MemberTaoAccEntity>lambdaQuery()
-                    .eq(MemberTaoAccEntity::getTaobaoAccountNick, taobaoAccountNick));
+            MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getMemberByTaobaoAccountNick(taobaoAccountNick);
 
             if (memberTaoAccEntity != null) {
                 return R.error("还没注册的直播间");
@@ -274,8 +258,7 @@ public class LiveController extends AbstractController {
         try {
             String taobaoAccountNick = (String) params.get("taobao_account_nick");
 
-            MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getOne(Wrappers.<MemberTaoAccEntity>lambdaQuery()
-                    .eq(MemberTaoAccEntity::getTaobaoAccountNick, taobaoAccountNick));
+            MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getMemberByTaobaoAccountNick(taobaoAccountNick);
 
             if (memberTaoAccEntity != null) {
                 return R.error("还没注册的直播间");
@@ -298,23 +281,9 @@ public class LiveController extends AbstractController {
     @PostMapping("/logs")
     public R logs(@RequestBody PageParam pageParam) {
         try {
-            int pageNo = pageParam.getPageNo();
-            int pageSize = pageParam.getPageSize();
-            String keyword = pageParam.getKeyword();
+            PageUtils pageUtils = this.liveRoomService.queryPage(pageParam);
 
-            IPage<LiveRoomEntity> page =
-                    HFStringUtils.isNullOrEmpty(keyword) ?
-                            this.liveRoomService
-                                    .page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
-                            this.liveRoomService
-                                    .page(new Page<>((pageNo - 1) * pageSize, pageSize),
-                                            Wrappers.<LiveRoomEntity>lambdaQuery()
-                                                    .like(LiveRoomEntity::getTaobaoAccountNick, keyword)
-                                                    .or()
-                                                    .like(LiveRoomEntity::getAccountName, keyword));
-
-            List<LiveRoomEntity> logs = page.getRecords();
-            return R.ok().put("logs", logs).put("total_count", this.liveRoomService.count());
+            return R.ok().put("logs", pageUtils.getList()).put("total_count", pageUtils.getTotalCount());
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -323,25 +292,32 @@ public class LiveController extends AbstractController {
     }
 
     @PostMapping("/set_task")
-    public R setTask(@RequestBody Map<String, Object> params) {
+    public R setTask(@RequestBody SetLiveRoomStrategyParam setLiveRoomStrategyParam) {
         try {
-            String taobaoAccountNick = (String) params.get("taobao_account_nick");
-            List<LiveRoomStrategyEntity> liveRoomStrategyEntities = (List<LiveRoomStrategyEntity>) params.get("prelives");
+            String taobaoAccountNick = setLiveRoomStrategyParam.getTaobaoAccountNick();
+            List<LiveRoomStrategyEntity> liveRoomStrategyEntities = (List<LiveRoomStrategyEntity>) setLiveRoomStrategyParam.getPrelives();
 
-            TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.getOne(Wrappers.<TaobaoAccountEntity>lambdaQuery().eq(TaobaoAccountEntity::getNick,
-                    taobaoAccountNick));
+            MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getMemberByTaobaoAccountNick(taobaoAccountNick);
+
+            if (memberTaoAccEntity != null) {
+                return R.error("还没注册的直播间");
+            }
+
+            TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.getInfo(taobaoAccountNick);
             if (taobaoAccountEntity == null) {
                 return R.error("找不到用户");
             }
 
-            for (LiveRoomStrategyEntity liveRoomStrategyEntity : liveRoomStrategyEntities) {
-                liveRoomStrategyEntity.setCreatedTime(new Date());
-                liveRoomStrategyEntity.setUpdatedTime(new Date());
+            memberTaoAccEntity.setOperationStartTime(setLiveRoomStrategyParam.getOperationStartTime());
+            this.memberTaoAccService.updateById(memberTaoAccEntity);
+
+            boolean success = this.liveRoomStrategyService.setTask(memberTaoAccEntity, liveRoomStrategyEntities);
+
+            if (success) {
+                return R.error();
+            } else {
+                return R.ok();
             }
-
-            liveRoomStrategyService.saveBatch(liveRoomStrategyEntities);
-
-            return R.ok();
 
         } catch (Exception ex) {
             ex.printStackTrace();

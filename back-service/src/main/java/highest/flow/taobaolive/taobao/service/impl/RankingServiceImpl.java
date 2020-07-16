@@ -1,7 +1,13 @@
 package highest.flow.taobaolive.taobao.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import highest.flow.taobaolive.api.param.PageParam;
+import highest.flow.taobaolive.common.utils.HFStringUtils;
+import highest.flow.taobaolive.common.utils.PageUtils;
+import highest.flow.taobaolive.common.utils.Query;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.job.defines.ScheduleState;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
@@ -18,9 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service("rankingService")
@@ -31,6 +35,25 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
 
     @Autowired
     private ScheduleJobService schedulerJobService;
+
+    @Override
+    public PageUtils queryPage(PageParam pageParam) {
+        int pageNo = pageParam.getPageNo();
+        int pageSize = pageParam.getPageSize();
+        String keyword = pageParam.getKeyword();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put(Query.PAGE, pageNo);
+        params.put(Query.LIMIT, pageSize);
+
+        QueryWrapper<RankingEntity> queryWrapper = new QueryWrapper<>();
+        if (!HFStringUtils.isNullOrEmpty(keyword)) {
+            queryWrapper.like("room_name", keyword);
+        }
+
+        IPage<RankingEntity> page = this.page(new Query<RankingEntity>().getPage(params), queryWrapper);
+        return new PageUtils<RankingEntity>(page);
+    }
 
     @Override
     public List<RankingEntity> getTodaysTask(String today) {

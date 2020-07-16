@@ -8,6 +8,7 @@ import highest.flow.taobaolive.api.param.ControlRankingTaskParam;
 import highest.flow.taobaolive.api.param.TodayRankingParam;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
+import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.sys.controller.AbstractController;
@@ -162,19 +163,9 @@ public class RankingController extends AbstractController {
     @PostMapping("/logs")
     public R logs(@RequestBody PageParam pageParam) {
         try {
-            int pageNo = pageParam.getPageNo();
-            int pageSize = pageParam.getPageSize();
-            String keyword = pageParam.getKeyword();
+            PageUtils pageUtils = this.rankingService.queryPage(pageParam);
 
-            IPage<RankingEntity> page =
-                    HFStringUtils.isNullOrEmpty(keyword) ?
-                            this.rankingService
-                                    .page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
-                            this.rankingService
-                                    .page(new Page<>((pageNo - 1) * pageSize, pageSize),
-                                            Wrappers.<RankingEntity>lambdaQuery().like(RankingEntity::getRoomName, keyword));
-            List<RankingEntity> logs = page.getRecords();
-            return R.ok().put("logs", logs).put("total_count", rankingService.count());
+            return R.ok().put("logs", pageUtils.getList()).put("total_count", pageUtils.getTotalCount());
 
         } catch (Exception ex) {
             ex.printStackTrace();

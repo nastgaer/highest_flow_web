@@ -5,8 +5,12 @@
 
     <resultMap id="logMap" type="highest.flow.taobaolive.sys.entity.SysLog">
         <result property="id" column="id"/>
-        <result property="kind" column="kind"/>
-        <result property="content" column="content"/>
+        <result property="memberName" column="member_name"/>
+        <result property="operation" column="operation"/>
+        <result property="method" column="method"/>
+        <result property="params" column="params"/>
+        <result property="duration" column="duration"/>
+        <result property="ip" column="ip"/>
         <result property="createdTime" column="created_time"/>
     </resultMap>
 

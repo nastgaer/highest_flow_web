@@ -70,7 +70,7 @@ secure:
 license:
   key: 1234!@#$
 
-ranking:
+taobaolive:
   simulate: true
 
 http:

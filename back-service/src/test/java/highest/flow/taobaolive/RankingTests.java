@@ -287,7 +287,7 @@ public class RankingTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:http://localhost:8080/v1.0//ranking/logs";
+            String url = "http://localhost:8080/v1.0/ranking/logs";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()

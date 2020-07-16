@@ -13,8 +13,8 @@
         <result property="liveCoverImg169" column="live_cover_img169"/>
         <result property="liveTitle" column="live_title"/>
         <result property="liveIntro" column="live_intro"/>
-        <result property="liveStartTime" column="live_start_time"/>
-        <result property="liveEndTime" column="live_end_time"/>
+        <result property="liveAppointmentTime" column="live_appointment_time"/>
+        <result property="liveStartedTime" column="live_started_time"/>
         <result property="liveChannelId" column="live_channel_id"/>
         <result property="liveColumnId" column="live_column_id"/>
         <result property="liveLocation" column="live_location"/>
@@ -31,5 +31,9 @@
         <result property="createdTime" column="created_time"/>
         <result property="updatedTime" column="updated_time"/>
     </resultMap>
+
+    <select id="queryTodays" resultMap="liveRoomMap">
+        select * from tbl_liveroom_history where DATE_FORMAT(created_time, "%Y-%m-%d") like #{today};
+    </select>
 
 </mapper>

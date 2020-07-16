@@ -14,9 +14,17 @@ public class SysLog {
     @TableId(type = IdType.AUTO)
     private int id;
 
-    private String category;
+    private String memberName;
 
-    private String content;
+    private String operation;
+
+    private String method;
+
+    private String params;
+
+    private int duration;
+
+    private String ip;
 
     private Date createdTime;
 }

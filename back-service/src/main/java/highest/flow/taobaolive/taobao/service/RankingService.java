@@ -1,6 +1,8 @@
 package highest.flow.taobaolive.taobao.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import highest.flow.taobaolive.api.param.PageParam;
+import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.taobao.entity.LiveRoomEntity;
 import highest.flow.taobaolive.taobao.entity.RankingEntity;
@@ -11,6 +13,8 @@ import java.util.List;
 
 @Service
 public interface RankingService extends IService<RankingEntity> {
+
+    PageUtils queryPage(PageParam pageParam);
 
     List<RankingEntity> getTodaysTask(String today);
 

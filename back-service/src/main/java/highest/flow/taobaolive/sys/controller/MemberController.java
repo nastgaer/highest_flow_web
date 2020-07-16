@@ -10,6 +10,7 @@ import highest.flow.taobaolive.api.param.UpdateMemberParam;
 import highest.flow.taobaolive.common.config.Config;
 import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
+import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.sys.entity.*;
 import highest.flow.taobaolive.sys.service.MemberService;
@@ -55,25 +56,16 @@ public class MemberController extends AbstractController {
     @PostMapping("/list")
     public R list(@RequestBody PageParam pageParam) {
         try {
-            int pageNo = pageParam.getPageNo();
-            int pageSize = pageParam.getPageSize();
-            String keyword = pageParam.getKeyword();
-            IPage<SysMember> page = HFStringUtils.isNullOrEmpty(keyword) ?
-                    this.memberService.page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
-                    this.memberService.page(new Page<>((pageNo - 1) * pageSize, pageSize),
-                            Wrappers.<SysMember>lambdaQuery().like(SysMember::getMemberName, keyword)
-                                    .or()
-                                    .like(SysMember::getComment, keyword));
-            List<SysMember> members = page.getRecords();
+            PageUtils pageUtils = this.memberService.queryPage(pageParam);
 
-            List<Map<String, Object>> memberList = new ArrayList<>();
+            List<SysMember> members = pageUtils.getList();
+
             for (SysMember sysMember : members) {
                 List<String> roles = memberService.getRoles(sysMember);
-
                 sysMember.setRoles(roles);
             }
 
-            return R.ok().put("users", members).put("total_count", memberList.size());
+            return R.ok().put("users", members).put("total_count", pageUtils.getTotalCount());
 
         } catch (Exception ex){
             ex.printStackTrace();

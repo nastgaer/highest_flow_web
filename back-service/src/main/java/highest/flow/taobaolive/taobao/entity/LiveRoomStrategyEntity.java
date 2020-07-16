@@ -19,11 +19,6 @@ public class LiveRoomStrategyEntity extends BaseLiveRoom {
     private String taobaoAccountNick;
 
     /**
-     * TemplateKind
-     */
-    private int templateKind;
-
-    /**
      * LiveRoomKind
      */
     private int liveKind;

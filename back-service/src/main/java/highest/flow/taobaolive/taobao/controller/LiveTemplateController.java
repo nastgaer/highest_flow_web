@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
+import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.sys.controller.AbstractController;
 import highest.flow.taobaolive.sys.entity.SysMember;
@@ -30,16 +31,9 @@ public class LiveTemplateController extends AbstractController {
     @PostMapping("/list")
     public R list(@RequestBody PageParam pageParam) {
         try {
-            int pageNo = pageParam.getPageNo();
-            int pageSize = pageParam.getPageSize();
-            String keyword = pageParam.getKeyword();
+            PageUtils pageUtils = this.templateService.queryPage(pageParam);
 
-            IPage<TemplateEntity> page = HFStringUtils.isNullOrEmpty(keyword) ?
-                    this.templateService.page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
-                    this.templateService.page(new Page<>((pageNo - 1) * pageSize, pageSize),
-                            Wrappers.<TemplateEntity>lambdaQuery().like(TemplateEntity::getTemplateName, keyword));
-
-            List<TemplateEntity> templateEntities = page.getRecords();
+            List<TemplateEntity> templateEntities = pageUtils.getList();
 
             for (TemplateEntity templateEntity : templateEntities) {
                 if (templateEntity.isDel()) {
@@ -50,7 +44,7 @@ public class LiveTemplateController extends AbstractController {
                 templateEntity.setBlocks(preLiveTemplateEntities);
             }
 
-            return R.ok().put("templates", templateEntities);
+            return R.ok().put("templates", templateEntities).put("total_count", pageUtils.getTotalCount());
 
         } catch (Exception ex) {
             ex.printStackTrace();

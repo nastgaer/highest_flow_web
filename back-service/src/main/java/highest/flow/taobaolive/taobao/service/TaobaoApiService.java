@@ -116,6 +116,8 @@ public interface TaobaoApiService {
      */
     public R getLiveList(TaobaoAccountEntity taobaoAccountEntity, int pageNo, int pageSize);
 
+    public R getPlayingLiveRoom(TaobaoAccountEntity taobaoAccountEntity);
+
     /**
      * 助力：关注任务
      * @param liveRoomEntity

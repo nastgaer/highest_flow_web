@@ -1,6 +1,12 @@
 package highest.flow.taobaolive.sys.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import highest.flow.taobaolive.api.param.PageParam;
+import highest.flow.taobaolive.common.utils.HFStringUtils;
+import highest.flow.taobaolive.common.utils.PageUtils;
+import highest.flow.taobaolive.common.utils.Query;
 import highest.flow.taobaolive.sys.dao.MemberDao;
 import highest.flow.taobaolive.sys.defines.MemberState;
 import highest.flow.taobaolive.sys.entity.SysMember;
@@ -15,15 +21,33 @@ import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service("memberService")
 public class MemberServiceImpl extends ServiceImpl<MemberDao, SysMember> implements MemberService {
 
     @Autowired
     private MemberRoleGroupService memberRoleGroupService;
+
+    @Override
+    public PageUtils queryPage(PageParam pageParam) {
+        int pageNo = pageParam.getPageNo();
+        int pageSize = pageParam.getPageSize();
+        String keyword = pageParam.getKeyword();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put(Query.PAGE, pageNo);
+        params.put(Query.LIMIT, pageSize);
+
+        QueryWrapper<SysMember> queryWrapper = new QueryWrapper<>();
+        if (!HFStringUtils.isNullOrEmpty(keyword)) {
+            queryWrapper.like("member_name", keyword).or()
+                    .like("comment", keyword);
+        }
+
+        IPage<SysMember> page = this.page(new Query<SysMember>().getPage(params), queryWrapper);
+        return new PageUtils<SysMember>(page);
+    }
 
     @Override
     public SysMember register(String memberName, String password, String mobile, String comment, List<String> roles, int state) {
@@ -92,6 +116,8 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, SysMember> impleme
                 this.memberRoleGroupService.deleteRole(id);
             }
             this.removeByIds(ids);
+
+            return true;
 
         } catch (Exception ex) {
             ex.printStackTrace();

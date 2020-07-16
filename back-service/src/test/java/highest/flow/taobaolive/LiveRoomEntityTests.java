@@ -110,8 +110,7 @@ public class LiveRoomEntityTests {
             preLiveRoomSpecEntity.setLiveCoverImg169("//gw.alicdn.com/tfscom/i4/O1CN01v11ZoD1Cl08S6maCv_!!0-dgshop.jpg");
             preLiveRoomSpecEntity.setLiveTitle("蜜蜡放漏了");
             preLiveRoomSpecEntity.setLiveIntro("关注直播");
-            preLiveRoomSpecEntity.setLiveStartTime(new Date(2020 - 1900, 9, 1, 12, 30, 0));
-            preLiveRoomSpecEntity.setLiveEndTime(new Date(2020 - 1900, 10, 1, 12, 30, 0));
+            preLiveRoomSpecEntity.setLiveAppointmentTime(new Date(2020 - 1900, 9, 1, 12, 30, 0));
             preLiveRoomSpecEntity.setLiveChannelId(7);
             preLiveRoomSpecEntity.setLiveColumnId(123);
             preLiveRoomSpecEntity.setLiveLocation("中国");

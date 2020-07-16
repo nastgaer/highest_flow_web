@@ -35,7 +35,7 @@ public class AssistRankingTask implements ITask {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Value("${ranking.simulate:false}")
+    @Value("${taobaolive.simulate:false}")
     private boolean simulate;
 
     @Autowired

@@ -59,16 +59,9 @@ public class TaobaoAccountController extends AbstractController {
     @PostMapping("/list")
     public R list(@RequestBody PageParam pageParam) {
         try {
-            int pageNo = pageParam.getPageNo();
-            int pageSize = pageParam.getPageSize();
-            String keyword = pageParam.getKeyword();
+            PageUtils pageUtils = this.taobaoAccountService.queryPage(pageParam);
 
-            IPage<TaobaoAccountEntity> page = HFStringUtils.isNullOrEmpty(keyword) ?
-                    this.taobaoAccountService.page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
-                    this.taobaoAccountService.page(new Page<>((pageNo - 1) * pageSize, pageSize),
-                            Wrappers.<TaobaoAccountEntity>lambdaQuery().like(TaobaoAccountEntity::getNick, keyword));
-            List<TaobaoAccountEntity> taobaoAccountEntities = page.getRecords();
-            return R.ok().put("users", taobaoAccountEntities).put("total_count", taobaoAccountService.count());
+            return R.ok().put("users", pageUtils.getList()).put("total_count", pageUtils.getTotalCount());
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -149,7 +142,14 @@ public class TaobaoAccountController extends AbstractController {
 
             taobaoAccountEntity.setCreatedTime(new Date());
 
-            taobaoAccountService.save(taobaoAccountEntity);
+            // 查看是否已经注册的账号
+            TaobaoAccountEntity taobaoAccountEntityOther = taobaoAccountService.getInfoByUid(taobaoAccountEntity.getUid());
+            if (taobaoAccountEntityOther != null) {
+                taobaoAccountEntity.setId(taobaoAccountEntityOther.getId());
+                this.taobaoAccountService.updateById(taobaoAccountEntity);
+            } else {
+                this.taobaoAccountService.save(taobaoAccountEntity);
+            }
 
             waitingAccounts.remove(accessToken);
             waitingQRCodes.remove(accessToken);
@@ -205,16 +205,9 @@ public class TaobaoAccountController extends AbstractController {
     @PostMapping("/logs")
     public R logs(@RequestBody PageParam pageParam) {
         try {
-            int pageNo = pageParam.getPageNo();
-            int pageSize = pageParam.getPageSize();
-            String keyword = pageParam.getKeyword();
+            PageUtils pageUtils = this.taobaoAccountLogService.queryPage(pageParam);
 
-            IPage<TaobaoAccountLogEntity> page = HFStringUtils.isNullOrEmpty(keyword) ?
-                    this.taobaoAccountLogService.page(new Page<>((pageNo - 1) * pageSize, pageSize)) :
-                    this.taobaoAccountLogService.page(new Page<>((pageNo - 1) * pageSize, pageSize),
-                            Wrappers.<TaobaoAccountLogEntity>lambdaQuery().like(TaobaoAccountLogEntity::getNick, keyword));
-            List<TaobaoAccountLogEntity> logs = page.getRecords();
-            return R.ok().put("logs", logs).put("total_count", taobaoAccountLogService.count());
+            return R.ok().put("logs", pageUtils.getList()).put("total_count", pageUtils.getTotalCount());
 
         } catch (Exception ex) {
             ex.printStackTrace();
