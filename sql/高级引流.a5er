@@ -151,6 +151,7 @@ Field="标题","live_title","VARCHAR(32)",,,"","",$FFFFFFFF,""
 Field="简介","live_intro","VARCHAR(256)",,,"","",$FFFFFFFF,""
 Field="开播时间","live_appointment_time","TIME",,,"","",$FFFFFFFF,""
 Field="开播的时间","live_started_time","DATETIME",,,"","",$FFFFFFFF,""
+Field="结束时间","live_end_time","DATETIME",,,"","",$FFFFFFFF,""
 Field="直播频道","live_channel_id","INT(4)",,,"","",$FFFFFFFF,""
 Field="直播标签","live_column_id","INT(4)",,,"","",$FFFFFFFF,""
 Field="地点","live_location","VARCHAR(32)",,,"","",$FFFFFFFF,""
@@ -169,7 +170,7 @@ Field="更新时间","updated_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200716200816
+ModifiedDateTime=20200717145011
 Position="MAIN",450,1100
 
 [Entity]

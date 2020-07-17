@@ -53,7 +53,7 @@ public class LiveController extends AbstractController {
     @Autowired
     private LiveRoomStrategyService liveRoomStrategyService;
 
-    @GetMapping("/columns")
+    @PostMapping("/columns")
     public R getLiveColumns() {
         try {
             List<LiveChannel> channels = liveService.getChannels();

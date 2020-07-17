@@ -10,8 +10,7 @@
         <result property="liveCoverImg169" column="live_cover_img169"/>
         <result property="liveTitle" column="live_title"/>
         <result property="liveIntro" column="live_intro"/>
-        <result property="liveStartTime" column="live_start_time"/>
-        <result property="liveEndTime" column="live_end_time"/>
+        <result property="liveAppointmentTime" column="live_appointment_time"/>
         <result property="liveChannelId" column="live_channel_id"/>
         <result property="liveColumnId" column="live_column_id"/>
         <result property="liveLocation" column="live_location"/>

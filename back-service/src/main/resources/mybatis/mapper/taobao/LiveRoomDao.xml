@@ -15,6 +15,7 @@
         <result property="liveIntro" column="live_intro"/>
         <result property="liveAppointmentTime" column="live_appointment_time"/>
         <result property="liveStartedTime" column="live_started_time"/>
+        <result property="liveEndTime" column="live_end_time"/>
         <result property="liveChannelId" column="live_channel_id"/>
         <result property="liveColumnId" column="live_column_id"/>
         <result property="liveLocation" column="live_location"/>

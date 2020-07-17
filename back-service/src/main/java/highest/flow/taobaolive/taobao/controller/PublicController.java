@@ -6,6 +6,7 @@ import highest.flow.taobaolive.taobao.entity.ProductChannel;
 import highest.flow.taobaolive.taobao.service.ProductSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class PublicController {
     @Autowired
     private ProductSearchService productSearchService;
 
-    @GetMapping("/product/categories")
+    @PostMapping("/v1.0/product/categories")
     public R getProductCategories() {
         try {
             List<ProductChannel> channels = productSearchService.getChannels();
