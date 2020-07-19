@@ -34,6 +34,16 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     private TaobaoAccountLogService taobaoAccountLogService;
 
     @Override
+    public int getNormalCount() {
+        return this.baseMapper.getNormalCount();
+    }
+
+    @Override
+    public int getExpiredCount() {
+        return this.baseMapper.getExpiredCount();
+    }
+
+    @Override
     public PageUtils queryPage(PageParam pageParam) {
         int pageNo = pageParam.getPageNo();
         int pageSize = pageParam.getPageSize();

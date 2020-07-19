@@ -11,4 +11,6 @@ public interface SignService {
     public String xsign1(XHeader xHeader);
 
     public String xsign2(XHeader xHeader);
+
+    public String xsign3(XHeader xHeader);
 }

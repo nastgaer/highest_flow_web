@@ -19,4 +19,12 @@
         <result property="updatedTime" column="updated_time"/>
     </resultMap>
 
+    <select id="getNormalCount" resultType="int">
+        select count(*) from tbl_accounts where state = 0;
+    </select>
+
+    <select id="getExpiredCount" resultType="int">
+        select count(*) from tbl_accounts where state != 0;
+    </select>
+
 </mapper>

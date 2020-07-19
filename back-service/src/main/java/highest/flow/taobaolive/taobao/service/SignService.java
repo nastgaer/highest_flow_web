@@ -13,5 +13,7 @@ public interface SignService {
 
     public String xsign2(XHeader xHeader);
 
+    public String xsign3(XHeader xHeader);
+
     public String h5sign(H5Header h5Header, String data);
 }

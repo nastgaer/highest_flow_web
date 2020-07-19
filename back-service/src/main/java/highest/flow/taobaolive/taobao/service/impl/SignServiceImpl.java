@@ -20,7 +20,7 @@ import java.net.URLEncoder;
 public class SignServiceImpl implements SignService {
 
     private int[] availablePorts = new int[]{
-            58119, 59316, 58114, 58120
+            59316, 58119, 58114, 58120
     };
     private int port2 = 59316;
 
@@ -39,8 +39,8 @@ public class SignServiceImpl implements SignService {
 
             SiteConfig siteConfig = new SiteConfig()
                     .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
-                    .setConnectTimeout(30000)
-                    .setSocketTimeout(45000);
+                    .setConnectTimeout(10000)
+                    .setSocketTimeout(10000);
 
             Response<String> response = HttpHelper.execute(siteConfig, new Request("GET", url, ResponseType.TEXT));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
@@ -67,14 +67,14 @@ public class SignServiceImpl implements SignService {
         if (!HFStringUtils.isNullOrEmpty(xsign)) {
             return xsign;
         }
-
-        for (int port : availablePorts) {
-            xsign = prepareXSign1(xHeader, port);
-            if (!HFStringUtils.isNullOrEmpty(xsign)) {
-                port2 = port;
-                return xsign;
-            }
-        }
+//
+//        for (int port : availablePorts) {
+//            xsign = prepareXSign1(xHeader, port);
+//            if (!HFStringUtils.isNullOrEmpty(xsign)) {
+//                port2 = port;
+//                return xsign;
+//            }
+//        }
         return null;
     }
 
@@ -93,8 +93,8 @@ public class SignServiceImpl implements SignService {
             SiteConfig siteConfig = new SiteConfig()
                     .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
                     .addHeaders(xHeader.getHeaders())
-                    .setConnectTimeout(30000)
-                    .setSocketTimeout(45000);
+                    .setConnectTimeout(10000)
+                    .setSocketTimeout(10000);
 
             Response<String> response = HttpHelper.execute(siteConfig, new Request("GET", url, ResponseType.TEXT));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
@@ -121,8 +121,56 @@ public class SignServiceImpl implements SignService {
     }
 
     @Override
+    public String xsign3(XHeader xHeader) {
+        try {
+            xHeader.setEncoded(false);
+            String aes = CryptoUtils.MD5(xHeader.getData());
+            String plain = xHeader.getUtdid() + "&" + xHeader.getUid() + "&&" + xHeader.getAppkey() + "&" + aes + "&" +
+                    xHeader.getShortTimestamp() + "&" + xHeader.getSubUrl() + "&" + xHeader.getUrlVer() + "&" +
+                    xHeader.getSid() + "&" + xHeader.getTtid() + "&" + xHeader.getDevid() + "&" +
+                    xHeader.getLocation2() + "&" + xHeader.getLocation1() + "&" + xHeader.getFeatures();
+
+            // 39.96.180.58
+            String url = "http://yunta0.320.io/xdata?data=" + URLEncoder.encode(plain);
+
+            SiteConfig siteConfig = new SiteConfig()
+                    .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
+                    .addHeaders(xHeader.getHeaders())
+                    .setConnectTimeout(10000)
+                    .setSocketTimeout(10000);
+
+            Response<String> response = HttpHelper.execute(siteConfig, new Request("GET", url, ResponseType.TEXT));
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return null;
+            }
+
+            String respText = response.getResult();
+
+            if (respText == null) {
+                return null;
+            }
+
+            respText = StringUtils.strip(respText, "\"\r\n\0");
+
+            if (respText.startsWith("ab2")) {
+                return respText;
+            }
+            return null;
+
+        } catch (Exception ex) {
+            System.out.println(ex.toString());
+        }
+        return null;
+    }
+
+    @Override
     public String xsign(XHeader xHeader) {
-        String xsign = xsign1(xHeader);
+        String xsign = xsign3(xHeader);
+        if (!HFStringUtils.isNullOrEmpty(xsign)) {
+            return xsign;
+        }
+
+        xsign = xsign1(xHeader);
         if (!HFStringUtils.isNullOrEmpty(xsign)) {
             return xsign;
         }

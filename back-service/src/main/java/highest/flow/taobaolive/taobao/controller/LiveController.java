@@ -144,6 +144,8 @@ public class LiveController extends AbstractController {
                 memberTaoAccEntity.setState(ServiceState.Normal.getState());
             }
 
+            memberTaoAccEntity.setOperationStartTime(new Date());
+
             memberTaoAccEntity.setCreatedTime(new Date());
             memberTaoAccEntity.setUpdatedTime(new Date());
             this.memberTaoAccService.save(memberTaoAccEntity);

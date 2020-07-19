@@ -31,4 +31,8 @@ public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
     TaobaoAccountEntity getInfo(String nick);
 
     TaobaoAccountEntity getInfoByUid(String uid);
+
+    int getNormalCount();
+
+    int getExpiredCount();
 }

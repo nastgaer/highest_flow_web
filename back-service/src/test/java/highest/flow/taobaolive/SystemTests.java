@@ -44,4 +44,51 @@ public class SystemTests extends BaseTests {
         }
     }
 
+    @Test
+    void dashboard() {
+        try {
+            contextLoads();
+
+            String url = "http://localhost:8080/v1.0/sys/dashboard/tbacc";
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/json")
+                            .addHeader("access_token", accessToken),
+                    new Request("POST", url, ResponseType.TEXT));
+
+            System.out.println(response.getResult());
+
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("start_date", "2020-07-10");
+            paramMap.put("end_date", "2020-08-10");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(paramMap);
+
+            url = "http://localhost:8080/v1.0/sys/dashboard/ranking";
+
+            response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/json")
+                            .addHeader("access_token", accessToken),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .setEntity(new StringEntity(json)));
+
+            System.out.println(response.getResult());
+
+            url = "http://localhost:8080/v1.0/sys/dashboard/live";
+
+            response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/json")
+                            .addHeader("access_token", accessToken),
+                    new Request("POST", url, ResponseType.TEXT));
+
+            System.out.println(response.getResult());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 }

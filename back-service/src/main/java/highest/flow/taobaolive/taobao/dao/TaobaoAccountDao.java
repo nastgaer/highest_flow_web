@@ -7,4 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface TaobaoAccountDao extends BaseMapper<TaobaoAccountEntity> {
 
+    int getNormalCount();
+
+    int getExpiredCount();
 }
