@@ -8,15 +8,15 @@ import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.common.utils.Query;
 import highest.flow.taobaolive.sys.dao.SysLogDao;
-import highest.flow.taobaolive.sys.entity.SysLog;
-import highest.flow.taobaolive.sys.service.LogService;
+import highest.flow.taobaolive.sys.entity.SysLogEntity;
+import highest.flow.taobaolive.sys.service.SysLogService;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Service("sysLogService")
-public class LogServiceImpl extends ServiceImpl<SysLogDao, SysLog> implements LogService {
+public class SysLogServiceImpl extends ServiceImpl<SysLogDao, SysLogEntity> implements SysLogService {
 
     @Override
     public PageUtils queryPage(PageParam pageParam) {
@@ -28,7 +28,7 @@ public class LogServiceImpl extends ServiceImpl<SysLogDao, SysLog> implements Lo
         params.put(Query.PAGE, pageNo);
         params.put(Query.LIMIT, pageSize);
 
-        QueryWrapper<SysLog> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<SysLogEntity> queryWrapper = new QueryWrapper<>();
         if (!HFStringUtils.isNullOrEmpty(keyword)) {
             queryWrapper.like("member_name", keyword).or()
                     .like("operation", keyword).or()
@@ -36,7 +36,7 @@ public class LogServiceImpl extends ServiceImpl<SysLogDao, SysLog> implements Lo
                     .like("params", keyword);
         }
 
-        IPage<SysLog> page = this.page(new Query<SysLog>().getPage(params), queryWrapper);
-        return new PageUtils<SysLog>(page);
+        IPage<SysLogEntity> page = this.page(new Query<SysLogEntity>().getPage(params), queryWrapper);
+        return new PageUtils<SysLogEntity>(page);
     }
 }

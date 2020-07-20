@@ -3,6 +3,7 @@ package highest.flow.taobaolive.taobao.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.http.CookieHelper;
 import highest.flow.taobaolive.common.utils.*;
@@ -56,6 +57,7 @@ public class TaobaoAccountController extends AbstractController {
     private SelfExpiringMap<String, TaobaoAccountEntity> waitingAccounts = new SelfExpiringHashMap<>(30 * 60 * 1000);
     private SelfExpiringMap<String, QRCode> waitingQRCodes = new SelfExpiringHashMap<>(30 * 60 * 1000);
 
+    @SysLog("获取小号列表")
     @PostMapping("/list")
     public R list(@RequestBody PageParam pageParam) {
         try {
@@ -69,6 +71,7 @@ public class TaobaoAccountController extends AbstractController {
         }
     }
 
+    @SysLog("获取二维码")
     @PostMapping("/qrcode")
     public R qrcode() {
         try {
@@ -120,6 +123,7 @@ public class TaobaoAccountController extends AbstractController {
         }
     }
 
+    @SysLog("验证登陆二维码")
     @PostMapping("/verify_qrcode")
     public R verifyQRCode(@RequestBody Map<String, Object> params) {
         try {
@@ -162,6 +166,7 @@ public class TaobaoAccountController extends AbstractController {
         return R.error("验证二维码失败");
     }
 
+    @SysLog("批量删除小号")
     @PostMapping(value = "/batch_delete")
     public R batchDelete(@RequestBody Map<String, Object> params) {
         try {
@@ -180,6 +185,7 @@ public class TaobaoAccountController extends AbstractController {
         return R.error("批量删除扫码信息失败");
     }
 
+    @SysLog("延期小号")
     @PostMapping("/postpone")
     public R postpone(@RequestBody Map<String, Object> params) {
         try {
@@ -202,6 +208,7 @@ public class TaobaoAccountController extends AbstractController {
         return R.error("设置延期公式失败");
     }
 
+    @SysLog("获取小号管理记录")
     @PostMapping("/logs")
     public R logs(@RequestBody PageParam pageParam) {
         try {
@@ -215,6 +222,7 @@ public class TaobaoAccountController extends AbstractController {
         return R.error("获取账号操作记录失败");
     }
 
+    @SysLog("上传小号扫码信息")
     @PostMapping("/upload")
     public R upload(@RequestParam(name = "user_id") String userId,
                     @RequestParam(name = "nick") String nick,

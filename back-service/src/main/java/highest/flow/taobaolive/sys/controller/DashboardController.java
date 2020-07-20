@@ -1,6 +1,7 @@
 package highest.flow.taobaolive.sys.controller;
 
 import highest.flow.taobaolive.api.param.RankingQueryParam;
+import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ public class DashboardController extends AbstractController {
     @Autowired
     private TaobaoAccountService taobaoAccountService;
 
+    @SysLog("仪表板的小号管理")
     @PostMapping("/tbacc")
     public R tbacc() {
         try {
@@ -33,6 +35,7 @@ public class DashboardController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("仪表板的刷热度管理")
     @PostMapping("/ranking")
     public R ranking(@RequestBody RankingQueryParam param) {
         try {
@@ -44,6 +47,7 @@ public class DashboardController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("仪表板的直播管理")
     @PostMapping("/live")
     public R live() {
         return R.ok().put("test_lives", 0)

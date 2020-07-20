@@ -1,9 +1,11 @@
 package highest.flow.taobaolive.sys.controller;
 
+import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.api.param.LoginParam;
 import highest.flow.taobaolive.api.param.LogoutParam;
+import highest.flow.taobaolive.sys.defines.MemberState;
 import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.sys.service.MemberService;
 import highest.flow.taobaolive.sys.service.MemberTokenService;
@@ -26,6 +28,7 @@ public class LoginController {
     @Autowired
     private MemberTokenService memberTokenService;
 
+    @SysLog("会员登录")
     @PostMapping("/login")
     public R login(@RequestBody LoginParam loginParam) {
         try {
@@ -36,6 +39,10 @@ public class LoginController {
 
             if (!sysMember.getPassword().equals(new Sha256Hash(loginParam.getPassword(), sysMember.getSalt()).toHex())) {
                 return R.error(ErrorCodes.INVALID_PASSWORD, "账号或密码不正确");
+            }
+
+            if (sysMember.getState() != MemberState.Normal.getState()) {
+                return R.error(ErrorCodes.UNALLOWED_USER, "账号已被停用，请联系管理员");
             }
 
             R r = memberTokenService.createToken(sysMember.getId());
@@ -49,6 +56,7 @@ public class LoginController {
         }
     }
 
+    @SysLog("会员注销")
     @PostMapping("/logout")
     public R logout(@RequestBody LogoutParam logoutParam) {
         try {

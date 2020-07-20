@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Data
 @TableName("sys_log")
-public class SysLog {
+public class SysLogEntity {
 
     @TableId(type = IdType.AUTO)
     private int id;
@@ -22,7 +22,9 @@ public class SysLog {
 
     private String params;
 
-    private int duration;
+    private String result;
+
+    private long duration;
 
     private String ip;
 

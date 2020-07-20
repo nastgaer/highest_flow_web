@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import highest.flow.taobaolive.api.param.AddRoomParam;
 import highest.flow.taobaolive.api.param.SetLiveRoomStrategyParam;
+import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.utils.*;
 import highest.flow.taobaolive.sys.controller.AbstractController;
 import highest.flow.taobaolive.api.param.PageParam;
@@ -53,6 +54,7 @@ public class LiveController extends AbstractController {
     @Autowired
     private LiveRoomStrategyService liveRoomStrategyService;
 
+    @SysLog("直播频道")
     @PostMapping("/columns")
     public R getLiveColumns() {
         try {
@@ -66,6 +68,7 @@ public class LiveController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("解析淘口令")
     @PostMapping("/parse_taocode")
     public R parseTaoCode(@RequestBody Map<String, Object> params) {
         try {
@@ -79,6 +82,7 @@ public class LiveController extends AbstractController {
         return R.error("解析淘口令失败");
     }
 
+    @SysLog("上传封面图")
     @PostMapping("/upload_image")
     public R uploadImage(@RequestParam(name = "taobao_account_nick") String taobaoAccountNick,
                          @RequestParam(name = "file") MultipartFile file) {
@@ -110,6 +114,7 @@ public class LiveController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("注册直播间")
     @PostMapping("/add_room")
     public R addRoom(@RequestBody AddRoomParam addRoomParam) {
         try {
@@ -166,6 +171,7 @@ public class LiveController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("直播间列表")
     @PostMapping("/list")
     public R list(@RequestBody PageParam pageParam) {
         try {
@@ -191,6 +197,7 @@ public class LiveController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("续费服务")
     @PostMapping("/recharge")
     public R recharge(@RequestBody Map<String, Object> params) {
         try {
@@ -229,6 +236,7 @@ public class LiveController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("停止服务")
     @PostMapping("/stop_service")
     public R stopService(@RequestBody Map<String, Object> params) {
         try {
@@ -256,6 +264,7 @@ public class LiveController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("继续服务")
     @PostMapping("/resume_service")
     public R resumeService(@RequestBody Map<String, Object> params) {
         try {
@@ -283,6 +292,7 @@ public class LiveController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("直播记录")
     @PostMapping("/logs")
     public R logs(@RequestBody PageParam pageParam) {
         try {
@@ -296,6 +306,7 @@ public class LiveController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("获取直播间信息")
     @PostMapping("/get_task")
     public R getTask(@RequestBody Map<String, Object> params) {
         try {
@@ -323,6 +334,7 @@ public class LiveController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("引流操作")
     @PostMapping("/set_task")
     public R setTask(@RequestBody SetLiveRoomStrategyParam setLiveRoomStrategyParam) {
         try {

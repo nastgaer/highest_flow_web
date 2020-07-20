@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import highest.flow.taobaolive.api.param.AddRankingTaskParam;
 import highest.flow.taobaolive.api.param.ControlRankingTaskParam;
 import highest.flow.taobaolive.api.param.TodayRankingParam;
+import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.PageUtils;
@@ -44,6 +45,7 @@ public class RankingController extends AbstractController {
     @Autowired
     private RankingService rankingService;
 
+    @SysLog("添加新热度任务")
     @PostMapping("/add_task")
     public R addTask(@RequestBody AddRankingTaskParam param) {
         try {
@@ -91,6 +93,7 @@ public class RankingController extends AbstractController {
         return R.error("添加助力任务失败");
     }
 
+    @SysLog("获取当天的任务")
     @PostMapping("/todays")
     public R todays(@RequestBody TodayRankingParam param) {
         try {
@@ -106,6 +109,7 @@ public class RankingController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("开始任务")
     @PostMapping("/start_task")
     public R startTask(@RequestBody ControlRankingTaskParam param) {
         try {
@@ -138,6 +142,7 @@ public class RankingController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("停止任务")
     @PostMapping("/stop_task")
     public R stopTask(@RequestBody ControlRankingTaskParam param) {
         try {
@@ -160,6 +165,7 @@ public class RankingController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("获取刷记录")
     @PostMapping("/logs")
     public R logs(@RequestBody PageParam pageParam) {
         try {

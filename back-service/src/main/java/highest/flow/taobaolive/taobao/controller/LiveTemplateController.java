@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import highest.flow.taobaolive.api.param.PageParam;
+import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.common.utils.R;
@@ -28,6 +29,8 @@ public class LiveTemplateController extends AbstractController {
     @Autowired
     private PreLiveTemplateService preLiveTemplateService;
 
+
+    @SysLog("获取模板列表")
     @PostMapping("/list")
     public R list(@RequestBody PageParam pageParam) {
         try {
@@ -52,6 +55,7 @@ public class LiveTemplateController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("获取模板信息")
     @PostMapping("/get")
     public R get(@RequestBody Map<String, Object> params) {
         try {
@@ -73,6 +77,7 @@ public class LiveTemplateController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("添加模板")
     @PostMapping("/add")
     public R add(@RequestBody TemplateEntity templateEntity) {
         try {
@@ -105,6 +110,7 @@ public class LiveTemplateController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("删除模板")
     @PostMapping("/delete")
     public R delete(@RequestBody Map<String, Object> params) {
         try {

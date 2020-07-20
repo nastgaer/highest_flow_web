@@ -1,5 +1,5 @@
 -- Project Name : 高级引流
--- Date/Time    : 2020/7/20 21:38:25
+-- Date/Time    : 2020/7/21 0:44:40
 -- Author       : KKK
 -- RDBMS Type   : MySQL
 -- Application  : A5:SQL Mk-2
@@ -11,6 +11,7 @@ create table sys_log (
   , operation VARCHAR(32) comment '操作'
   , method VARCHAR(32) comment '请求方法'
   , params TEXT comment '请求参数'
+  , result TEXT comment '返回内容'
   , duration INT comment '执行时长(毫秒)'
   , ip VARCHAR(24) comment 'IP地址'
   , created_time DATETIME comment '创建时间'

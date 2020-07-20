@@ -71,13 +71,14 @@ Field="会员名","member_name","VARCHAR(20)",,,"","",$FFFFFFFF,""
 Field="操作","operation","VARCHAR(32)",,,"","",$FFFFFFFF,""
 Field="请求方法","method","VARCHAR(32)",,,"","",$FFFFFFFF,""
 Field="请求参数","params","TEXT",,,"","",$FFFFFFFF,""
+Field="返回内容","result","TEXT",,,"","",$FFFFFFFF,""
 Field="执行时长(毫秒)","duration","INT",,,"","",$FFFFFFFF,""
 Field="IP地址","ip","VARCHAR(24)",,,"","",$FFFFFFFF,""
 Field="创建时间","created_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200716224418
+ModifiedDateTime=20200721004434
 Position="MAIN",1850,350
 
 [Entity]

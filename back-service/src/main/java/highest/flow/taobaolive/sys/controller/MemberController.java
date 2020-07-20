@@ -7,6 +7,7 @@ import highest.flow.taobaolive.api.param.IdsParam;
 import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.api.param.RegisterMemberParam;
 import highest.flow.taobaolive.api.param.UpdateMemberParam;
+import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.config.Config;
 import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
@@ -26,6 +27,7 @@ public class MemberController extends AbstractController {
     @Autowired
     private MemberService memberService;
 
+    @SysLog("注册会员")
     @PostMapping("/register")
     public R register(@RequestBody RegisterMemberParam registerMemberParam) {
         try {
@@ -53,6 +55,7 @@ public class MemberController extends AbstractController {
         return R.error("注册用户失败");
     }
 
+    @SysLog("会员列表")
     @PostMapping("/list")
     public R list(@RequestBody PageParam pageParam) {
         try {
@@ -73,6 +76,7 @@ public class MemberController extends AbstractController {
         return R.error("获取会员列表失败");
     }
 
+    @SysLog("更新会员信息")
     @PostMapping("/update")
     public R update(@RequestBody UpdateMemberParam updateMemberParam) {
         try {
@@ -104,6 +108,7 @@ public class MemberController extends AbstractController {
         return R.error("更新会员信息失败");
     }
 
+    @SysLog("批量删除会员")
     @PostMapping("/batch_delete")
     public R batchDelete(@RequestBody IdsParam idsParam) {
         try {

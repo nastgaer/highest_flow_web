@@ -12,7 +12,7 @@ public enum ErrorCodes {
     NOT_FOUND_USER(202),
     INVALID_PASSWORD(203),
     UNAUTHORIZED_USER(204), // 权限不够
-    UNAUTHORIZED_MACHINE(205), // 不是绑定的机器
+    UNALLOWED_USER(205), // 不是正常的用户
     UNAUTHORIZED_LIVEROOM(206), // 不是绑定的直播间
 
     INVALID_QRCODE_TOKEN(207),

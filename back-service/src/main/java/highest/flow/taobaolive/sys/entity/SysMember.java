@@ -31,6 +31,9 @@ public class SysMember {
 
     private String comment;
 
+    /**
+     * MemberState
+     */
     private int state;
 
     @TableField(exist = false)

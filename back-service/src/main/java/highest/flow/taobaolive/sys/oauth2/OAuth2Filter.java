@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.utils.R;
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -69,8 +68,15 @@ public class OAuth2Filter extends AuthenticatingFilter {
 
         try {
             // 处理登录失败的异常
-            Throwable throwable = e.getCause() == null ? e : e.getCause();
-            R r = R.error(ErrorCodes.INTERNAL_ERROR, throwable.getMessage());
+            R r = null;
+            if (e instanceof IncorrectCredentialsException ||
+                    e instanceof DisabledAccountException ||
+                    e instanceof LockedAccountException) {
+                r = R.error(ErrorCodes.INVALID_TOKEN, e.getMessage());
+            } else {
+                Throwable throwable = e.getCause() == null ? e : e.getCause();
+                r = R.error(ErrorCodes.INTERNAL_ERROR, throwable.getMessage());
+            }
 
             ObjectMapper objectMapper = new ObjectMapper();
             String respText = objectMapper.writeValueAsString(r);

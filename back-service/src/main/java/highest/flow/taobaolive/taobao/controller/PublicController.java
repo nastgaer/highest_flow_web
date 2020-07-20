@@ -1,5 +1,6 @@
 package highest.flow.taobaolive.taobao.controller;
 
+import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.common.utils.ResourceReader;
 import highest.flow.taobaolive.taobao.entity.ProductChannel;
@@ -17,6 +18,7 @@ public class PublicController {
     @Autowired
     private ProductSearchService productSearchService;
 
+    @SysLog("商品类目")
     @PostMapping("/v1.0/product/categories")
     public R getProductCategories() {
         try {

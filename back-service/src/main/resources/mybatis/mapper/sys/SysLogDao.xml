@@ -3,12 +3,13 @@
 
 <mapper namespace="highest.flow.taobaolive.sys.dao.SysLogDao">
 
-    <resultMap id="logMap" type="highest.flow.taobaolive.sys.entity.SysLog">
+    <resultMap id="logMap" type="highest.flow.taobaolive.sys.entity.SysLogEntity">
         <result property="id" column="id"/>
         <result property="memberName" column="member_name"/>
         <result property="operation" column="operation"/>
         <result property="method" column="method"/>
         <result property="params" column="params"/>
+        <result property="result" column="result"/>
         <result property="duration" column="duration"/>
         <result property="ip" column="ip"/>
         <result property="createdTime" column="created_time"/>
