@@ -14,5 +14,5 @@ public class SetLiveRoomStrategyParam {
 
     private Date operationStartTime;
 
-    private List<LiveRoomStrategyEntity> prelives = new ArrayList<>();
+    private List<LiveRoomStrategyEntity> liveRoomStrategies = new ArrayList<>();
 }

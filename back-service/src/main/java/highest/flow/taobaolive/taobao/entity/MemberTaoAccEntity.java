@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class MemberTaoAccEntity {
 
     private int memberId;
 
+    @TableId
     private String taobaoAccountNick;
 
     private String roomName;
@@ -32,8 +34,12 @@ public class MemberTaoAccEntity {
      */
     private int state;
 
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date serviceStartDate;
 
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date serviceEndDate;
 
     @JsonFormat(timezone = "GMT+8", pattern = "HH:mm:ss")
@@ -41,7 +47,10 @@ public class MemberTaoAccEntity {
     private Date operationStartTime;
 
     @TableField(exist = false)
-    private List<PreLiveRoomSpecEntity> preLiveRoomSpecs;
+    private List<LiveRoomStrategyEntity> liveRoomStrategies = new ArrayList<>();
+
+    @TableField(exist = false)
+    private List<PreLiveRoomSpecEntity> preLiveRoomSpecs = new ArrayList<>();
 
     private Date createdTime;
 

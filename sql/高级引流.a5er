@@ -42,7 +42,7 @@ PName=sys_log
 LName=系统记录
 Comment=
 TableOption=
-Page=Main
+Page=MAIN
 Left=1850
 Top=350
 Field="ID","id","INT","NOT NULL",0,"","",$FFFFFFFF,"AUTO_INCREMENT"
@@ -57,7 +57,7 @@ EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
 ModifiedDateTime=20200716224418
-Position="Main",1850,350
+Position="MAIN",1850,350
 
 [Entity]
 PName=tbl_accounts_logs

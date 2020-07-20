@@ -200,7 +200,7 @@ public class LiveController extends AbstractController {
 
             MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getMemberByTaobaoAccountNick(taobaoAccountNick);
 
-            if (memberTaoAccEntity != null) {
+            if (memberTaoAccEntity == null) {
                 return R.error("还没注册的直播间");
             }
 
@@ -218,7 +218,7 @@ public class LiveController extends AbstractController {
             memberTaoAccEntity.setServiceEndDate(endDate);
             memberTaoAccEntity.setState(ServiceState.Normal.getState());
 
-            this.memberTaoAccService.save(memberTaoAccEntity);
+            this.memberTaoAccService.updateById(memberTaoAccEntity);
 
             return R.ok()
                     .put("start_date", startDate)
@@ -237,7 +237,7 @@ public class LiveController extends AbstractController {
 
             MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getMemberByTaobaoAccountNick(taobaoAccountNick);
 
-            if (memberTaoAccEntity != null) {
+            if (memberTaoAccEntity == null) {
                 return R.error("还没注册的直播间");
             }
 
@@ -247,7 +247,9 @@ public class LiveController extends AbstractController {
 
             memberTaoAccEntity.setState(ServiceState.Suspended.getState());
 
-            this.memberTaoAccService.save(memberTaoAccEntity);
+            this.memberTaoAccService.updateById(memberTaoAccEntity);
+
+            return R.ok();
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -262,7 +264,7 @@ public class LiveController extends AbstractController {
 
             MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getMemberByTaobaoAccountNick(taobaoAccountNick);
 
-            if (memberTaoAccEntity != null) {
+            if (memberTaoAccEntity == null) {
                 return R.error("还没注册的直播间");
             }
 
@@ -270,9 +272,11 @@ public class LiveController extends AbstractController {
                 return R.error("已停止服务的直播间");
             }
 
-            memberTaoAccEntity.setState(ServiceState.Suspended.getState());
+            memberTaoAccEntity.setState(ServiceState.Normal.getState());
 
-            this.memberTaoAccService.save(memberTaoAccEntity);
+            this.memberTaoAccService.updateById(memberTaoAccEntity);
+
+            return R.ok();
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -293,11 +297,40 @@ public class LiveController extends AbstractController {
         return R.error();
     }
 
+    @PostMapping("/get_task")
+    public R getTask(@RequestBody Map<String, Object> params) {
+        try {
+            String taobaoAccountNick = (String) params.get("taobao_account_nick");
+
+            MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getMemberByTaobaoAccountNick(taobaoAccountNick);
+
+            if (memberTaoAccEntity == null) {
+                return R.error("没注册的直播间");
+            }
+
+            List<PreLiveRoomSpecEntity> preLiveRoomSpecEntities = this.preLiveRoomSpecService.list(Wrappers.<PreLiveRoomSpecEntity>lambdaQuery()
+                    .eq(PreLiveRoomSpecEntity::getTaobaoAccountNick, taobaoAccountNick));
+
+            memberTaoAccEntity.setPreLiveRoomSpecs(preLiveRoomSpecEntities);
+
+            List<LiveRoomStrategyEntity> strategyEntities = this.liveRoomStrategyService.list(Wrappers.<LiveRoomStrategyEntity>lambdaQuery()
+                    .eq(LiveRoomStrategyEntity::getTaobaoAccountNick, taobaoAccountNick));
+
+            memberTaoAccEntity.setLiveRoomStrategies(strategyEntities);
+
+            return R.ok().put("task", memberTaoAccEntity);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
     @PostMapping("/set_task")
     public R setTask(@RequestBody SetLiveRoomStrategyParam setLiveRoomStrategyParam) {
         try {
             String taobaoAccountNick = setLiveRoomStrategyParam.getTaobaoAccountNick();
-            List<LiveRoomStrategyEntity> liveRoomStrategyEntities = (List<LiveRoomStrategyEntity>) setLiveRoomStrategyParam.getPrelives();
+            List<LiveRoomStrategyEntity> liveRoomStrategyEntities = (List<LiveRoomStrategyEntity>) setLiveRoomStrategyParam.getLiveRoomStrategies();
 
             MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getMemberByTaobaoAccountNick(taobaoAccountNick);
 
