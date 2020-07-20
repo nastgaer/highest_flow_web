@@ -176,8 +176,7 @@ public class LiveController extends AbstractController {
             for (MemberTaoAccEntity memberTaoAccEntity : memberTaoAccEntities) {
                 String taobaoAccountNick = memberTaoAccEntity.getTaobaoAccountNick();
 
-                List<PreLiveRoomSpecEntity> preLiveRoomSpecEntities = this.preLiveRoomSpecService.list(Wrappers.<PreLiveRoomSpecEntity>lambdaQuery()
-                        .eq(PreLiveRoomSpecEntity::getTaobaoAccountNick, taobaoAccountNick));
+                List<PreLiveRoomSpecEntity> preLiveRoomSpecEntities = this.preLiveRoomSpecService.getPreLiveRoomSpecs(taobaoAccountNick);
 
                 memberTaoAccEntity.setPreLiveRoomSpecs(preLiveRoomSpecEntities);
             }
@@ -308,13 +307,11 @@ public class LiveController extends AbstractController {
                 return R.error("没注册的直播间");
             }
 
-            List<PreLiveRoomSpecEntity> preLiveRoomSpecEntities = this.preLiveRoomSpecService.list(Wrappers.<PreLiveRoomSpecEntity>lambdaQuery()
-                    .eq(PreLiveRoomSpecEntity::getTaobaoAccountNick, taobaoAccountNick));
+            List<PreLiveRoomSpecEntity> preLiveRoomSpecEntities = this.preLiveRoomSpecService.getPreLiveRoomSpecs(taobaoAccountNick);
 
             memberTaoAccEntity.setPreLiveRoomSpecs(preLiveRoomSpecEntities);
 
-            List<LiveRoomStrategyEntity> strategyEntities = this.liveRoomStrategyService.list(Wrappers.<LiveRoomStrategyEntity>lambdaQuery()
-                    .eq(LiveRoomStrategyEntity::getTaobaoAccountNick, taobaoAccountNick));
+            List<LiveRoomStrategyEntity> strategyEntities = this.liveRoomStrategyService.getLiveRoomStrategies(taobaoAccountNick);
 
             memberTaoAccEntity.setLiveRoomStrategies(strategyEntities);
 
@@ -334,7 +331,7 @@ public class LiveController extends AbstractController {
 
             MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getMemberByTaobaoAccountNick(taobaoAccountNick);
 
-            if (memberTaoAccEntity != null) {
+            if (memberTaoAccEntity == null) {
                 return R.error("还没注册的直播间");
             }
 
@@ -349,9 +346,9 @@ public class LiveController extends AbstractController {
             boolean success = this.liveRoomStrategyService.setTask(memberTaoAccEntity, liveRoomStrategyEntities);
 
             if (success) {
-                return R.error();
-            } else {
                 return R.ok();
+            } else {
+                return R.error();
             }
 
         } catch (Exception ex) {

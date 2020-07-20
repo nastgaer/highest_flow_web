@@ -315,7 +315,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                         }
 
                         productEntity.setMonthSales(Integer.parseInt(String.valueOf(mapExtendVal.get("buyCount"))));
-                        productEntity.setCategoryId(Integer.parseInt(String.valueOf(mapExtendVal.get("categoryLevelLeaf"))));
+                        productEntity.setCategoryId(String.valueOf(mapExtendVal.get("categoryLevelLeaf")));
                         productEntity.setCategoryTitle(String.valueOf(mapExtendVal.get("categoryLevelOneName")));
 
                         String business = String.valueOf(mapExtendVal.get("business"));
@@ -1865,5 +1865,23 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             ex.printStackTrace();
         }
         return R.error("上传图片失败");
+    }
+
+    @Override
+    public String parseProductId(String url) {
+        url = StringUtils.strip(url, "\"\r\n ");
+        if (url.indexOf("taobao.com") < 0 && url.indexOf("tmall.com") < 0) {
+            return null;
+        }
+
+        String[] words = url.split("/:&//?/");
+        for (String word : words) {
+            if (word.startsWith("itemId=")) {
+                return word.substring("itemId=".length());
+            } else if (word.startsWith("id=")) {
+                return word.substring("id=".length());
+            }
+        }
+        return null;
     }
 }

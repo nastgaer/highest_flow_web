@@ -26,7 +26,7 @@
         <result property="pscProductCount" column="psc_product_count"/>
         <result property="pscIsTmall" column="psc_is_tmall"/>
         <result property="pscSortKind" column="psc_sort_kind"/>
-        <result property="isDel" column="is_del"/>
+        <result property="isdel" column="isdel"/>
         <result property="createdTime" column="created_time"/>
         <result property="updatedTime" column="updated_time"/>
     </resultMap>

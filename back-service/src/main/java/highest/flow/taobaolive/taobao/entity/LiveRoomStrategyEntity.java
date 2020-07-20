@@ -23,7 +23,7 @@ public class LiveRoomStrategyEntity extends BaseLiveRoom {
      */
     private int liveKind;
 
-    private boolean isDel;
+    private boolean isdel;
 
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

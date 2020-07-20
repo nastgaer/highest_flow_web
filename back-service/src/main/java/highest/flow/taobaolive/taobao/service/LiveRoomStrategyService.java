@@ -13,5 +13,5 @@ public interface LiveRoomStrategyService extends IService<LiveRoomStrategyEntity
 
     boolean setTask(MemberTaoAccEntity memberTaoAccEntity, List<LiveRoomStrategyEntity> liveRoomStrategyEntities);
 
-    List<LiveRoomStrategyEntity> getStrategy(String taobaoAccountNick);
+    List<LiveRoomStrategyEntity> getLiveRoomStrategies(String taobaoAccountNick);
 }

@@ -37,12 +37,13 @@ public class LiveRoomStrategyServiceImpl extends ServiceImpl<LiveRoomStrategyDao
             String taobaoAccountNick = memberTaoAccEntity.getTaobaoAccountNick();
 
             LiveRoomStrategyEntity deleteEntity = new LiveRoomStrategyEntity();
-            deleteEntity.setDel(true);
+            deleteEntity.setIsdel(true);
+            deleteEntity.setUpdatedTime(new Date());
             this.baseMapper.update(deleteEntity, Wrappers.<LiveRoomStrategyEntity>lambdaQuery().eq(LiveRoomStrategyEntity::getTaobaoAccountNick, taobaoAccountNick));
 
             for (LiveRoomStrategyEntity liveRoomStrategyEntity : liveRoomStrategyEntities) {
                 liveRoomStrategyEntity.setTaobaoAccountNick(taobaoAccountNick);
-                liveRoomStrategyEntity.setDel(false);
+                liveRoomStrategyEntity.setIsdel(false);
                 liveRoomStrategyEntity.setCreatedTime(new Date());
                 liveRoomStrategyEntity.setUpdatedTime(new Date());
             }
@@ -77,7 +78,8 @@ public class LiveRoomStrategyServiceImpl extends ServiceImpl<LiveRoomStrategyDao
     }
 
     @Override
-    public List<LiveRoomStrategyEntity> getStrategy(String taobaoAccountNick) {
-        return this.list(Wrappers.<LiveRoomStrategyEntity>lambdaQuery().eq(LiveRoomStrategyEntity::getTaobaoAccountNick, taobaoAccountNick));
+    public List<LiveRoomStrategyEntity> getLiveRoomStrategies(String taobaoAccountNick) {
+        return this.list(Wrappers.<LiveRoomStrategyEntity>lambdaQuery().eq(LiveRoomStrategyEntity::getTaobaoAccountNick, taobaoAccountNick)
+                .eq(LiveRoomStrategyEntity::isIsdel, false));
     }
 }

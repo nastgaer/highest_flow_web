@@ -219,4 +219,6 @@ public interface TaobaoApiService {
     public R addTimestamp(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, String productId);
 
     public R uploadImage(Path path, TaobaoAccountEntity taobaoAccountEntity);
+
+    public String parseProductId(String url);
 }

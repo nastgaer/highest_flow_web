@@ -37,6 +37,27 @@ SqlSeparator=0
 ShowTag=1
 ShowCommonAttributes=0
 
+[Relation]
+Entity1=tbl_members
+Entity2=tbl_accounts
+RelationType1=2
+RelationType2=3
+Fields1=id
+Fields2=member_id
+Cardinarity1=
+Cardinarity2=
+Position="MAIN",0,4851,5149,4488,R,R
+Dependence=0
+Caption=
+PName=
+ModifiedDateTime=20200720213816
+LineMode=0
+Bar1=485
+Bar2=515
+Bar3=449
+TermPos1=R
+TermPos2=R
+
 [Entity]
 PName=sys_log
 LName=系统记录
@@ -114,6 +135,7 @@ Page=MAIN
 Left=700
 Top=500
 Field="ID","id","INT","NOT NULL",0,"","",$FFFFFFFF,"AUTO_INCREMENT"
+Field="添加的会员名","member_id","INT","NOT NULL",,"","",$FFFFFFFF,""
 Field="会员名","nick","VARCHAR(32)",,,"","",$FFFFFFFF,""
 Field="SID","sid","VARCHAR(48)",,,"","",$FFFFFFFF,""
 Field="UserID","uid","VARCHAR(32)","NOT NULL",,"","",$FFFFFFFF,""
@@ -129,7 +151,7 @@ Field="更新时间","updated_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200714161418
+ModifiedDateTime=20200720213748
 Position="MAIN",700,500
 
 [Entity]
@@ -183,7 +205,7 @@ Left=200
 Top=1100
 Field="ID","id","INT","NOT NULL",0,"","",$FFFFFFFF,"AUTO_INCREMENT"
 Field="直播间ID","live_id","VARCHAR(32)","NOT NULL",,"","",$FFFFFFFF,""
-Field="类目","category_id","INT",,,"","",$FFFFFFFF,""
+Field="类目","category_id","VARCHAR(32)",,,"","",$FFFFFFFF,""
 Field="类目名称","category_title","VARCHAR(48)",,,"","",$FFFFFFFF,""
 Field="商品ID","product_id","VARCHAR(32)",,,"","",$FFFFFFFF,""
 Field="商品名称","title","VARCHAR(256)",,,"","",$FFFFFFFF,""
@@ -199,7 +221,7 @@ Field="更新时间","updated_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200701070136
+ModifiedDateTime=20200720210708
 Position="MAIN",200,1100
 
 [Entity]
@@ -748,11 +770,11 @@ Field="商品最小销量","psc_min_sales","INT(4)",,,"","",$FFFFFFFF,""
 Field="商品数","psc_product_count","INT(4)",,,"","",$FFFFFFFF,""
 Field="是否天猫","psc_is_tmall","BOOLEAN",,,"","",$FFFFFFFF,""
 Field="排序","psc_sort_kind","TINYINT",,,"","",$FFFFFFFF,""
-Field="是否删除","is_del","BOOLEAN",,,"","",$FFFFFFFF,""
+Field="是否删除","isdel","BOOLEAN",,,"","",$FFFFFFFF,""
 Field="创建时间","created_time","DATETIME",,,"","",$FFFFFFFF,""
 Field="更新时间","updated_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200716200643
+ModifiedDateTime=20200720183152
 Position="MAIN",1150,1250

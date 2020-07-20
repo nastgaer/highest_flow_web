@@ -14,4 +14,11 @@ public enum ProductSearchSortKind {
     public int getKind() {
         return kind;
     }
+
+    public static ProductSearchSortKind from(int value) {
+        if (SortByDefault.getKind() == value) {
+            return SortByDefault;
+        }
+        return SortBySales;
+    }
 }

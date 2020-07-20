@@ -19,7 +19,7 @@ public class ProductEntity {
 
     private String liveId;
 
-    private int categoryId;
+    private String categoryId;
 
     private String categoryTitle = "";
 
@@ -37,6 +37,9 @@ public class ProductEntity {
 
     private String picurl = "";;
 
+    /**
+     * ProductState
+     */
     private int state;
 
     /**

@@ -17,6 +17,8 @@ public class ProductCategory {
 
     private int swytFilter;
 
+    private boolean c2cRule;
+
     private String keyword;
 
     private String title;

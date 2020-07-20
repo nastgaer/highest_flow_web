@@ -19,6 +19,8 @@ import java.net.URLEncoder;
 @Service("signService")
 public class SignServiceImpl implements SignService {
 
+    private int mode = 3;
+
     private int[] availablePorts = new int[]{
             59316, 58119, 58114, 58120
     };
@@ -165,17 +167,30 @@ public class SignServiceImpl implements SignService {
 
     @Override
     public String xsign(XHeader xHeader) {
-        String xsign = xsign3(xHeader);
-        if (!HFStringUtils.isNullOrEmpty(xsign)) {
-            return xsign;
+        if (mode == 3) {
+            String xsign = xsign3(xHeader);
+            if (!HFStringUtils.isNullOrEmpty(xsign)) {
+                return xsign;
+            }
+            mode = 1;
         }
 
-        xsign = xsign1(xHeader);
-        if (!HFStringUtils.isNullOrEmpty(xsign)) {
-            return xsign;
+        if (mode == 1) {
+            String xsign = xsign1(xHeader);
+            if (!HFStringUtils.isNullOrEmpty(xsign)) {
+                return xsign;
+            }
+            mode = 2;
         }
 
-        return xsign2(xHeader);
+        if (mode == 2) {
+            String xsign = xsign2(xHeader);
+            if (!HFStringUtils.isNullOrEmpty(xsign)) {
+                return xsign;
+            }
+            mode = 3;
+        }
+        return "";
     }
 
     @Override

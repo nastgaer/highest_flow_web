@@ -166,7 +166,7 @@ public class SignServiceImpl implements SignService {
 
     @Override
     public String xsign(XHeader xHeader) {
-        if (mode == 3) {
+       i f (mode == 3) {
             String xsign = xsign3(xHeader);
             if (!HFStringUtils.isNullOrEmpty(xsign)) {
                 return xsign;
