@@ -81,7 +81,7 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
             this.save(rankingEntity);
 
             Calendar calendar = Calendar.getInstance();
-            calendar.setTime(startTime);
+            calendar.setTime(startTime == null ? new Date() : startTime);
             int year = calendar.get(Calendar.YEAR);
             int month = calendar.get(Calendar.MONTH) + 1;
             int date = calendar.get(Calendar.DAY_OF_MONTH);

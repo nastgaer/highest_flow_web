@@ -41,7 +41,7 @@ public class MembersTest extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:http://localhost:8080/v1.0//sys/register";
+            String url = "http://localhost:8080/v1.0//sys/register";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -70,7 +70,7 @@ public class MembersTest extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:http://localhost:8080/v1.0//sys/list";
+            String url = "http://localhost:8080/v1.0/sys/list";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -105,7 +105,7 @@ public class MembersTest extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:http://localhost:8080/v1.0//sys/update";
+            String url = "http://localhost:8080/v1.0/sys/update";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -136,7 +136,7 @@ public class MembersTest extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:http://localhost:8080/v1.0//sys/batch_delete";
+            String url = "http://localhost:8080/v1.0/sys/batch_delete";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()

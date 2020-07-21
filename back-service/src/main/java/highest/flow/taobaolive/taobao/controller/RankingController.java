@@ -54,7 +54,7 @@ public class RankingController extends AbstractController {
             boolean doubleBuy = param.isDoubleBuy();
             Date startTime = param.getStartTime();
 
-            if (startTime.getTime() < new Date().getTime()) {
+            if (startTime != null && startTime.getTime() < new Date().getTime()) {
                 return R.error("请正确输入开始时间");
             }
 

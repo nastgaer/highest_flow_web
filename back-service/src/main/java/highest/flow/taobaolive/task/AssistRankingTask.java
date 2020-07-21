@@ -112,7 +112,7 @@ public class AssistRankingTask implements ITask {
                     (RankingScore.Follow.getScore() + RankingScore.Buy.getScore() + RankingScore.Watch.getScore());
 
             int leftScore = rankingEntity.getTargetScore();
-            int startIndex = 0, endScore = -1;
+            int startIndex = 0, endScore = 0;
 
             // 直到达到目标
             while (leftScore >= 0 && this.isRunning(rankingEntity)) {
