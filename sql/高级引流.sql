@@ -1,5 +1,5 @@
 -- Project Name : 高级引流
--- Date/Time    : 2020/7/21 0:44:40
+-- Date/Time    : 2020/7/22 7:48:36
 -- Author       : KKK
 -- RDBMS Type   : MySQL
 -- Application  : A5:SQL Mk-2
@@ -148,11 +148,13 @@ create table tbl_member_tokens (
 -- 用户卡密
 create table tbl_codes (
   id INT not null AUTO_INCREMENT comment 'ID'
-  , service_type TINYINT comment '服务类型'
+  , code_type TINYINT comment '卡密类型:0：测试，1：正式'
+  , service_type TINYINT comment '服务类型:0：刷热度，1：淘宝直播'
   , hours TINYINT comment '授权时间'
   , code VARCHAR(72) comment '卡密'
   , state TINYINT comment '状态:0: 创建，1: 验证，2: 绑定'
-  , machine_code VARCHAR(32) comment '直播间名称'
+  , machine_code VARCHAR(32) comment '机器码'
+  , member_id INT not null comment '会员ID'
   , service_start_time DATETIME comment '服务开始时间'
   , service_end_time DATETIME comment '服务结束时间'
   , created_time DATETIME comment '创建时间'

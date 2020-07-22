@@ -12,7 +12,7 @@ public enum ErrorCodes {
     NOT_FOUND_USER(202),
     INVALID_PASSWORD(203),
     UNAUTHORIZED_USER(204), // 权限不够
-    UNALLOWED_USER(205), // 不是正常的用户
+    UNAUTHORIZED_MACHINE(205), // 不是绑定的机器
     UNAUTHORIZED_LIVEROOM(206), // 不是绑定的直播间
 
     INVALID_QRCODE_TOKEN(207),
@@ -27,7 +27,13 @@ public enum ErrorCodes {
     FAIL_SYS_TOKEN_EXOIRED(306),     // 令牌过期了
     FAIL_CREATE_LIVEROOM_LIMITED(307),   // 达到当天发布预告限制
     FAIL_ADD_ITEM_LIMITED(308),          // 添加商品达到限制
-    FAIL_ALREADY_STARTED_LIVEROOM(309);  // 该用户已经有直播内容
+    FAIL_ALREADY_STARTED_LIVEROOM(309),  // 该用户已经有直播内容
+
+    UNALLOWED_USER(401), // 不是正常的用户
+    NOT_FOUND_CODE(402), // 找不到卡密
+    INVALID_CODE(403),  // 不正常的卡密
+
+    NOT_FOUND_REMOTE_FUNC(500);    // 找不到方法
 
     private int code = 0;
 

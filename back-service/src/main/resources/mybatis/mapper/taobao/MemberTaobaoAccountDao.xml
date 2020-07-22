@@ -9,7 +9,7 @@
         <result property="taobaoAccountId" column="taobao_account_id"/>
         <result property="roomName" column="room_name"/>
         <result property="comment" column="comment"/>
-        <result property="state" column="state"/>
+        <result property="type" column="type"/>
         <result property="serviceStartDate" column="service_start_date"/>
         <result property="serviceEndDate" column="service_end_date"/>
         <result property="operationStartTime" column="operation_start_time" />

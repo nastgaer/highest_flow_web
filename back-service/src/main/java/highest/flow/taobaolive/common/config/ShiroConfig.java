@@ -40,6 +40,7 @@ public class ShiroConfig {
         filterMap.put("/v1.0/login", "anon");
         filterMap.put("/v1.0/live/upload_image", "anon");
         filterMap.put("/v1.0/tbacc/upload", "anon");
+        filterMap.put("/external/ranking/reg", "anon");
         filterMap.put("/**", "oauth2");
         shiroFilter.setFilterChainDefinitionMap(filterMap);
 

@@ -13,6 +13,8 @@ import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.common.utils.R;
+import highest.flow.taobaolive.sys.defines.MemberLevel;
+import highest.flow.taobaolive.sys.defines.MemberRole;
 import highest.flow.taobaolive.sys.entity.*;
 import highest.flow.taobaolive.sys.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +38,22 @@ public class MemberController extends AbstractController {
                 return R.error("已经注册的会员");
             }
 
+            List<String> roles = registerMemberParam.getRoles();
+            int level = MemberLevel.Administrator.getLevel();
+
+            for (MemberRole memberRole : MemberRole.values()) {
+                if (!roles.contains(memberRole.toString())) {
+                    level = MemberLevel.Normal.getLevel();
+                    break;
+                }
+            }
+
             sysMember = memberService.register(registerMemberParam.getMemberName(),
                     registerMemberParam.getPassword(),
                     registerMemberParam.getMobile(),
                     registerMemberParam.getComment(),
-                    registerMemberParam.getRoles(),
+                    roles,
+                    level,
                     registerMemberParam.getState());
 
             if (sysMember == null) {
@@ -49,7 +62,7 @@ public class MemberController extends AbstractController {
 
             return R.ok().put("member_id", sysMember.getId());
 
-        } catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return R.error("注册用户失败");

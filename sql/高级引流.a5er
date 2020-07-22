@@ -39,6 +39,27 @@ ShowCommonAttributes=0
 
 [Relation]
 Entity1=tbl_members
+Entity2=tbl_codes
+RelationType1=2
+RelationType2=3
+Fields1=id
+Fields2=member_id
+Cardinarity1=
+Cardinarity2=
+Position="MAIN",0,4579,5421,4488,R,R
+Dependence=0
+Caption=
+PName=
+ModifiedDateTime=20200722061339
+LineMode=0
+Bar1=458
+Bar2=542
+Bar3=449
+TermPos1=R
+TermPos2=R
+
+[Relation]
+Entity1=tbl_members
 Entity2=tbl_accounts
 RelationType1=2
 RelationType2=3
@@ -64,8 +85,8 @@ LName=系统记录
 Comment=
 TableOption=
 Page=MAIN
-Left=1850
-Top=350
+Left=2050
+Top=200
 Field="ID","id","INT","NOT NULL",0,"","",$FFFFFFFF,"AUTO_INCREMENT"
 Field="会员名","member_name","VARCHAR(20)",,,"","",$FFFFFFFF,""
 Field="操作","operation","VARCHAR(32)",,,"","",$FFFFFFFF,""
@@ -79,7 +100,7 @@ EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
 ModifiedDateTime=20200721004434
-Position="MAIN",1850,350
+Position="MAIN",2050,200
 
 [Entity]
 PName=tbl_accounts_logs
@@ -124,7 +145,7 @@ Field="更新时间","updated_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200715162157
+ModifiedDateTime=20200722060602
 Position="MAIN",1100,500
 
 [Entity]
@@ -231,8 +252,8 @@ LName=操作记录
 Comment=
 TableOption=
 Page=MAIN
-Left=1400
-Top=650
+Left=2050
+Top=550
 Field="ID","id","INT","NOT NULL",0,"","",$FFFFFFFF,"AUTO_INCREMENT"
 Field="用户名","member_id","INT","NOT NULL",,"","",$FFFFFFFF,""
 Field="分类","category","VARCHAR(32)",,,"","",$FFFFFFFF,""
@@ -242,7 +263,7 @@ EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
 ModifiedDateTime=20200624184956
-Position="MAIN",1400,650
+Position="MAIN",2050,550
 
 [Entity]
 PName=sys_config
@@ -307,14 +328,16 @@ LName=用户卡密
 Comment=
 TableOption=
 Page=MAIN
-Left=2350
-Top=850
+Left=1550
+Top=450
 Field="ID","id","INT","NOT NULL",0,"","",$FFFFFFFF,"AUTO_INCREMENT"
-Field="服务类型","service_type","TINYINT",,,"","",$FFFFFFFF,""
+Field="卡密类型","code_type","TINYINT",,,"","0：测试，1：正式",$FFFFFFFF,""
+Field="服务类型","service_type","TINYINT",,,"","0：刷热度，1：淘宝直播",$FFFFFFFF,""
 Field="授权时间","hours","TINYINT",,,"","",$FFFFFFFF,""
 Field="卡密","code","VARCHAR(72)",,1,"","",$FFFFFFFF,""
 Field="状态","state","TINYINT",,,"","0: 创建，1: 验证，2: 绑定",$FFFFFFFF,""
-Field="直播间名称","machine_code","VARCHAR(32)",,,"","",$FFFFFFFF,""
+Field="机器码","machine_code","VARCHAR(32)",,,"","",$FFFFFFFF,""
+Field="会员ID","member_id","INT",,,"","",$FFFFFFFF,""
 Field="服务开始时间","service_start_time","DATETIME",,,"","",$FFFFFFFF,""
 Field="服务结束时间","service_end_time","DATETIME",,,"","",$FFFFFFFF,""
 Field="创建时间","created_time","DATETIME",,,"","",$FFFFFFFF,""
@@ -322,8 +345,8 @@ Field="验证时间","accepted_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200531230400
-Position="MAIN",2350,850
+ModifiedDateTime=20200722132852
+Position="MAIN",1550,450
 
 [Entity]
 PName=schedule_job

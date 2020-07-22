@@ -3,6 +3,7 @@ package highest.flow.taobaolive.taobao.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.common.utils.PageUtils;
+import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
 import org.apache.http.cookie.Cookie;
 import org.springframework.stereotype.Service;
@@ -13,9 +14,8 @@ import java.util.List;
 @Service
 public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
 
-    PageUtils queryPage(PageParam pageParam);
-
-    TaobaoAccountEntity register(String nick,
+    TaobaoAccountEntity register(SysMember sysMember,
+                                        String nick,
                                         String uid,
                                         String sid,
                                         String utdid,
@@ -32,7 +32,13 @@ public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
 
     TaobaoAccountEntity getInfoByUid(String uid);
 
-    int getNormalCount();
+    int getNormalCount(SysMember sysMember);
 
-    int getExpiredCount();
+    int getExpiredCount(SysMember sysMember);
+
+    PageUtils queryPage(SysMember sysMember, PageParam pageParam);
+
+    TaobaoAccountEntity getActiveOne(SysMember sysMember);
+
+    List<TaobaoAccountEntity> getActiveAllByMember(SysMember sysMember);
 }

@@ -478,10 +478,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             if (taobaoAccountEntity != null) {
                 this.getH5Token(taobaoAccountEntity);
-                r = this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
-                if (r.getCode() != ErrorCodes.SUCCESS) {
-                    return r;
-                }
+                this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
             }
 
             return R.ok().put("live_room", liveRoomEntity);

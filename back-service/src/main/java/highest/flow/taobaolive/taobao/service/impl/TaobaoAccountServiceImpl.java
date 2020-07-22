@@ -9,6 +9,7 @@ import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.common.utils.Query;
+import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.taobao.dao.TaobaoAccountDao;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountLogKind;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
@@ -34,41 +35,37 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     private TaobaoAccountLogService taobaoAccountLogService;
 
     @Override
-    public int getNormalCount() {
-        return this.baseMapper.getNormalCount();
-    }
-
-    @Override
-    public int getExpiredCount() {
-        return this.baseMapper.getExpiredCount();
-    }
-
-    @Override
-    public PageUtils queryPage(PageParam pageParam) {
-        int pageNo = pageParam.getPageNo();
-        int pageSize = pageParam.getPageSize();
-        String keyword = pageParam.getKeyword();
-
-        Map<String, Object> params = new HashMap<>();
-        params.put(Query.PAGE, pageNo);
-        params.put(Query.LIMIT, pageSize);
-
-        QueryWrapper<TaobaoAccountEntity> queryWrapper = new QueryWrapper<>();
-        if (!HFStringUtils.isNullOrEmpty(keyword)) {
-            queryWrapper.like("nick", keyword);
+    public int getNormalCount(SysMember sysMember) {
+        if (sysMember == null) {
+            return this.baseMapper.selectCount(Wrappers.<TaobaoAccountEntity>lambdaQuery()
+                    .eq(TaobaoAccountEntity::getState, 0));
+        } else {
+            return this.baseMapper.selectCount(Wrappers.<TaobaoAccountEntity>lambdaQuery()
+                    .eq(TaobaoAccountEntity::getState, 0)
+                    .eq(TaobaoAccountEntity::getMemberId, sysMember.getId()));
         }
-
-        IPage<TaobaoAccountEntity> page = this.page(new Query<TaobaoAccountEntity>().getPage(params), queryWrapper);
-        return new PageUtils<TaobaoAccountEntity>(page);
     }
 
     @Override
-    public TaobaoAccountEntity register(String nick, String uid, String sid, String utdid, String devid,
+    public int getExpiredCount(SysMember sysMember) {
+        if (sysMember == null) {
+            return this.baseMapper.selectCount(Wrappers.<TaobaoAccountEntity>lambdaQuery()
+                    .ne(TaobaoAccountEntity::getState, 0));
+        } else {
+            return this.baseMapper.selectCount(Wrappers.<TaobaoAccountEntity>lambdaQuery()
+                    .eq(TaobaoAccountEntity::getMemberId, sysMember.getId())
+                    .ne(TaobaoAccountEntity::getState, 0));
+        }
+    }
+
+    @Override
+    public TaobaoAccountEntity register(SysMember sysMember, String nick, String uid, String sid, String utdid, String devid,
                                         String autoLoginToken, String umidToken, List<Cookie> cookies, long expires, int state,
                                         Date created, Date updated) {
         try {
             TaobaoAccountEntity taobaoAccountEntity = new TaobaoAccountEntity();
 
+            taobaoAccountEntity.setMemberId(sysMember == null || sysMember.isAdministrator() ? 0 : sysMember.getId());
             taobaoAccountEntity.setNick(nick);
             taobaoAccountEntity.setUid(uid);
             taobaoAccountEntity.setSid(sid);
@@ -123,5 +120,49 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     @Override
     public TaobaoAccountEntity getInfoByUid(String uid) {
         return this.baseMapper.selectOne(Wrappers.<TaobaoAccountEntity>lambdaQuery().eq(TaobaoAccountEntity::getUid, uid));
+    }
+
+    @Override
+    public PageUtils queryPage(SysMember sysMember, PageParam pageParam) {
+        int pageNo = pageParam.getPageNo();
+        int pageSize = pageParam.getPageSize();
+        String keyword = pageParam.getKeyword();
+
+        int memberId = sysMember == null || sysMember.isAdministrator() ? 0 : sysMember.getId();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put(Query.PAGE, pageNo);
+        params.put(Query.LIMIT, pageSize);
+
+        QueryWrapper<TaobaoAccountEntity> queryWrapper = new QueryWrapper<>();
+        if (memberId > 0) {
+            queryWrapper.like("member_id", memberId);
+        }
+
+        IPage<TaobaoAccountEntity> page = this.page(new Query<TaobaoAccountEntity>().getPage(params), queryWrapper);
+        return new PageUtils<TaobaoAccountEntity>(page);
+    }
+
+    @Override
+    public TaobaoAccountEntity getActiveOne(SysMember sysMember) {
+        if (sysMember == null || sysMember.isAdministrator()) {
+            return this.baseMapper.getActiveOne();
+//            return this.getOne(Wrappers.<TaobaoAccountEntity>lambdaQuery()
+//                    .eq(TaobaoAccountEntity::getType, TaobaoAccountState.Normal.getType()));
+        }
+
+        return this.baseMapper.getActiveOneByMember(sysMember.getId());
+//        return this.getOne(Wrappers.<TaobaoAccountEntity>lambdaQuery()
+//                .eq(TaobaoAccountEntity::getType, TaobaoAccountState.Normal.getType())
+//                .eq(TaobaoAccountEntity::getMemberId, sysMember.getId()));
+    }
+
+    @Override
+    public List<TaobaoAccountEntity> getActiveAllByMember(SysMember sysMember) {
+        if (sysMember == null || sysMember.isAdministrator()) {
+            return this.baseMapper.getActiveAll();
+        }
+
+        return this.baseMapper.getActiveAllByMember(sysMember.getId());
     }
 }

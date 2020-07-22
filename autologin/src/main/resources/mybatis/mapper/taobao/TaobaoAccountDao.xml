@@ -14,7 +14,7 @@
         <result property="umidToken" column="umid_token"/>
         <result property="cookie" column="cookie"/>
         <result property="expires" column="expires"/>
-        <result property="state" column="state"/>
+        <result property="type" column="type"/>
         <result property="createdTime" column="created_time"/>
         <result property="updatedTime" column="updated_time"/>
     </resultMap>

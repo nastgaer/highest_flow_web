@@ -5,9 +5,9 @@
 
     <!--<insert id="insertUser">-->
     <!--INSERT INTO tbl_users(user_id, password, machine_code, mobile, weixin,-->
-    <!--level, service_type, state, service_start_time, service_end_time, created_time, updated_time)-->
+    <!--level, service_type, type, service_start_time, service_end_time, created_time, updated_time)-->
     <!--VALUES(#{userId}, #{password}, #{machineCode}, #{mobile}, #{weixin}, #{level},-->
-    <!--#{serviceType}, #{state}, #{serviceStartTime}, #{serviceEndTime}, #{createdTime}, #{updatedTime})-->
+    <!--#{serviceType}, #{type}, #{serviceStartTime}, #{serviceEndTime}, #{createdTime}, #{updatedTime})-->
     <!--</insert>-->
 
     <resultMap id="memberMap" type="highest.flow.taobaolive.sys.entity.SysMember">
@@ -17,7 +17,7 @@
         <result property="salt" column="salt"/>
         <result property="mobile" column="mobile"/>
         <result property="comment" column="comment"/>
-        <result property="state" column="state"/>
+        <result property="type" column="type"/>
         <result property="level" column="level"/>
         <result property="createdTime" column="created_time"/>
         <result property="updatedTime" column="updated_time"/>

@@ -15,7 +15,7 @@
         <result property="shopName" column="shop_name"/>
         <result property="url" column="url"/>
         <result property="picurl" column="picurl"/>
-        <result property="state" column="state"/>
+        <result property="type" column="type"/>
         <result property="remark" column="remark"/>
         <result property="createdTime" column="created_time"/>
         <result property="updatedTime" column="updated_time"/>

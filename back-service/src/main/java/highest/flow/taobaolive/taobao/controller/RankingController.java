@@ -58,7 +58,7 @@ public class RankingController extends AbstractController {
                 return R.error("请正确输入开始时间");
             }
 
-            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getOne(Wrappers.<TaobaoAccountEntity>lambdaQuery().eq(TaobaoAccountEntity::getState, TaobaoAccountState.Normal.getState()));
+            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(getUser());
             if (taobaoAccountEntity == null) {
                 return R.error("找不到活跃的用户");
             }
@@ -102,6 +102,17 @@ public class RankingController extends AbstractController {
             List<RankingEntity> rankingEntities = this.rankingService.getTodaysTask(date);
 
             return R.ok().put("ranking", rankingEntities);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @SysLog("获取任务执行情况")
+    @PostMapping("/get")
+    public R get(@RequestBody Map<String, Object> param) {
+        try {
 
         } catch (Exception ex) {
             ex.printStackTrace();

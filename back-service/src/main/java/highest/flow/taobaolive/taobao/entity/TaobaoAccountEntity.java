@@ -43,12 +43,14 @@ public class TaobaoAccountEntity {
 
     private String devid;
 
+    @JsonIgnore
     private String autoLoginToken;
 
     private String umidToken;
 
     @Getter
     @Setter(AccessLevel.NONE)
+    @JsonIgnore
     private String cookie;
 
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")

@@ -3,7 +3,7 @@
 
 <mapper namespace="highest.flow.taobaolive.taobao.dao.TaobaoAccountDao">
 
-    <resultMap id="logMap" type="highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity">
+    <resultMap id="accountMap" type="highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity">
         <result property="id" column="id"/>
         <result property="memberId" column="member_id"/>
         <result property="nick" column="nick"/>
@@ -15,17 +15,33 @@
         <result property="umidToken" column="umid_token"/>
         <result property="cookie" column="cookie"/>
         <result property="expires" column="expires"/>
-        <result property="state" column="state"/>
+        <result property="type" column="type"/>
         <result property="createdTime" column="created_time"/>
         <result property="updatedTime" column="updated_time"/>
     </resultMap>
 
     <select id="getNormalCount" resultType="int">
-        select count(*) from tbl_accounts where state = 0;
+        select count(*) from tbl_accounts where type = 0;
     </select>
 
     <select id="getExpiredCount" resultType="int">
-        select count(*) from tbl_accounts where state != 0;
+        select count(*) from tbl_accounts where type != 0;
+    </select>
+
+    <select id="getActiveOne" resultMap="accountMap">
+        select * from tbl_accounts where type = 0 limit 1;
+    </select>
+
+    <select id="getActiveOneByMember" resultMap="accountMap">
+        select * from tbl_accounts where type = 0 and member_id=#{member_id} limit 1;
+    </select>
+
+    <select id="getActiveAll" resultMap="accountMap">
+        select * from tbl_accounts where type = 0;
+    </select>
+
+    <select id="getActiveAllByMember" resultMap="accountMap">
+        select * from tbl_accounts where type = 0 and member_id=#{member_id};
     </select>
 
 </mapper>

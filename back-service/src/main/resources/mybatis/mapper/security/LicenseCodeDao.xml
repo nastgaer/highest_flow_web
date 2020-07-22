@@ -5,15 +5,21 @@
 
     <resultMap id="licenseCodeMap" type="highest.flow.taobaolive.security.entity.LicenseCode">
         <result property="id" column="id"/>
+        <result property="codeType" column="code_type"/>
         <result property="serviceType" column="service_type"/>
         <result property="hours" column="hours"/>
         <result property="code" column="code"/>
-        <result property="state" column="state"/>
+        <result property="type" column="type"/>
         <result property="machineCode" column="machine_code"/>
+        <result property="memberId" column="member_id"/>
         <result property="serviceStartTime" column="service_start_time"/>
         <result property="serviceEndTime" column="service_end_time"/>
         <result property="createdTime" column="created_time"/>
         <result property="acceptedTime" column="accepted_time"/>
     </resultMap>
+
+    <select id="getCodeDesc" resultMap="licenseCodeMap">
+        select * from tbl_codes where code=#{code};
+    </select>
 
 </mapper>

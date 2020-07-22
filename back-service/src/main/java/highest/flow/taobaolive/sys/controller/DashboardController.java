@@ -3,6 +3,8 @@ package highest.flow.taobaolive.sys.controller;
 import highest.flow.taobaolive.api.param.RankingQueryParam;
 import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.utils.R;
+import highest.flow.taobaolive.sys.defines.MemberLevel;
+import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,8 +25,12 @@ public class DashboardController extends AbstractController {
     @PostMapping("/tbacc")
     public R tbacc() {
         try {
-            int normalCount = taobaoAccountService.getNormalCount();
-            int expiredCount = taobaoAccountService.getExpiredCount();
+            SysMember sysMember = this.getUser();
+
+            int normalCount = taobaoAccountService.getNormalCount(
+                    sysMember.getLevel() == MemberLevel.Administrator.getLevel() ? null : sysMember);
+            int expiredCount = taobaoAccountService.getExpiredCount(
+                    sysMember.getLevel() == MemberLevel.Administrator.getLevel() ? null : sysMember);
 
             return R.ok().put("total_count", normalCount + expiredCount)
                     .put("normal_count", normalCount)

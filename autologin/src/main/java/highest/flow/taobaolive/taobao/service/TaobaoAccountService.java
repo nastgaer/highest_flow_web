@@ -11,18 +11,4 @@ import java.util.List;
 @Service
 public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
 
-    TaobaoAccountEntity register(String nick,
-                                        String uid,
-                                        String sid,
-                                        String utdid,
-                                        String devid,
-                                        String autoLoginToken,
-                                        String umidToken,
-                                        List<Cookie> cookies,
-                                        long expires,
-                                        int state,
-                                        Date created,
-                                        Date updated);
-
-    TaobaoAccountEntity getInfo(String accountId);
 }

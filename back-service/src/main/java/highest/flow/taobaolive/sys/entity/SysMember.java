@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import highest.flow.taobaolive.sys.defines.MemberLevel;
 import lombok.Data;
 
 import java.util.Date;
@@ -22,6 +23,9 @@ public class SysMember {
     @JsonIgnore
     private String password;
 
+    /**
+     * MemberLevel
+     */
     private int level;
 
     @JsonIgnore
@@ -42,4 +46,11 @@ public class SysMember {
     private Date createdTime;
 
     private Date updatedTime;
+
+    public boolean isAdministrator() {
+        if (this.level == MemberLevel.Administrator.getLevel()) {
+            return true;
+        }
+        return false;
+    }
 }

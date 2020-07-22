@@ -4,7 +4,7 @@ public enum LicenseCodeState {
 
     Created(0),
     Accepted(1), // 验证，绑定机器
-    Binded(2); // 验证，绑定淘宝账号
+    Deleted(2);
 
     private int state = 0;
 

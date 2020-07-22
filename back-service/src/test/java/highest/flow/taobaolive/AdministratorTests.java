@@ -8,6 +8,7 @@ import highest.flow.taobaolive.common.http.ResponseType;
 import highest.flow.taobaolive.common.http.SiteConfig;
 import highest.flow.taobaolive.common.http.httpclient.response.Response;
 import highest.flow.taobaolive.common.utils.R;
+import highest.flow.taobaolive.sys.defines.MemberLevel;
 import highest.flow.taobaolive.sys.defines.MemberState;
 import highest.flow.taobaolive.sys.entity.SysMemberRole;
 import highest.flow.taobaolive.sys.service.MemberRoleService;
@@ -47,6 +48,7 @@ public class AdministratorTests {
                     "111-1111-1111",
                     "Administrator",
                     roles,
+                    MemberLevel.Administrator.getLevel(),
                     MemberState.Normal.getState());
 
         } catch (Exception ex) {

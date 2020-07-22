@@ -12,6 +12,7 @@ import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import highest.flow.taobaolive.job.service.ScheduleJobService;
 import highest.flow.taobaolive.job.utils.ScheduleUtils;
 import highest.flow.taobaolive.sys.controller.AbstractController;
+import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.QRCode;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
@@ -61,7 +62,8 @@ public class TaobaoAccountController extends AbstractController {
     @PostMapping("/list")
     public R list(@RequestBody PageParam pageParam) {
         try {
-            PageUtils pageUtils = this.taobaoAccountService.queryPage(pageParam);
+            SysMember sysMember = this.getUser();
+            PageUtils pageUtils = this.taobaoAccountService.queryPage(sysMember, pageParam);
 
             return R.ok().put("users", pageUtils.getList()).put("total_count", pageUtils.getTotalCount());
 
@@ -249,7 +251,7 @@ public class TaobaoAccountController extends AbstractController {
                 }
             }
 
-            TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.register(nick, userId,
+            TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.register(null, nick, userId,
                     sid, utdid, devid, autoLoginToken, umidToken, cookies, expires, state, created, updated);
             if (taobaoAccountEntity == null) {
                 return R.error("保存数据库失败");
@@ -262,5 +264,4 @@ public class TaobaoAccountController extends AbstractController {
         }
         return R.error();
     }
-
 }

@@ -15,7 +15,7 @@
         <result property="doubleBuy" column="double_buy"/>
         <result property="startTime" column="start_time"/>
         <result property="endTime" column="end_time"/>
-        <result property="state" column="state"/>
+        <result property="type" column="type"/>
         <result property="msg" column="msg"/>
         <result property="createdTime" column="created_time"/>
         <result property="updatedTime" column="updated_time"/>

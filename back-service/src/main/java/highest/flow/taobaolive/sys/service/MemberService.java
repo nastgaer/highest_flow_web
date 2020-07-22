@@ -3,6 +3,8 @@ package highest.flow.taobaolive.sys.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.common.utils.PageUtils;
+import highest.flow.taobaolive.security.defines.LicenseCodeType;
+import highest.flow.taobaolive.sys.defines.MemberServiceType;
 import highest.flow.taobaolive.sys.entity.SysMember;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +17,7 @@ public interface MemberService extends IService<SysMember> {
 
     PageUtils queryPage(PageParam pageParam);
 
-    SysMember register(String memberName, String password, String mobile, String comment, List<String> roles, int state);
+    SysMember register(String memberName, String password, String mobile, String comment, List<String> roles, int level, int state);
 
     boolean update(int id, String memberName, String password, String mobile, String comment, List<String> roles, int state);
 
@@ -24,4 +26,6 @@ public interface MemberService extends IService<SysMember> {
     SysMember getMemberByName(String memberName);
 
     List<String> getRoles(SysMember sysMember);
+
+    SysMember createLicenseMember(LicenseCodeType licenseCodeType, MemberServiceType memberServiceType);
 }

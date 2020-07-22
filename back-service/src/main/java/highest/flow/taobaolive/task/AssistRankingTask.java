@@ -72,7 +72,7 @@ public class AssistRankingTask implements ITask {
             rankingEntity.setStartTime(new Date());
             rankingEntity.setState(RankingEntityState.Running.getState());
 
-            List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.list(Wrappers.<TaobaoAccountEntity>lambdaQuery().eq(TaobaoAccountEntity::getState, TaobaoAccountState.Normal.getState()));
+            List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.getActiveAllByMember(null);
             if (taobaoAccountEntities.size() < 1) {
                 rankingEntity.setState(RankingEntityState.Stopped.getState());
                 return;
