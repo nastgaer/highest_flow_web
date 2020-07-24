@@ -46,6 +46,8 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, SysMember> impleme
             queryWrapper.like("member_name", keyword).or()
                     .like("comment", keyword);
         }
+        queryWrapper.ne("level", MemberLevel.TestUser.getLevel())
+                .ne("level", MemberLevel.LicenseUser.getLevel());
 
         IPage<SysMember> page = this.page(new Query<SysMember>().getPage(params), queryWrapper);
         return new PageUtils<SysMember>(page);

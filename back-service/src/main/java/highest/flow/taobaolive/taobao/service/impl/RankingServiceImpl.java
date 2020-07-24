@@ -19,6 +19,7 @@ import highest.flow.taobaolive.taobao.defines.RankingEntityState;
 import highest.flow.taobaolive.taobao.entity.LiveRoomEntity;
 import highest.flow.taobaolive.taobao.entity.RankingEntity;
 import highest.flow.taobaolive.taobao.service.RankingService;
+import org.quartz.JobExecutionContext;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,10 +38,12 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
     private ScheduleJobService schedulerJobService;
 
     @Override
-    public PageUtils queryPage(PageParam pageParam) {
+    public PageUtils queryPage(SysMember sysMember, PageParam pageParam) {
         int pageNo = pageParam.getPageNo();
         int pageSize = pageParam.getPageSize();
         String keyword = pageParam.getKeyword();
+
+        int memberId = sysMember == null || sysMember.isAdministrator() ? 0 : sysMember.getId();
 
         Map<String, Object> params = new HashMap<>();
         params.put(Query.PAGE, pageNo);
@@ -49,6 +52,9 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
         QueryWrapper<RankingEntity> queryWrapper = new QueryWrapper<>();
         if (!HFStringUtils.isNullOrEmpty(keyword)) {
             queryWrapper.like("room_name", keyword);
+        }
+        if (memberId > 0) {
+            queryWrapper.like("member_id", memberId);
         }
 
         IPage<RankingEntity> page = this.page(new Query<RankingEntity>().getPage(params), queryWrapper);
@@ -71,7 +77,7 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
             rankingEntity.setStartScore(liveRoomEntity.getRankingListData().getRankingScore());
             rankingEntity.setTargetScore(targetScore);
             rankingEntity.setDoubleBuy(doubleBuy);
-            rankingEntity.setStartTime(startTime);
+            rankingEntity.setStartTime(startTime == null ? new Date() : startTime);
             rankingEntity.setEndTime(null);
             rankingEntity.setState(RankingEntityState.Waiting.getState());
             rankingEntity.setMsg("");
@@ -80,16 +86,20 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
 
             this.save(rankingEntity);
 
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(startTime == null ? new Date() : startTime);
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH) + 1;
-            int date = calendar.get(Calendar.DAY_OF_MONTH);
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int minute = calendar.get(Calendar.MINUTE);
-            int second = calendar.get(Calendar.SECOND);
+            String expression = "";
 
-            String expression = String.format("%d %d %d %d %d ? %d", second, minute, hour, date, month, year);
+            if (startTime != null) { // 指定时间
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(startTime);
+                int year = calendar.get(Calendar.YEAR);
+                int month = calendar.get(Calendar.MONTH) + 1;
+                int date = calendar.get(Calendar.DAY_OF_MONTH);
+                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                int minute = calendar.get(Calendar.MINUTE);
+                int second = calendar.get(Calendar.SECOND);
+
+                expression = String.format("%d %d %d %d %d ? %d", second, minute, hour, date, month, year);
+            }
 
             ScheduleJobEntity scheduleJobEntity = new ScheduleJobEntity();
             scheduleJobEntity.setBeanName("assistRankingTask");
@@ -97,10 +107,16 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
             scheduleJobEntity.setCronExpression(expression);
             scheduleJobEntity.setCreatedTime(new Date());
             scheduleJobEntity.setState(ScheduleState.NORMAL.getValue());
-            scheduleJobEntity.setRemark("延期任务");
+            scheduleJobEntity.setRemark("刷热度");
 
-            this.schedulerJobService.saveOrUpdate(scheduleJobEntity);
-            ScheduleUtils.createScheduleJob(scheduler, scheduleJobEntity);
+            if (startTime == null) { // 立即执行
+                ScheduleUtils.runInstant(scheduler, scheduleJobEntity);
+
+            } else {
+                ScheduleUtils.createScheduleJob(scheduler, scheduleJobEntity);
+                this.schedulerJobService.saveOrUpdate(scheduleJobEntity);
+
+            }
 
             return rankingEntity;
 
@@ -133,19 +149,33 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
     @Override
     public boolean stopTask(RankingEntity rankingEntity) {
         try {
-            int taskId = rankingEntity.getId();
-            ScheduleJobEntity scheduleJobEntity = this.schedulerJobService.getOne(Wrappers.<ScheduleJobEntity>lambdaQuery()
-                    .eq(ScheduleJobEntity::getParams, String.valueOf(taskId)));
+            ScheduleJobEntity scheduleJobEntity = null;
+
+            List<JobExecutionContext> jobExecutionContexts = scheduler.getCurrentlyExecutingJobs();
+            for (JobExecutionContext jobExecutionContext : jobExecutionContexts) {
+                ScheduleJobEntity runningJobEntity = (ScheduleJobEntity)jobExecutionContext.getMergedJobDataMap().get(ScheduleJobEntity.JOB_PARAM_KEY);
+                try {
+                    if (runningJobEntity.getBeanName().compareTo("assistRankingTask") != 0)
+                        continue;
+
+                    int taskId = Integer.parseInt(String.valueOf(runningJobEntity.getParams()));
+
+                    if (taskId == rankingEntity.getId()) {
+                        scheduleJobEntity = runningJobEntity;
+                        break;
+                    }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
             if (scheduleJobEntity == null) {
                 return false;
             }
 
             scheduleJobEntity.setState(ScheduleState.PAUSE.getValue());
             ScheduleUtils.pauseJob(scheduler, scheduleJobEntity.getId());
-            this.schedulerJobService.saveOrUpdate(scheduleJobEntity);
-
-            rankingEntity.setState(RankingEntityState.Stopped.getState());
-            this.updateById(rankingEntity);
 
             return true;
 

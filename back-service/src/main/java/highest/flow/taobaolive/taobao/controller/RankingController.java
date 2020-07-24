@@ -180,7 +180,8 @@ public class RankingController extends AbstractController {
     @PostMapping("/logs")
     public R logs(@RequestBody PageParam pageParam) {
         try {
-            PageUtils pageUtils = this.rankingService.queryPage(pageParam);
+            SysMember sysMember = this.getUser();
+            PageUtils pageUtils = this.rankingService.queryPage(sysMember, pageParam);
 
             return R.ok().put("logs", pageUtils.getList()).put("total_count", pageUtils.getTotalCount());
 

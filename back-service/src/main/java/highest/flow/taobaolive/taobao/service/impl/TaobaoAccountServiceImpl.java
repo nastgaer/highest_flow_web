@@ -96,6 +96,7 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
             }
 
             TaobaoAccountLogEntity taobaoAccountLogEntity = new TaobaoAccountLogEntity();
+            taobaoAccountLogEntity.setMemberId(taobaoAccountEntity.getMemberId());
             taobaoAccountLogEntity.setKind(selected != null ? TaobaoAccountLogKind.Update.getKind() : TaobaoAccountLogKind.New.getKind());
             taobaoAccountLogEntity.setUid(taobaoAccountEntity.getUid());
             taobaoAccountLogEntity.setNick(taobaoAccountEntity.getNick());
@@ -137,6 +138,9 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
         QueryWrapper<TaobaoAccountEntity> queryWrapper = new QueryWrapper<>();
         if (memberId > 0) {
             queryWrapper.like("member_id", memberId);
+        }
+        if (!HFStringUtils.isNullOrEmpty(keyword)) {
+            queryWrapper.like("nick", keyword);
         }
 
         IPage<TaobaoAccountEntity> page = this.page(new Query<TaobaoAccountEntity>().getPage(params), queryWrapper);

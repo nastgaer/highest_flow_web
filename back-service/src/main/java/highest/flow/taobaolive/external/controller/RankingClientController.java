@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
@@ -194,8 +195,12 @@ public class RankingClientController extends AbstractController {
                 this.licenseCodeService.updateById(licenseCode);
 
             } else {
-                sysMember = this.memberService.getOne(Wrappers.<SysMember>lambdaQuery().eq(SysMember::getId, licenseCode.getMemberId()));
+                sysMember = this.memberService.getById(licenseCode.getMemberId());
 
+            }
+
+            if (licenseCode.getState() == LicenseCodeState.Deleted.getState()) {
+                return R.error(ErrorCodes.INVALID_CODE, "已删除的卡密");
             }
 
             if (sysMember == null) {
@@ -214,10 +219,12 @@ public class RankingClientController extends AbstractController {
             R r = memberTokenService.createToken(sysMember.getId());
             String accessToken = (String) r.get("access_token");
 
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
             return R.ok()
                     .put("access_token", accessToken)
-                    .put("service_start_time", licenseCode.getServiceStartTime())
-                    .put("service_end_time", licenseCode.getServiceEndTime());
+                    .put("service_start_time", sdf.format(licenseCode.getServiceStartTime()))
+                    .put("service_end_time", sdf.format(licenseCode.getServiceEndTime()));
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -269,7 +276,7 @@ public class RankingClientController extends AbstractController {
 
             String taocode = (String) map.get("taocode");
 
-            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(getUser());
+            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(sysMember);
             if (taobaoAccountEntity == null) {
                 return R.error("找不到活跃的用户");
             }

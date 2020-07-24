@@ -177,7 +177,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     new Request("GET", url, ResponseType.TEXT));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                return R.error();
+                return R.error("解析直播间信息失败");
             }
 
             String respText = response.getResult();

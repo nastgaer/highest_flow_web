@@ -174,4 +174,26 @@ public class ScheduleUtils {
 		}
 		return false;
 	}
+
+	public static void runInstant(Scheduler scheduler, ScheduleJobEntity scheduleJob) {
+		try {
+			JobDetail jobDetail = JobBuilder.newJob(ScheduleJob.class).withIdentity(getJobKey(scheduleJob.getId())).build();
+
+			// 放入参数，运行时的方法可以获取
+			jobDetail.getJobDataMap().put(ScheduleJobEntity.JOB_PARAM_KEY, scheduleJob);
+
+			TriggerKey triggerKey = getTriggerKey(scheduleJob.getId());
+
+			Trigger trigger = TriggerBuilder.newTrigger()
+					.withIdentity(triggerKey)
+					.withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
+					.startNow()
+					.build();
+
+			scheduler.scheduleJob(jobDetail, trigger);
+
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
+	}
 }

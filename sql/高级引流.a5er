@@ -111,6 +111,7 @@ Page=MAIN
 Left=400
 Top=500
 Field="ID","id","INT","NOT NULL",0,"","",$FFFFFFFF,"AUTO_INCREMENT"
+Field="会员ID","member_id","INT",,,"","",$FFFFFFFF,""
 Field="类型","kind","TINYINT",,,"","0：重登，1：延期，2：新增，3：删除",$FFFFFFFF,""
 Field="账号uid","uid","VARCHAR(32)",,,"","",$FFFFFFFF,""
 Field="账号昵称","nick","VARCHAR(32)",,,"","",$FFFFFFFF,""
@@ -121,7 +122,7 @@ Field="创建时间","created_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200714162625
+ModifiedDateTime=20200723001018
 Position="MAIN",400,500
 
 [Entity]

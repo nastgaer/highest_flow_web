@@ -33,7 +33,7 @@ public class MemberController extends AbstractController {
     @PostMapping("/register")
     public R register(@RequestBody RegisterMemberParam registerMemberParam) {
         try {
-            SysMember sysMember = memberService.getOne(Wrappers.<SysMember>lambdaQuery().eq(SysMember::getMemberName, registerMemberParam.getMemberName()));
+            SysMember sysMember = memberService.getMemberByName(registerMemberParam.getMemberName());
             if (sysMember != null) {
                 return R.error("已经注册的会员");
             }
@@ -93,12 +93,12 @@ public class MemberController extends AbstractController {
     @PostMapping("/update")
     public R update(@RequestBody UpdateMemberParam updateMemberParam) {
         try {
-            SysMember sysMember = memberService.getOne(Wrappers.<SysMember>lambdaQuery().eq(SysMember::getMemberName, updateMemberParam.getMemberName()));
+            SysMember sysMember = memberService.getMemberByName(updateMemberParam.getMemberName());
             if (sysMember == null) {
                 return R.error("已经注册的会员");
             }
 
-            SysMember memberOther = memberService.getOne(Wrappers.<SysMember>lambdaQuery().eq(SysMember::getMemberName, updateMemberParam.getMemberName()));
+            SysMember memberOther = memberService.getMemberByName(updateMemberParam.getMemberName());
             if (memberOther.getId() != sysMember.getId()) {
                 return R.error("已经注册的会员名称");
             }
@@ -126,7 +126,7 @@ public class MemberController extends AbstractController {
     public R batchDelete(@RequestBody IdsParam idsParam) {
         try {
             // 获取管理员的id
-            SysMember administrator = this.memberService.getOne(Wrappers.<SysMember>lambdaQuery().eq(SysMember::getMemberName, Config.ADMINISTRATOR));
+            SysMember administrator = this.memberService.getMemberByName(Config.ADMINISTRATOR);
 
             List<Integer> newIds = new ArrayList<>();
             for (Integer id : idsParam.getIds()) {

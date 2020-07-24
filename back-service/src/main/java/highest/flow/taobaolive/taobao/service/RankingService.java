@@ -14,7 +14,7 @@ import java.util.List;
 @Service
 public interface RankingService extends IService<RankingEntity> {
 
-    PageUtils queryPage(PageParam pageParam);
+    PageUtils queryPage(SysMember sysMember, PageParam pageParam);
 
     List<RankingEntity> getTodaysTask(String today);
 

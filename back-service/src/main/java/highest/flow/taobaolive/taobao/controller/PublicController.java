@@ -18,7 +18,6 @@ public class PublicController {
     @Autowired
     private ProductSearchService productSearchService;
 
-    @SysLog("商品类目")
     @PostMapping("/v1.0/product/categories")
     public R getProductCategories() {
         try {

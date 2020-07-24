@@ -146,6 +146,9 @@ public class TaobaoAccountController extends AbstractController {
                 return r;
             }
 
+            SysMember sysMember = getUser();
+
+            taobaoAccountEntity.setMemberId(sysMember.getId());
             taobaoAccountEntity.setCreatedTime(new Date());
 
             // 查看是否已经注册的账号
@@ -172,7 +175,7 @@ public class TaobaoAccountController extends AbstractController {
     @PostMapping(value = "/batch_delete")
     public R batchDelete(@RequestBody Map<String, Object> params) {
         try {
-            List<String> nicks = (List<String>) params.get("nicks");
+            List<String> nicks = (List<String>) params.get("user_ids");
 
             if (taobaoAccountService.remove(Wrappers.<TaobaoAccountEntity>lambdaQuery()
                     .in(TaobaoAccountEntity::getNick, nicks))) {
@@ -214,7 +217,8 @@ public class TaobaoAccountController extends AbstractController {
     @PostMapping("/logs")
     public R logs(@RequestBody PageParam pageParam) {
         try {
-            PageUtils pageUtils = this.taobaoAccountLogService.queryPage(pageParam);
+            SysMember sysMember = this.getUser();
+            PageUtils pageUtils = this.taobaoAccountLogService.queryPage(sysMember, pageParam);
 
             return R.ok().put("logs", pageUtils.getList()).put("total_count", pageUtils.getTotalCount());
 
@@ -240,8 +244,6 @@ public class TaobaoAccountController extends AbstractController {
                     @RequestParam(name = "updated") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date updated) {
 
         try {
-            JsonParser jsonParser = JsonParserFactory.getJsonParser();
-
             String url = "https://api.m.taobao.com/gw/mtop.taobao.havana.mlogin.qrcodelogin/1.0/";
             List<Cookie> cookies = new ArrayList<>();
             for (String cookieHeader : cookieHeaders) {

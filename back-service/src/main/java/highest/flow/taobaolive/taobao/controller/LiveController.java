@@ -54,7 +54,6 @@ public class LiveController extends AbstractController {
     @Autowired
     private LiveRoomStrategyService liveRoomStrategyService;
 
-    @SysLog("直播频道")
     @PostMapping("/columns")
     public R getLiveColumns() {
         try {

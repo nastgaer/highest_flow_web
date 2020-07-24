@@ -8,6 +8,7 @@ import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.common.utils.Query;
+import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.taobao.dao.TaobaoAccountDao;
 import highest.flow.taobaolive.taobao.dao.TaobaoAccountLogDao;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
@@ -29,10 +30,12 @@ import java.util.Map;
 public class TaobaoAccountLogServiceImpl extends ServiceImpl<TaobaoAccountLogDao, TaobaoAccountLogEntity> implements TaobaoAccountLogService {
 
     @Override
-    public PageUtils queryPage(PageParam pageParam) {
+    public PageUtils queryPage(SysMember sysMember, PageParam pageParam) {
         int pageNo = pageParam.getPageNo();
         int pageSize = pageParam.getPageSize();
         String keyword = pageParam.getKeyword();
+
+        int memberId = sysMember == null || sysMember.isAdministrator() ? 0 : sysMember.getId();
 
         Map<String, Object> params = new HashMap<>();
         params.put(Query.PAGE, pageNo);
@@ -41,6 +44,9 @@ public class TaobaoAccountLogServiceImpl extends ServiceImpl<TaobaoAccountLogDao
         QueryWrapper<TaobaoAccountLogEntity> queryWrapper = new QueryWrapper<>();
         if (!HFStringUtils.isNullOrEmpty(keyword)) {
             queryWrapper.like("nick", keyword);
+        }
+        if (memberId > 0) {
+            queryWrapper.like("member_id", memberId);
         }
 
         IPage<TaobaoAccountLogEntity> page = this.page(new Query<TaobaoAccountLogEntity>().getPage(params), queryWrapper);

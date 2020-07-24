@@ -63,6 +63,7 @@ public class AutoLoginTask implements ITask {
                     }
 
                     TaobaoAccountLogEntity taobaoAccountLogEntity = new TaobaoAccountLogEntity();
+                    taobaoAccountLogEntity.setMemberId(taobaoAccountEntity.getMemberId());
                     taobaoAccountLogEntity.setKind(TaobaoAccountLogKind.Postpone.getKind());
                     taobaoAccountLogEntity.setUid(taobaoAccountEntity.getUid());
                     taobaoAccountLogEntity.setNick(taobaoAccountEntity.getNick());
@@ -85,6 +86,7 @@ public class AutoLoginTask implements ITask {
                     }
 
                     TaobaoAccountLogEntity taobaoAccountLogEntity = new TaobaoAccountLogEntity();
+                    taobaoAccountLogEntity.setMemberId(taobaoAccountEntity.getMemberId());
                     taobaoAccountLogEntity.setKind(TaobaoAccountLogKind.AutoLogin.getKind());
                     taobaoAccountLogEntity.setUid(taobaoAccountEntity.getUid());
                     taobaoAccountLogEntity.setNick(taobaoAccountEntity.getNick());

@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import highest.flow.taobaolive.common.config.Config;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.utils.R;
+import highest.flow.taobaolive.job.defines.ScheduleState;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import highest.flow.taobaolive.job.utils.ScheduleUtils;
+import highest.flow.taobaolive.sys.entity.SysMember;
+import highest.flow.taobaolive.sys.service.MemberService;
 import highest.flow.taobaolive.taobao.defines.RankingEntityState;
 import highest.flow.taobaolive.taobao.defines.RankingScore;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
@@ -39,6 +42,9 @@ public class AssistRankingTask implements ITask {
     private boolean simulate;
 
     @Autowired
+    private MemberService memberService;
+
+    @Autowired
     private TaobaoApiService taobaoApiService;
 
     @Autowired
@@ -59,8 +65,6 @@ public class AssistRankingTask implements ITask {
     @Override
     public void run(ScheduleJobEntity scheduleJobEntity) {
         String params = scheduleJobEntity.getParams();
-        logger.info("打助力开始, 参数=" + params);
-
         RankingEntity rankingEntity = null;
 
         this.scheduleJobEntity = scheduleJobEntity;
@@ -72,11 +76,15 @@ public class AssistRankingTask implements ITask {
             rankingEntity.setStartTime(new Date());
             rankingEntity.setState(RankingEntityState.Running.getState());
 
-            List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.getActiveAllByMember(null);
+            SysMember sysMember = memberService.getById(rankingEntity.getMemberId());
+
+            List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.getActiveAllByMember(sysMember);
             if (taobaoAccountEntities.size() < 1) {
                 rankingEntity.setState(RankingEntityState.Stopped.getState());
                 return;
             }
+
+            logger.info("打助力开始, TaskID=" + taskId);
 
             LiveRoomEntity liveRoomEntity = null;
 
@@ -94,6 +102,7 @@ public class AssistRankingTask implements ITask {
                     rankingEntity.setState(RankingEntityState.Stopped.getState());
                     return;
                 }
+
             } else {
                 if (liveRoomEntity == null || !liveRoomEntity.isHasRankingEntry()) {
                     rankingEntity.setState(RankingEntityState.Stopped.getState());
@@ -118,9 +127,11 @@ public class AssistRankingTask implements ITask {
             while (leftScore >= 0 && this.isRunning(rankingEntity)) {
                 int totalCount = leftScore / unitScore + 1;
 
-                if (startIndex + totalCount >= taobaoAccountEntities.size()) {
+                if (startIndex >= taobaoAccountEntities.size()) {
                     break;
                 }
+
+                totalCount = Math.min(taobaoAccountEntities.size() - startIndex, totalCount);
 
                 countDownLatch = new CountDownLatch(totalCount);
 
@@ -159,14 +170,13 @@ public class AssistRankingTask implements ITask {
             }
 
             rankingEntity.setEndScore(endScore);
+            rankingEntity.setEndTime(new Date());
+            rankingEntity.setUpdatedTime(new Date());
             if (leftScore > 0) {
                 rankingEntity.setState(RankingEntityState.Stopped.getState());
             } else {
                 rankingEntity.setState(RankingEntityState.Finished.getState());
             }
-
-            rankingEntity.setEndTime(new Date());
-            rankingEntity.setUpdatedTime(new Date());
             rankingService.updateById(rankingEntity);
 
             monitorThread.join();
@@ -192,7 +202,8 @@ public class AssistRankingTask implements ITask {
     }
 
     private boolean isRunning(RankingEntity rankingEntity) {
-        return rankingService.isRunning(rankingEntity, scheduleJobEntity.getId());
+        // return rankingService.isRunning(rankingEntity, scheduleJobEntity.getId());
+        return this.scheduleJobEntity.getState() == ScheduleState.NORMAL.getValue();
     }
 
     class AssistRunnable implements Runnable {
@@ -218,7 +229,7 @@ public class AssistRankingTask implements ITask {
             try {
                 // 关注
                 {
-                    Thread.sleep(300);
+                    Thread.sleep(100);
                     int followScore = rankingEntity.isDoubleBuy() ? RankingScore.DoubleBuyFollow.getScore() : RankingScore.Follow.getScore();
                     liveRoomEntity.getRankingListData().setRankingScore(liveRoomEntity.getRankingListData().getRankingScore() + followScore);
                 }
@@ -231,7 +242,7 @@ public class AssistRankingTask implements ITask {
                 {
                     int stayScore = rankingEntity.isDoubleBuy() ? RankingScore.DoubleBuyWatch.getScore() : RankingScore.Watch.getScore();
                     for (int time = 60; time <= 3000; time += 60) {
-                        Thread.sleep(300);
+                        Thread.sleep(100);
 
                         if (!isRunning(rankingEntity)) {
                             return;
@@ -249,7 +260,7 @@ public class AssistRankingTask implements ITask {
                     int buyScore = rankingEntity.isDoubleBuy() ? RankingScore.DoubleBuyBuy.getScore() : RankingScore.Buy.getScore();
                     List<ProductEntity> productEntities = liveRoomEntity.getProducts();
                     for (int idx = 0; idx < productEntities.size(); idx++) {
-                        Thread.sleep(300);
+                        Thread.sleep(100);
 
                         if (!isRunning(rankingEntity)) {
                             return;
