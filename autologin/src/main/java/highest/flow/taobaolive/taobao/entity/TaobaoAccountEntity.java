@@ -31,6 +31,8 @@ public class TaobaoAccountEntity {
     @TableId(type = IdType.AUTO)
     private int id;
 
+    private int memberId;
+
     private String nick;
 
     private String sid;

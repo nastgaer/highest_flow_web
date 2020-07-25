@@ -1,5 +1,5 @@
 -- Project Name : 高级引流
--- Date/Time    : 2020/7/22 7:48:36
+-- Date/Time    : 2020/7/26 4:11:07
 -- Author       : KKK
 -- RDBMS Type   : MySQL
 -- Application  : A5:SQL Mk-2
@@ -21,6 +21,7 @@ create table sys_log (
 -- 淘宝账号延期记录
 create table tbl_accounts_logs (
   id INT not null AUTO_INCREMENT comment 'ID'
+  , member_id INT comment '会员ID'
   , kind TINYINT comment '类型:0：重登，1：延期，2：新增，3：删除'
   , uid VARCHAR(32) comment '账号uid'
   , nick VARCHAR(32) comment '账号昵称'
@@ -154,7 +155,7 @@ create table tbl_codes (
   , code VARCHAR(72) comment '卡密'
   , state TINYINT comment '状态:0: 创建，1: 验证，2: 绑定'
   , machine_code VARCHAR(32) comment '机器码'
-  , member_id INT not null comment '会员ID'
+  , member_id INT comment '会员ID'
   , service_start_time DATETIME comment '服务开始时间'
   , service_end_time DATETIME comment '服务结束时间'
   , created_time DATETIME comment '创建时间'

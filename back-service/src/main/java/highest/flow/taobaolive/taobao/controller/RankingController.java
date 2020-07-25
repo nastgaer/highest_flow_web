@@ -93,7 +93,7 @@ public class RankingController extends AbstractController {
         return R.error("添加助力任务失败");
     }
 
-    @SysLog("获取当天的任务")
+    //@SysLog("获取当天的任务")
     @PostMapping("/todays")
     public R todays(@RequestBody TodayRankingParam param) {
         try {
