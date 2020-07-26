@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import highest.flow.taobaolive.api.param.AddRoomParam;
 import highest.flow.taobaolive.api.param.SetLiveRoomStrategyParam;
 import highest.flow.taobaolive.common.annotation.SysLog;
+import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.utils.*;
 import highest.flow.taobaolive.sys.controller.AbstractController;
 import highest.flow.taobaolive.api.param.PageParam;
@@ -67,13 +68,58 @@ public class LiveController extends AbstractController {
         return R.error();
     }
 
-    @SysLog("解析淘口令")
+    //@SysLog("解析淘口令")
     @PostMapping("/parse_taocode")
     public R parseTaoCode(@RequestBody Map<String, Object> params) {
         try {
             String taocode = (String) params.get("taocode");
 
             return taobaoApiService.getLiveInfo(taocode, null);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("解析淘口令失败");
+    }
+
+    @PostMapping("/get_live_info")
+    public R getLiveInfo(@RequestBody Map<String, Object> params) {
+        try {
+            String liveId = (String) params.get("live_id");
+
+            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+            liveRoomEntity.setLiveId(liveId);
+            liveRoomEntity.setCreatorId("");
+            liveRoomEntity.setTalentLiveUrl("");
+
+            R r = taobaoApiService.getLiveDetail(liveId);
+            if (r.getCode() != ErrorCodes.SUCCESS) {
+                return r;
+            }
+
+            liveRoomEntity.setAccountId((String) r.get("account_id"));
+            liveRoomEntity.setAccountName((String) r.get("account_name"));
+            liveRoomEntity.setFansNum((int) r.get("fans_num"));
+            liveRoomEntity.setTopic((String) r.get("topic"));
+            liveRoomEntity.setViewCount((int) r.get("view_count"));
+            liveRoomEntity.setPraiseCount((int) r.get("praise_count"));
+            liveRoomEntity.setOnlineCount((int) r.get("online_count"));
+            liveRoomEntity.setLiveCoverImg((String) r.get("cover_img"));
+            liveRoomEntity.setLiveCoverImg169((String) r.get("cover_img169"));
+            liveRoomEntity.setLiveTitle((String) r.get("title"));
+            liveRoomEntity.setLiveIntro((String) r.get("intro"));
+            liveRoomEntity.setLiveChannelId((int) r.get("channel_id"));
+            liveRoomEntity.setLiveColumnId((int) r.get("column_id"));
+            liveRoomEntity.setLiveLocation((String) r.get("location"));
+
+            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(null);
+
+            if (taobaoAccountEntity != null) {
+                this.taobaoApiService.getH5Token(taobaoAccountEntity);
+                this.taobaoApiService.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+            }
+
+            return R.ok().put("live_room", liveRoomEntity);
 
         } catch (Exception ex) {
             ex.printStackTrace();

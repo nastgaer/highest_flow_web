@@ -290,6 +290,53 @@ public class RankingClientController extends AbstractController {
         return R.error();
     }
 
+    public R v1_1_get_live_info(SysMember sysMember, String plain) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> map = (Map<String, Object>) objectMapper.readValue(plain, Map.class);
+
+            String liveId = (String) map.get("live_id");
+
+            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+            liveRoomEntity.setLiveId(liveId);
+            liveRoomEntity.setCreatorId("");
+            liveRoomEntity.setTalentLiveUrl("");
+
+            R r = taobaoApiService.getLiveDetail(liveId);
+            if (r.getCode() != ErrorCodes.SUCCESS) {
+                return r;
+            }
+
+            liveRoomEntity.setAccountId((String) r.get("account_id"));
+            liveRoomEntity.setAccountName((String) r.get("account_name"));
+            liveRoomEntity.setFansNum((int) r.get("fans_num"));
+            liveRoomEntity.setTopic((String) r.get("topic"));
+            liveRoomEntity.setViewCount((int) r.get("view_count"));
+            liveRoomEntity.setPraiseCount((int) r.get("praise_count"));
+            liveRoomEntity.setOnlineCount((int) r.get("online_count"));
+            liveRoomEntity.setLiveCoverImg((String) r.get("cover_img"));
+            liveRoomEntity.setLiveCoverImg169((String) r.get("cover_img169"));
+            liveRoomEntity.setLiveTitle((String) r.get("title"));
+            liveRoomEntity.setLiveIntro((String) r.get("intro"));
+            liveRoomEntity.setLiveChannelId((int) r.get("channel_id"));
+            liveRoomEntity.setLiveColumnId((int) r.get("column_id"));
+            liveRoomEntity.setLiveLocation((String) r.get("location"));
+
+            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(null);
+
+            if (taobaoAccountEntity != null) {
+                this.taobaoApiService.getH5Token(taobaoAccountEntity);
+                this.taobaoApiService.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+            }
+
+            return R.ok().put("live_room", liveRoomEntity);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
     /**
      * 开始刷热度任务
      * @param sysMember

@@ -1,15 +1,16 @@
-package highest.flow.taobaolive;
+package highest.flow.taobaolive.taobao.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
-import highest.flow.taobaolive.entity.XHeader;
-import highest.flow.taobaolive.service.CryptoService;
-import highest.flow.taobaolive.service.SignService;
+import highest.flow.taobaolive.common.utils.R;
+import highest.flow.taobaolive.security.service.CryptoService;
+import highest.flow.taobaolive.taobao.entity.XHeader;
+import highest.flow.taobaolive.taobao.service.SignService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 

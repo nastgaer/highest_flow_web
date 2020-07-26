@@ -69,6 +69,33 @@ public class RankingTests extends BaseTests {
     }
 
     @Test
+    void getLiveInfo() {
+        try {
+            contextLoads();
+
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("live_id", "273501295556");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(paramMap);
+
+            String url = "http://localhost:8080/v1.0/live/get_live_info";
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/json")
+                            .addHeader("access_token", accessToken),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .setEntity(new StringEntity(json)));
+
+            System.out.println(response.getResult());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Test
     void rankingApi() {
         String taocode = "￥EwwQ1Esktcm￥";
 

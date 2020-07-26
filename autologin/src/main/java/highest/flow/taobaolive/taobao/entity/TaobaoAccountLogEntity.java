@@ -14,6 +14,8 @@ public class TaobaoAccountLogEntity {
     @TableId(type = IdType.AUTO)
     private int id;
 
+    private int memberId;
+
     // TaobaoAccountLogKind
     private int kind;
 

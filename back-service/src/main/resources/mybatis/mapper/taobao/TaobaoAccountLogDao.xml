@@ -5,6 +5,7 @@
 
     <resultMap id="logMap" type="highest.flow.taobaolive.taobao.entity.TaobaoAccountLogEntity">
         <result property="id" column="id"/>
+        <result property="memberId" column="member_id"/>
         <result property="kind" column="kind"/>
         <result property="uid" column="uid"/>
         <result property="nick" column="nick"/>

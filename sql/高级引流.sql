@@ -9,7 +9,7 @@ create table sys_log (
   id INT not null AUTO_INCREMENT comment 'ID'
   , member_name VARCHAR(20) comment '会员名'
   , operation VARCHAR(32) comment '操作'
-  , method VARCHAR(32) comment '请求方法'
+  , method VARCHAR(256) comment '请求方法'
   , params TEXT comment '请求参数'
   , result TEXT comment '返回内容'
   , duration INT comment '执行时长(毫秒)'

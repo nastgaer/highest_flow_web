@@ -90,7 +90,7 @@ Top=200
 Field="ID","id","INT","NOT NULL",0,"","",$FFFFFFFF,"AUTO_INCREMENT"
 Field="会员名","member_name","VARCHAR(20)",,,"","",$FFFFFFFF,""
 Field="操作","operation","VARCHAR(32)",,,"","",$FFFFFFFF,""
-Field="请求方法","method","VARCHAR(32)",,,"","",$FFFFFFFF,""
+Field="请求方法","method","VARCHAR(256)",,,"","",$FFFFFFFF,""
 Field="请求参数","params","TEXT",,,"","",$FFFFFFFF,""
 Field="返回内容","result","TEXT",,,"","",$FFFFFFFF,""
 Field="执行时长(毫秒)","duration","INT",,,"","",$FFFFFFFF,""
@@ -99,7 +99,7 @@ Field="创建时间","created_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200721004434
+ModifiedDateTime=20200726045605
 Position="MAIN",2050,200
 
 [Entity]
