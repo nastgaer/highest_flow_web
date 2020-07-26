@@ -74,7 +74,7 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
             rankingEntity.setLiveId(liveRoomEntity.getLiveId());
             rankingEntity.setLiveAccountId(liveRoomEntity.getAccountId());
             rankingEntity.setLiveScopeId(liveRoomEntity.getHierarchyData().getScopeId());
-            rankingEntity.setLiveSubscopeId(liveRoomEntity.getHierarchyData().getSubScopeId());
+            rankingEntity.setLiveSubScopeId(liveRoomEntity.getHierarchyData().getSubScopeId());
             rankingEntity.setRoomName(liveRoomEntity.getAccountName());
             rankingEntity.setStartScore(liveRoomEntity.getRankingListData().getRankingScore());
             rankingEntity.setTargetScore(targetScore);

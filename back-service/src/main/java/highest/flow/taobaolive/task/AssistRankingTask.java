@@ -91,7 +91,7 @@ public class AssistRankingTask implements ITask {
             liveRoomEntity.setLiveId(rankingEntity.getLiveId());
             liveRoomEntity.setAccountId(rankingEntity.getLiveAccountId());
             liveRoomEntity.getHierarchyData().setScopeId(rankingEntity.getLiveScopeId());
-            liveRoomEntity.getHierarchyData().setSubScopeId(rankingEntity.getLiveSubscopeId());
+            liveRoomEntity.getHierarchyData().setSubScopeId(rankingEntity.getLiveSubScopeId());
 
 //            LiveRoomEntity liveRoomEntity = null;
 //

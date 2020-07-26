@@ -1,5 +1,5 @@
 -- Project Name : 高级引流
--- Date/Time    : 2020/7/26 19:38:44
+-- Date/Time    : 2020/7/26 21:00:50
 -- Author       : KKK
 -- RDBMS Type   : MySQL
 -- Application  : A5:SQL Mk-2
@@ -265,7 +265,7 @@ create table tbl_ranking_task (
   , live_id VARCHAR(32) comment '直播间ID'
   , live_account_id VARCHAR(32) comment '直播间账号ID'
   , live_scope_id VARCHAR(128) comment '直播间scope_id'
-  , live_subscope_id VARCHAR(128) comment '直播间subscope_id'
+  , live_sub_scope_id VARCHAR(128) comment '直播间subscope_id'
   , room_name VARCHAR(32) comment '直播间名称'
   , start_score INT comment '起始助力值'
   , end_score INT comment '最后助力值'

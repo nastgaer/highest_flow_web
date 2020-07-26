@@ -3,6 +3,7 @@ package highest.flow.taobaolive.external.controller;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.api.param.AddRankingTaskParam;
+import highest.flow.taobaolive.api.param.AddRankingTaskParam2;
 import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.utils.PageUtils;
@@ -346,24 +347,25 @@ public class RankingClientController extends AbstractController {
     public R v1_1_start_task(SysMember sysMember, String plain) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            AddRankingTaskParam param = (AddRankingTaskParam) objectMapper.readValue(plain, AddRankingTaskParam.class);
+            AddRankingTaskParam2 param = (AddRankingTaskParam2) objectMapper.readValue(plain, AddRankingTaskParam2.class);
 
-            String taocode = param.getTaocode();
+            String roomName = param.getLiveRoom().getRoomName();
+            String liveId = param.getLiveRoom().getLiveId();
+            String accountId = param.getLiveRoom().getAccountId();
+            String scopeId = param.getLiveRoom().getScopeId();
+            String subScopeId = param.getLiveRoom().getSubScopeId();
+
             int targetScore = param.getTargetScore();
             boolean doubleBuy = param.isDoubleBuy();
             Date startTime = param.getStartTime();
 
-            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(getUser());
-            if (taobaoAccountEntity == null) {
-                return R.error("找不到活跃的用户");
-            }
+            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
 
-            R r = taobaoApiService.getLiveInfo(taocode, taobaoAccountEntity);
-            if (r.getCode() != ErrorCodes.SUCCESS) {
-                return r;
-            }
-
-            LiveRoomEntity liveRoomEntity = (LiveRoomEntity) r.get("live_room");
+            liveRoomEntity.setAccountName(roomName);
+            liveRoomEntity.setLiveId(liveId);
+            liveRoomEntity.setAccountId(accountId);
+            liveRoomEntity.getHierarchyData().setScopeId(scopeId);
+            liveRoomEntity.getHierarchyData().setSubScopeId(subScopeId);
 
             RankingEntity rankingEntity = this.rankingService.addNewTask(sysMember,
                     liveRoomEntity,

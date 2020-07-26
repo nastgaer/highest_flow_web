@@ -25,7 +25,7 @@ public class RankingEntity {
 
     private String liveScopeId;
 
-    private String liveSubscopeId;
+    private String liveSubScopeId;
 
     /**
      * 直播间名称

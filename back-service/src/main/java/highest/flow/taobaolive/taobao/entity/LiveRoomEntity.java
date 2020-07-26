@@ -59,7 +59,6 @@ public class LiveRoomEntity extends BaseLiveRoom {
     private String talentLiveUrl = "";
 
     @TableField(exist = false)
-    @JsonIgnore
     private String accountId = "";
 
     @TableField(exist = false)
@@ -75,7 +74,6 @@ public class LiveRoomEntity extends BaseLiveRoom {
     }
 
     @TableField(exist = false)
-    @JsonIgnore
     private HierarchyData hierarchyData = new HierarchyData();
 
     @TableField(exist = false)

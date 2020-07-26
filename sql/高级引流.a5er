@@ -688,7 +688,7 @@ Field="会员ID","member_id","INT",,,"","",$FFFFFFFF,""
 Field="直播间ID","live_id","VARCHAR(32)",,,"","",$FFFFFFFF,""
 Field="直播间账号ID","live_account_id","VARCHAR(32)",,,"","",$FFFFFFFF,""
 Field="直播间scope_id","live_scope_id","VARCHAR(128)",,,"","",$FFFFFFFF,""
-Field="直播间subscope_id","live_subscope_id","VARCHAR(128)",,,"","",$FFFFFFFF,""
+Field="直播间subscope_id","live_sub_scope_id","VARCHAR(128)",,,"","",$FFFFFFFF,""
 Field="直播间名称","room_name","VARCHAR(32)",,,"","",$FFFFFFFF,""
 Field="起始助力值","start_score","INT",,,"","",$FFFFFFFF,""
 Field="最后助力值","end_score","INT",,,"","",$FFFFFFFF,""
@@ -703,7 +703,7 @@ Field="更新时间","updated_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200726191128
+ModifiedDateTime=20200726205333
 Position="MAIN",1450,900
 
 [Relation]
