@@ -93,6 +93,25 @@ public class RankingController extends AbstractController {
         return R.error("添加助力任务失败");
     }
 
+    @SysLog("添加新热度任务")
+    @PostMapping("/add_task2")
+    public R addTask2(@RequestBody Map<String, Object> params) {
+        try {
+            String liveId = (String) params.get("live_id");
+            String accountId = (String) params.get("account_id");
+            String taocode = (String) params.get("taocode");
+            int targetScore = (int) params.get("target_score");
+            boolean doubleBuy = (boolean) params.get("double_buy");
+            Date startTime = (Date) params.get("start_time");
+
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("添加助力任务失败");
+    }
+
     //@SysLog("获取当天的任务")
     @PostMapping("/todays")
     public R todays(@RequestBody TodayRankingParam param) {

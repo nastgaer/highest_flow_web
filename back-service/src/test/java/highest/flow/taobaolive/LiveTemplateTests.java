@@ -29,7 +29,7 @@ public class LiveTemplateTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/live/template/list";
+            String url = host + "/v1.0/live/template/list";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -74,7 +74,7 @@ public class LiveTemplateTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/live/template/add";
+            String url = host + "/v1.0/live/template/add";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -101,7 +101,7 @@ public class LiveTemplateTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/live/template/get";
+            String url = host + "/v1.0/live/template/get";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()

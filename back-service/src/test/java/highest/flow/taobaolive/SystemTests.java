@@ -28,7 +28,7 @@ public class SystemTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/sys/logs";
+            String url = host + "/v1.0/sys/logs";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -49,7 +49,7 @@ public class SystemTests extends BaseTests {
         try {
             contextLoads();
 
-            String url = "http://localhost:8080/v1.0/sys/dashboard/tbacc";
+            String url = host + "/v1.0/sys/dashboard/tbacc";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -66,7 +66,7 @@ public class SystemTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            url = "http://localhost:8080/v1.0/sys/dashboard/ranking";
+            url = host + "/v1.0/sys/dashboard/ranking";
 
             response = HttpHelper.execute(
                     new SiteConfig()
@@ -77,7 +77,7 @@ public class SystemTests extends BaseTests {
 
             System.out.println(response.getResult());
 
-            url = "http://localhost:8080/v1.0/sys/dashboard/live";
+            url = host + "/v1.0/sys/dashboard/live";
 
             response = HttpHelper.execute(
                     new SiteConfig()

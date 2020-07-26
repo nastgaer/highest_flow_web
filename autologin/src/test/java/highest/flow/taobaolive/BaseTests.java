@@ -20,17 +20,25 @@ public class BaseTests {
 
     protected String accessToken = "";
 
+//    public String host = host + "";
+//    public String username = "administrator";
+//    public String password = "administrator";
+
+    public String host = "http://119.45.148.200:8080/highest";
+    public String username = "administrator";
+    public String password = "1234qwer!@#$qwer";
+
     @Test
     public void contextLoads() {
         try {
             Map<String, String> paramMap = new HashMap<>();
-            paramMap.put("member_name", Config.ADMINISTRATOR);
-            paramMap.put("password", Config.ADMINISTRATOR);
+            paramMap.put("member_name", username);
+            paramMap.put("password", password);
 
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/sys/login";
+            String url = host + "/v1.0/sys/login";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()

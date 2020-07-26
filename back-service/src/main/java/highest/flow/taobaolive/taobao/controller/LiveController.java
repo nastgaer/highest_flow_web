@@ -127,6 +127,31 @@ public class LiveController extends AbstractController {
         return R.error("解析淘口令失败");
     }
 
+    @PostMapping("/get_live_entry")
+    public R getLiveEntry(@RequestBody Map<String, Object> params) {
+        try {
+            String liveId = (String) params.get("live_id");
+            String accountId = (String) params.get("account_id");
+
+            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+            liveRoomEntity.setLiveId(liveId);
+            liveRoomEntity.setAccountId(accountId);
+
+            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(null);
+
+            if (taobaoAccountEntity != null) {
+                this.taobaoApiService.getH5Token(taobaoAccountEntity);
+                this.taobaoApiService.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+            }
+
+            return R.ok().put("live_room", liveRoomEntity);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("解析淘口令失败");
+    }
+
     @SysLog("上传封面图")
     @PostMapping("/upload_image")
     public R uploadImage(@RequestParam(name = "taobao_account_nick") String taobaoAccountNick,

@@ -79,7 +79,35 @@ public class RankingTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/live/get_live_info";
+            String url = host + "/v1.0/live/get_live_info";
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/json")
+                            .addHeader("access_token", accessToken),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .setEntity(new StringEntity(json)));
+
+            System.out.println(response.getResult());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Test
+    void getLiveEntry() {
+        try {
+            contextLoads();
+
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("live_id", "273561871810");
+            paramMap.put("account_id", "3702318735");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(paramMap);
+
+            String url = host + "/v1.0/live/get_live_entry";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -158,7 +186,7 @@ public class RankingTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/ranking/add_task";
+            String url = host + "/v1.0/ranking/add_task";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -187,7 +215,7 @@ public class RankingTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/ranking/todays";
+            String url = host + "/v1.0/ranking/todays";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -217,7 +245,7 @@ public class RankingTests extends BaseTests {
 
             // Start first ranking
 
-            url = "http://localhost:8080/v1.0/ranking/start_task";
+            url = host + "/v1.0/ranking/start_task";
 
             paramMap.clear();
             paramMap.put("task_id", taskId);
@@ -251,7 +279,7 @@ public class RankingTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/ranking/todays";
+            String url = host + "/v1.0/ranking/todays";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -281,7 +309,7 @@ public class RankingTests extends BaseTests {
 
             // Start first ranking
 
-            url = "http://localhost:http://localhost:8080/v1.0//ranking/stop_task";
+            url = host + "/v1.0//ranking/stop_task";
 
             paramMap.clear();
             paramMap.put("task_id", taskId);
@@ -314,7 +342,7 @@ public class RankingTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/ranking/logs";
+            String url = host + "/v1.0/ranking/logs";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()

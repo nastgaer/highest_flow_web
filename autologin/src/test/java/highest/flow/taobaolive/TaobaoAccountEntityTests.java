@@ -74,7 +74,7 @@ public class TaobaoAccountEntityTests extends BaseTests {
         try {
             contextLoads();
 
-            String url = "http://localhost:8080/v1.0/tbacc/qrcode";
+            String url = host + "/v1.0/tbacc/qrcode";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -93,7 +93,7 @@ public class TaobaoAccountEntityTests extends BaseTests {
             System.out.println(imageUrl);
 
             for (int wait = 0; wait < 60; wait++) {
-                url = "http://localhost:8080/v1.0/tbacc/verify_qrcode";
+                url = host + "/v1.0/tbacc/verify_qrcode";
 
                 Map<String, Object> paramMap = new HashMap<>();
                 paramMap.put("access_token", qrAccessToken);
@@ -139,7 +139,7 @@ public class TaobaoAccountEntityTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/tbacc/batch_delete";
+            String url = host + "/v1.0/tbacc/batch_delete";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -168,7 +168,7 @@ public class TaobaoAccountEntityTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/tbacc/list";
+            String url = host + "/v1.0/tbacc/list";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()

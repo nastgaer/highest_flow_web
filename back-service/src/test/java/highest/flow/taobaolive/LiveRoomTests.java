@@ -52,7 +52,7 @@ public class LiveRoomTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/live/add_room";
+            String url = host + "/v1.0/live/add_room";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -81,7 +81,7 @@ public class LiveRoomTests extends BaseTests {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paramMap);
 
-            String url = "http://localhost:8080/v1.0/live/list";
+            String url = host + "/v1.0/live/list";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
