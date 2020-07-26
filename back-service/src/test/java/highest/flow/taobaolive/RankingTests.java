@@ -203,6 +203,47 @@ public class RankingTests extends BaseTests {
     }
 
     @Test
+    void addRankingTask2() {
+        try {
+            contextLoads();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = new Date();
+            date = DateUtils.addHours(date, 1);
+
+            Map<String, Object> liveRoomMap = new HashMap<>();
+            liveRoomMap.put("live_id", "273561871810");
+            liveRoomMap.put("account_id", "3702318735");
+//            liveRoomMap.put("scope_id", null);
+//            liveRoomMap.put("subscope_id", null);
+
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("live_room", liveRoomMap);
+            paramMap.put("taocode", "￥OoG21BgDahH￥");
+            paramMap.put("target_score", "100000");
+            paramMap.put("double_buy", false);
+            //paramMap.put("start_time", null);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(paramMap);
+
+            String url = host + "/v1.0/ranking/add_task2";
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setContentType("application/json")
+                            .addHeader("access_token", accessToken),
+                    new Request("POST", url, ResponseType.TEXT)
+                            .setEntity(new StringEntity(json, "UTF-8")));
+
+            System.out.println(response.getResult());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Test
     void startTodaysTask() {
         try {
             contextLoads();

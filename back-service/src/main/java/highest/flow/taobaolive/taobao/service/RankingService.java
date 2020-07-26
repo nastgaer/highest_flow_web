@@ -19,7 +19,6 @@ public interface RankingService extends IService<RankingEntity> {
     List<RankingEntity> getTodaysTask(String today);
 
     RankingEntity addNewTask(SysMember sysMember, LiveRoomEntity liveRoomEntity,
-                    String taocode,
                     int targetScore,
                     boolean doubleBuy,
                     Date startTime);

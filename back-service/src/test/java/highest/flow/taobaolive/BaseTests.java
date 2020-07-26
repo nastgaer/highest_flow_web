@@ -20,13 +20,13 @@ public class BaseTests {
 
     protected String accessToken = "";
 
-//    public String host = "http://localhost:8080";
-//    public String username = "administrator";
-//    public String password = "administrator";
-
-    public String host = "http://119.45.148.200:8080/highest";
+    public String host = "http://localhost:8080";
     public String username = "administrator";
-    public String password = "1234qwer!@#$qwer";
+    public String password = "administrator";
+
+//    public String host = "http://119.45.148.200:8080/highest";
+//    public String username = "administrator";
+//    public String password = "1234qwer!@#$qwer";
 
     @Test
     public void contextLoads() {

@@ -67,12 +67,14 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
     }
 
     @Override
-    public RankingEntity addNewTask(SysMember sysMember, LiveRoomEntity liveRoomEntity, String taocode, int targetScore, boolean doubleBuy, Date startTime) {
+    public RankingEntity addNewTask(SysMember sysMember, LiveRoomEntity liveRoomEntity, int targetScore, boolean doubleBuy, Date startTime) {
         try {
             RankingEntity rankingEntity = new RankingEntity();
             rankingEntity.setMemberId(sysMember.getId());
-            rankingEntity.setTaocode(taocode);
             rankingEntity.setLiveId(liveRoomEntity.getLiveId());
+            rankingEntity.setLiveAccountId(liveRoomEntity.getAccountId());
+            rankingEntity.setLiveScopeId(liveRoomEntity.getHierarchyData().getScopeId());
+            rankingEntity.setLiveSubscopeId(liveRoomEntity.getHierarchyData().getSubScopeId());
             rankingEntity.setRoomName(liveRoomEntity.getAccountName());
             rankingEntity.setStartScore(liveRoomEntity.getRankingListData().getRankingScore());
             rankingEntity.setTargetScore(targetScore);

@@ -3,15 +3,12 @@ package highest.flow.taobaolive.taobao.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import highest.flow.taobaolive.api.param.AddRankingTaskParam;
-import highest.flow.taobaolive.api.param.ControlRankingTaskParam;
-import highest.flow.taobaolive.api.param.TodayRankingParam;
+import highest.flow.taobaolive.api.param.*;
 import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.common.utils.R;
-import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.sys.controller.AbstractController;
 import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.taobao.defines.RankingEntityState;
@@ -76,7 +73,6 @@ public class RankingController extends AbstractController {
 
             RankingEntity rankingEntity = this.rankingService.addNewTask(sysMember,
                     liveRoomEntity,
-                    taocode,
                     targetScore,
                     doubleBuy,
                     startTime);
@@ -95,16 +91,37 @@ public class RankingController extends AbstractController {
 
     @SysLog("添加新热度任务")
     @PostMapping("/add_task2")
-    public R addTask2(@RequestBody Map<String, Object> params) {
+    public R addTask2(@RequestBody AddRankingTaskParam2 param) {
         try {
-            String liveId = (String) params.get("live_id");
-            String accountId = (String) params.get("account_id");
-            String taocode = (String) params.get("taocode");
-            int targetScore = (int) params.get("target_score");
-            boolean doubleBuy = (boolean) params.get("double_buy");
-            Date startTime = (Date) params.get("start_time");
+            String liveId = param.getLiveRoom().getLiveId();
+            String accountId = param.getLiveRoom().getAccountId();
+            String scopeId = param.getLiveRoom().getScopeId();
+            String subScopeId = param.getLiveRoom().getSubScopeId();
 
+            int targetScore = param.getTargetScore();
+            boolean doubleBuy = param.isDoubleBuy();
+            Date startTime = param.getStartTime();
 
+            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+
+            liveRoomEntity.setLiveId(liveId);
+            liveRoomEntity.setAccountId(accountId);
+            liveRoomEntity.getHierarchyData().setScopeId(scopeId);
+            liveRoomEntity.getHierarchyData().setSubScopeId(subScopeId);
+
+            SysMember sysMember = this.getUser();
+
+            RankingEntity rankingEntity = this.rankingService.addNewTask(sysMember,
+                    liveRoomEntity,
+                    targetScore,
+                    doubleBuy,
+                    startTime);
+
+            if (rankingEntity == null) {
+                return R.error();
+            }
+
+            return R.ok().put("task_id", rankingEntity.getId());
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -161,7 +178,7 @@ public class RankingController extends AbstractController {
             }
 
             if (!this.rankingService.startTask(rankingEntity)) {
-                return R.error("开始任务失败");
+                return R.error("找不到等待任务");
             }
 
             return R.ok();

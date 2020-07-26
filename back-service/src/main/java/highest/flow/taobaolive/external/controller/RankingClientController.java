@@ -367,7 +367,6 @@ public class RankingClientController extends AbstractController {
 
             RankingEntity rankingEntity = this.rankingService.addNewTask(sysMember,
                     liveRoomEntity,
-                    taocode,
                     targetScore,
                     doubleBuy,
                     startTime);
