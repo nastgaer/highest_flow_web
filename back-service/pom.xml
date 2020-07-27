@@ -243,6 +243,7 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
 
+        <!--Aspect for syslogging-->
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
@@ -253,6 +254,19 @@
             <artifactId>aspectjweaver</artifactId>
             <version>1.8.9</version>
         </dependency>
+
+        <!--Ehcache-->
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>

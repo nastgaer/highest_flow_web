@@ -15,9 +15,18 @@ public class ThreadPoolInitializer {
     @Bean(name = "rankingExecutor")
     public Executor rankingExecutor() {
         ThreadPoolTaskExecutor threadPoolExecutor = new ThreadPoolTaskExecutor();
-        threadPoolExecutor.setCorePoolSize(1);
+
+        //此方法返回可用处理器的虚拟机的最大数量; 不小于1
+        int core = Runtime.getRuntime().availableProcessors();
+//        threadPoolExecutor.setCorePoolSize(core);//设置核心线程数
+//        threadPoolExecutor.setMaxPoolSize(core*2 + 1);//设置最大线程数
+//        threadPoolExecutor.setKeepAliveSeconds(3);//除核心线程外的线程存活时间
+//        threadPoolExecutor.setQueueCapacity(40);//如果传入值大于0，底层队列使用的是LinkedBlockingQueue,否则默认使用SynchronousQueue
+
+        threadPoolExecutor.setCorePoolSize(3000);
         threadPoolExecutor.setMaxPoolSize(3000);
-        threadPoolExecutor.setQueueCapacity(1000);
+        threadPoolExecutor.setKeepAliveSeconds(3);//除核心线程外的线程存活时间
+        threadPoolExecutor.setQueueCapacity(3000);
         threadPoolExecutor.setThreadNamePrefix("ranking-");
         return threadPoolExecutor;
     }

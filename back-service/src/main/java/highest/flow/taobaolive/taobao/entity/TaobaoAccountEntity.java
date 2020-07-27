@@ -20,13 +20,14 @@ import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Data
 @TableName("tbl_accounts")
-public class TaobaoAccountEntity {
+public class TaobaoAccountEntity implements Serializable {
 
     @TableId(type = IdType.AUTO)
     private int id;

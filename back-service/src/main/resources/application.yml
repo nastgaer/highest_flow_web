@@ -71,7 +71,7 @@ license:
   key: 1234!@#$
 
 taobaolive:
-  simulate: false
+  simulate: true
 
 http:
   inspect: true

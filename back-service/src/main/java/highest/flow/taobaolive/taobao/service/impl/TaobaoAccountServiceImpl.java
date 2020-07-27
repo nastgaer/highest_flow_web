@@ -21,6 +21,7 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -162,6 +163,7 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     }
 
     @Override
+    @Cacheable(value = "getActiveAllByMember", key = "#sysMember.id")
     public List<TaobaoAccountEntity> getActiveAllByMember(SysMember sysMember) {
         if (sysMember == null || sysMember.isAdministrator()) {
             return this.baseMapper.getActiveAll();

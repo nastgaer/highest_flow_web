@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns='http://www.ehcache.org/v3'>
+
+    <cache alias="getActiveAllByMember">
+        <key-type>java.lang.Integer</key-type>
+        <value-type>java.util.List</value-type>
+
+        <resources>
+            <heap unit="entries">1000</heap>
+        </resources>
+    </cache>
+
+</config>

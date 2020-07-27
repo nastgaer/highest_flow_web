@@ -31,7 +31,7 @@ public class LiveRoomServiceImpl extends ServiceImpl<LiveRoomDao, LiveRoomEntity
         QueryWrapper<LiveRoomEntity> queryWrapper = new QueryWrapper<>();
         if (!HFStringUtils.isNullOrEmpty(keyword)) {
             queryWrapper.like("taobao_account_nick", keyword).or()
-                    .like("account_name", keyword);
+                    .like("live_room_name", keyword);
         }
 
         IPage<LiveRoomEntity> page = this.page(new Query<LiveRoomEntity>().getPage(params), queryWrapper);

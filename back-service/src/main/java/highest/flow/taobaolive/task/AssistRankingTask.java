@@ -72,6 +72,8 @@ public class AssistRankingTask implements ITask {
         try {
             int taskId = Integer.parseInt(params);
 
+            logger.info("打助力开始, TaskID=" + taskId);
+
             rankingEntity = rankingService.getById(taskId);
             rankingEntity.setStartTime(new Date());
             rankingEntity.setState(RankingEntityState.Running.getState());
@@ -84,7 +86,7 @@ public class AssistRankingTask implements ITask {
                 return;
             }
 
-            logger.info("打助力开始, TaskID=" + taskId);
+            logger.info("获取小号信息, TaskID=" + taskId);
 
             LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
 
@@ -239,6 +241,12 @@ public class AssistRankingTask implements ITask {
 
         private void simulateAssistRanking(RankingEntity rankingEntity, LiveRoomEntity liveRoomEntity, TaobaoAccountEntity activeAccount) {
             try {
+                logger.info("AssistRunnable 成功启动：" + Thread.currentThread().getId());
+
+                if (!isRunning(rankingEntity)) {
+                    return;
+                }
+
                 // 关注
                 {
                     Thread.sleep(100);
@@ -285,6 +293,8 @@ public class AssistRankingTask implements ITask {
                 ex.printStackTrace();
             } finally {
                 countDownLatch.countDown();
+
+                logger.info("AssistRunnable 结束：" + Thread.currentThread().getId());
             }
         }
 
