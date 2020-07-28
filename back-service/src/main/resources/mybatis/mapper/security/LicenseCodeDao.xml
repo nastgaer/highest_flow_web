@@ -9,7 +9,6 @@
         <result property="serviceType" column="service_type"/>
         <result property="hours" column="hours"/>
         <result property="code" column="code"/>
-        <result property="type" column="type"/>
         <result property="machineCode" column="machine_code"/>
         <result property="memberId" column="member_id"/>
         <result property="serviceStartTime" column="service_start_time"/>

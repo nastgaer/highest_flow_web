@@ -21,6 +21,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +41,8 @@ public class SysLogAspect {
 
 	@Autowired
 	private SysLogService sysLogService;
+
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Pointcut("@annotation(highest.flow.taobaolive.common.annotation.SysLog)")
 	public void logPointCut() {
@@ -75,10 +79,11 @@ public class SysLogAspect {
 		String methodName = signature.getName();
 		sysLog.setMethod(className + "." + methodName + "()");
 
+		ObjectMapper objectMapper = new ObjectMapper();
+
 		// 请求的参数
 		Object[] args = joinPoint.getArgs();
 		try {
-			ObjectMapper objectMapper = new ObjectMapper();
 			String params = objectMapper.writeValueAsString(args);
 			sysLog.setParams(params);
 
@@ -101,5 +106,12 @@ public class SysLogAspect {
 		sysLog.setCreatedTime(new Date());
 		// 保存系统日志
 		sysLogService.save(sysLog);
+
+		try {
+			logger.info(objectMapper.writeValueAsString(sysLog));
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 }

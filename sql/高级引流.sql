@@ -1,5 +1,5 @@
 -- Project Name : 高级引流
--- Date/Time    : 2020/7/26 21:00:50
+-- Date/Time    : 2020/7/28 16:41:48
 -- Author       : KKK
 -- RDBMS Type   : MySQL
 -- Application  : A5:SQL Mk-2
@@ -151,7 +151,7 @@ create table tbl_codes (
   id INT not null AUTO_INCREMENT comment 'ID'
   , code_type TINYINT comment '卡密类型:0：测试，1：正式'
   , service_type TINYINT comment '服务类型:0：刷热度，1：淘宝直播'
-  , hours TINYINT comment '授权时间'
+  , hours INT comment '授权时间'
   , code VARCHAR(72) comment '卡密'
   , state TINYINT comment '状态:0: 创建，1: 验证，2: 绑定'
   , machine_code VARCHAR(32) comment '机器码'
@@ -262,6 +262,7 @@ create table tbl_prelive_template (
 create table tbl_ranking_task (
   id INT not null AUTO_INCREMENT comment 'ID'
   , member_id INT comment '会员ID'
+  , taocode VARCHAR(256) comment '淘口令'
   , live_id VARCHAR(32) comment '直播间ID'
   , live_account_id VARCHAR(32) comment '直播间账号ID'
   , live_scope_id VARCHAR(128) comment '直播间scope_id'

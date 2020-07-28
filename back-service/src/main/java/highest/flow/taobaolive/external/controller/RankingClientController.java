@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.api.param.AddRankingTaskParam;
 import highest.flow.taobaolive.api.param.AddRankingTaskParam2;
 import highest.flow.taobaolive.api.param.PageParam;
+import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.common.utils.R;
@@ -164,6 +165,7 @@ public class RankingClientController extends AbstractController {
         return R.error(ErrorCodes.NOT_FOUND_REMOTE_FUNC, "找不到方法");
     }
 
+    @SysLog("登录卡密")
     public R v1_1_register_code(SysMember member, String plain) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -239,6 +241,7 @@ public class RankingClientController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("下载淘宝小号列表")
     /**
      * 下载小号列表
      * @param plain
@@ -248,8 +251,6 @@ public class RankingClientController extends AbstractController {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             PageParam pageParam = (PageParam) objectMapper.readValue(plain, PageParam.class);
-
-            logger.info("获取小号：pageNo=" + String.valueOf(pageParam.getPageNo()) + ", pageSize=" + String.valueOf(pageParam.getPageSize()));
 
             PageUtils pageUtils =
                     this.taobaoAccountService.queryPage(sysMember, pageParam);
@@ -293,11 +294,6 @@ public class RankingClientController extends AbstractController {
 //
 //            logger.info("结束备份小号");
 
-            logger.info("获取小号状态：currentPage=" + String.valueOf(pageUtils.getCurrPage()) +
-                    ", pageSize=" + String.valueOf(pageUtils.getPageSize()) +
-                    ", totalPage=" + String.valueOf(pageUtils.getTotalPage()) +
-                    ", totalCount=" + String.valueOf(pageUtils.getTotalCount()));
-
             return R.ok()
                     .put("list", list)
                     .put("current_page", pageUtils.getCurrPage())
@@ -311,6 +307,7 @@ public class RankingClientController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("解析淘口令")
     public R v1_1_parse_taocode(SysMember sysMember, String plain) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -332,6 +329,7 @@ public class RankingClientController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("获取直播间信息")
     public R v1_1_get_live_info(SysMember sysMember, String plain) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -379,6 +377,7 @@ public class RankingClientController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("下载淘宝小号列表")
     public R v1_1_limit_score(SysMember sysMember, String plain) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -403,6 +402,7 @@ public class RankingClientController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("开始刷任务")
     /**
      * 开始刷热度任务
      * @param sysMember
@@ -452,6 +452,7 @@ public class RankingClientController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("停止刷任务")
     public R v1_1_stop_task(SysMember sysMember, String plain) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -476,6 +477,7 @@ public class RankingClientController extends AbstractController {
         return R.error();
     }
 
+    @SysLog("获取任务状态")
     public R v1_1_get_status(SysMember sysMember, String plain) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();

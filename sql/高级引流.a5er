@@ -334,7 +334,7 @@ Top=450
 Field="ID","id","INT","NOT NULL",0,"","",$FFFFFFFF,"AUTO_INCREMENT"
 Field="卡密类型","code_type","TINYINT",,,"","0：测试，1：正式",$FFFFFFFF,""
 Field="服务类型","service_type","TINYINT",,,"","0：刷热度，1：淘宝直播",$FFFFFFFF,""
-Field="授权时间","hours","TINYINT",,,"","",$FFFFFFFF,""
+Field="授权时间","hours","INT",,,"","",$FFFFFFFF,""
 Field="卡密","code","VARCHAR(72)",,1,"","",$FFFFFFFF,""
 Field="状态","state","TINYINT",,,"","0: 创建，1: 验证，2: 绑定",$FFFFFFFF,""
 Field="机器码","machine_code","VARCHAR(32)",,,"","",$FFFFFFFF,""
@@ -346,7 +346,7 @@ Field="验证时间","accepted_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200722132852
+ModifiedDateTime=20200728170024
 Position="MAIN",1550,450
 
 [Entity]
@@ -704,7 +704,7 @@ Field="更新时间","updated_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200728012153
+ModifiedDateTime=20200728170003
 Position="MAIN",1450,900
 
 [Relation]

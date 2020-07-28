@@ -48,23 +48,23 @@ public class RankingTests {
     private static String code = "testeX5e53Df";
     private static String machineCode = "machinetesteX5e53Df";
 
-//    static {
-//        code = "test" + CommonUtils.randomAlphabetic(8);
-//        machineCode = "machinetest" + CommonUtils.randomAlphabetic(8);
-//    }
-
     @Test
-    void addCode() {
+    void addInternalCode() {
         try {
-            LicenseCode licenseCode = new LicenseCode();
-            licenseCode.setCodeType(LicenseCodeType.Test.getType());
-            licenseCode.setServiceType(MemberServiceType.Ranking.getServiceType());
-            licenseCode.setHours(60);
-            licenseCode.setCode(code);
-            licenseCode.setState(LicenseCodeState.Created.getState());
-            licenseCode.setCreatedTime(new Date());
+            int count = 10;
+            for (int idx = 0; idx < count; idx++) {
+                String code1 = "internal" + CommonUtils.randomAlphabetic(8);
 
-            licenseCodeService.save(licenseCode);
+                LicenseCode licenseCode = new LicenseCode();
+                licenseCode.setCodeType(LicenseCodeType.Internal.getType());
+                licenseCode.setServiceType(MemberServiceType.Ranking.getServiceType());
+                licenseCode.setHours(24 * 30);
+                licenseCode.setCode(code1);
+                licenseCode.setState(LicenseCodeState.Created.getState());
+                licenseCode.setCreatedTime(new Date());
+
+                licenseCodeService.save(licenseCode);
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();
