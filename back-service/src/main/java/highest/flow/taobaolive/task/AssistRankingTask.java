@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -65,7 +66,10 @@ public class AssistRankingTask implements ITask {
     @Override
     public void run(ScheduleJobEntity scheduleJobEntity) {
         String params = scheduleJobEntity.getParams();
+
         RankingEntity rankingEntity = null;
+        LiveRoomEntity liveRoomEntity = null;
+        TaobaoAccountEntity activeAccountEntity = null;
 
         this.scheduleJobEntity = scheduleJobEntity;
 
@@ -80,15 +84,15 @@ public class AssistRankingTask implements ITask {
 
             SysMember sysMember = memberService.getById(rankingEntity.getMemberId());
 
-            List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.getActiveAllByMember(sysMember);
-            if (taobaoAccountEntities.size() < 1) {
+            List<TaobaoAccountEntity> taobaoAccountEntities = rankingService.availableAccounts(sysMember, rankingEntity.getLiveId());
+            if (taobaoAccountEntities == null || taobaoAccountEntities.size() < 1) {
                 rankingEntity.setState(RankingEntityState.Stopped.getState());
                 return;
             }
 
             logger.info("获取小号信息, TaskID=" + taskId);
 
-            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+            liveRoomEntity = new LiveRoomEntity();
 
             liveRoomEntity.setLiveId(rankingEntity.getLiveId());
             liveRoomEntity.setAccountId(rankingEntity.getLiveAccountId());
@@ -97,16 +101,16 @@ public class AssistRankingTask implements ITask {
 
 //            LiveRoomEntity liveRoomEntity = null;
 //
-//            TaobaoAccountEntity activeAccount = taobaoAccountEntities.get(0);
-//            R r = taobaoApiService.getLiveInfo(rankingEntity.getTaocode(), activeAccount);
+//            activeAccountEntity = taobaoAccountEntities.get(0);
+//            R r = taobaoApiService.getLiveInfo(rankingEntity.getTaocode(), activeAccountEntity);
 //            if (r.getCode() == ErrorCodes.SUCCESS) {
 //                liveRoomEntity = (LiveRoomEntity) r.get("live_room");
 //                if (liveRoomEntity != null) {
-//                    taobaoApiService.getLiveProducts(liveRoomEntity, activeAccount);
+//                    taobaoApiService.getLiveProducts(liveRoomEntity, activeAccountEntity);
 //                }
 //            }
 
-            TaobaoAccountEntity activeAccountEntity = taobaoAccountEntities.get(0);
+            activeAccountEntity = taobaoAccountEntities.get(0);
             taobaoApiService.getH5Token(activeAccountEntity);
             taobaoApiService.getLiveEntry(liveRoomEntity, activeAccountEntity);
             taobaoApiService.getLiveProducts(liveRoomEntity, activeAccountEntity);
@@ -127,7 +131,7 @@ public class AssistRankingTask implements ITask {
             rankingEntity.setUpdatedTime(new Date());
             rankingService.updateById(rankingEntity);
 
-            monitorThread = new Thread(new MonitorWorker(rankingEntity, liveRoomEntity, taobaoAccountEntities));
+            monitorThread = new Thread(new MonitorWorker(rankingEntity, liveRoomEntity, activeAccountEntity));
             monitorThread.start();
 
             int unitScore = rankingEntity.isDoubleBuy() ?
@@ -138,7 +142,7 @@ public class AssistRankingTask implements ITask {
             int startIndex = 0, endScore = 0;
 
             // 直到达到目标
-            while (leftScore >= 0 && this.isRunning(rankingEntity)) {
+            while (leftScore > 0 && this.isRunning(rankingEntity)) {
                 int totalCount = leftScore / unitScore + 1;
 
                 if (startIndex >= taobaoAccountEntities.size()) {
@@ -150,7 +154,8 @@ public class AssistRankingTask implements ITask {
                 countDownLatch = new CountDownLatch(totalCount);
 
                 int assistCount = 0;
-                for (int idx = startIndex; idx < startIndex + totalCount && idx < taobaoAccountEntities.size() && this.isRunning(rankingEntity); idx++) {
+                int idx = 0;
+                for (idx = startIndex; idx < startIndex + totalCount && idx < taobaoAccountEntities.size() && this.isRunning(rankingEntity); idx++) {
                     TaobaoAccountEntity taobaoAccountEntity = taobaoAccountEntities.get(idx);
                     rankingExecutor.execute(
                             new AssistRunnable(rankingEntity, liveRoomEntity, taobaoAccountEntity)
@@ -158,9 +163,14 @@ public class AssistRankingTask implements ITask {
                     assistCount++;
                 }
 
+                // 万一被强制停止了呢？
+                for (int left = idx; left < startIndex + totalCount && left < taobaoAccountEntities.size(); left++) {
+                    countDownLatch.countDown();
+                }
+
                 countDownLatch.await();
 
-                startIndex += totalCount;
+                startIndex += assistCount;
 
                 endScore = -1;
                 if (simulate) {
@@ -168,7 +178,6 @@ public class AssistRankingTask implements ITask {
 
                 } else {
                     for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
-                        activeAccountEntity = taobaoAccountEntities.get(retry);
                         R r = taobaoApiService.getLiveEntry(liveRoomEntity, activeAccountEntity);
                         if (r.getCode() == ErrorCodes.SUCCESS) {
                             endScore = liveRoomEntity.getRankingListData().getRankingScore();
@@ -183,6 +192,16 @@ public class AssistRankingTask implements ITask {
                 }
             }
 
+            logger.info("正在保存当前的状态, TaskID=" + taskId);
+            // mark assisted account
+            List<TaobaoAccountEntity> markedAccounts = new ArrayList<>();
+            for (int idx1 = 0; idx1 < startIndex; idx1++) {
+                markedAccounts.add(taobaoAccountEntities.get(idx1));
+            }
+            if (markedAccounts.size() > 0) {
+                rankingService.markAssist(sysMember, liveRoomEntity.getLiveId(), markedAccounts);
+            }
+
             rankingEntity.setEndScore(endScore);
             rankingEntity.setEndTime(new Date());
             rankingEntity.setUpdatedTime(new Date());
@@ -195,7 +214,7 @@ public class AssistRankingTask implements ITask {
 
             monitorThread.join();
 
-            logger.info("MonitorThread 结束");
+            logger.info("MonitorThread 结束, TaskID=" + taskId);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -204,6 +223,10 @@ public class AssistRankingTask implements ITask {
 
         } finally {
             if (rankingEntity != null) {
+                if (liveRoomEntity != null && activeAccountEntity != null) {
+                    updateScore(rankingEntity, liveRoomEntity, activeAccountEntity);
+                }
+
                 rankingEntity.setEndTime(new Date());
                 rankingEntity.setUpdatedTime(new Date());
                 rankingService.updateById(rankingEntity);
@@ -217,7 +240,28 @@ public class AssistRankingTask implements ITask {
 
     private boolean isRunning(RankingEntity rankingEntity) {
         // return rankingService.isRunning(rankingEntity, scheduleJobEntity.getId());
-        return this.scheduleJobEntity.getState() == ScheduleState.NORMAL.getValue();
+        return this.scheduleJobEntity.getState() == ScheduleState.NORMAL.getValue() &&
+                (rankingEntity.getEndScore() - rankingEntity.getStartScore() < rankingEntity.getTargetScore());
+    }
+
+    private void updateScore(RankingEntity rankingEntity, LiveRoomEntity liveRoomEntity, TaobaoAccountEntity activeAccountEntity) {
+        if (simulate) {
+            int currentScore = liveRoomEntity.getRankingListData().getRankingScore();
+            rankingEntity.setEndScore(currentScore);
+            rankingService.updateById(rankingEntity);
+
+        } else {
+            for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
+                R r = taobaoApiService.getLiveEntry(liveRoomEntity, activeAccountEntity);
+                if (r.getCode() == ErrorCodes.SUCCESS) {
+                    int currentScore = liveRoomEntity.getRankingListData().getRankingScore();
+
+                    rankingEntity.setEndScore(currentScore);
+                    rankingService.updateById(rankingEntity);
+                    break;
+                }
+            }
+        }
     }
 
     class AssistRunnable implements Runnable {
@@ -245,6 +289,11 @@ public class AssistRankingTask implements ITask {
 
                 if (!isRunning(rankingEntity)) {
                     return;
+                }
+
+                // 清醒session
+                {
+                    Thread.sleep(100);
                 }
 
                 // 关注
@@ -306,7 +355,7 @@ public class AssistRankingTask implements ITask {
 
             try {
                 // 初始化
-                taobaoApiService.getUserSimple(activeAccount);
+                taobaoApiService.getH5Token(activeAccount);
 
                 if (!isRunning(rankingEntity)) {
                     return;
@@ -380,35 +429,19 @@ public class AssistRankingTask implements ITask {
 
         private RankingEntity rankingEntity;
         private LiveRoomEntity liveRoomEntity;
-        private List<TaobaoAccountEntity> taobaoAccountEntities;
+        private TaobaoAccountEntity taobaoAccountEntity;
 
-        public MonitorWorker(RankingEntity rankingEntity, LiveRoomEntity liveRoomEntity, List<TaobaoAccountEntity> taobaoAccountEntities) {
+        public MonitorWorker(RankingEntity rankingEntity, LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
             this.rankingEntity = rankingEntity;
             this.liveRoomEntity = liveRoomEntity;
-            this.taobaoAccountEntities = taobaoAccountEntities;
+            this.taobaoAccountEntity = taobaoAccountEntity;
         }
 
         @Override
         public void run() {
             while (rankingEntity.getState() == RankingEntityState.Running.getState()) {
                 try {
-                    if (simulate) {
-                        int currentScore = liveRoomEntity.getRankingListData().getRankingScore();
-                        rankingEntity.setEndScore(currentScore);
-                        rankingService.updateById(rankingEntity);
-                    } else {
-                        for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
-                            TaobaoAccountEntity activeAccount = taobaoAccountEntities.get(retry);
-                            R r = taobaoApiService.getLiveEntry(liveRoomEntity, activeAccount);
-                            if (r.getCode() == ErrorCodes.SUCCESS) {
-                                int currentScore = liveRoomEntity.getRankingListData().getRankingScore();
-
-                                rankingEntity.setEndScore(currentScore);
-                                rankingService.updateById(rankingEntity);
-                                break;
-                            }
-                        }
-                    }
+                    updateScore(rankingEntity, liveRoomEntity, taobaoAccountEntity);
 
                     Thread.sleep(1000);
 

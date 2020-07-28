@@ -53,4 +53,11 @@ public class SysMember {
         }
         return false;
     }
+
+    public boolean isNormal() {
+        if (this.level == MemberLevel.Normal.getLevel()) {
+            return true;
+        }
+        return false;
+    }
 }

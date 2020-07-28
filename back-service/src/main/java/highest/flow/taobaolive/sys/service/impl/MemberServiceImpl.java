@@ -160,9 +160,12 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, SysMember> impleme
                 roles.add(MemberRole.tblive.toString());
             }
 
+            int level = licenseCodeType == LicenseCodeType.Test ? MemberLevel.TestUser.getLevel() :
+                    (licenseCodeType == LicenseCodeType.Internal ? MemberLevel.Normal.getLevel() : MemberLevel.LicenseUser.getLevel());
+
             SysMember sysMember = this.register(memberName, password, "", "",
                     roles,
-                    licenseCodeType == LicenseCodeType.Test ? MemberLevel.TestUser.getLevel() : MemberLevel.LicenseUser.getLevel(),
+                    level,
                     MemberState.Normal.getState());
 
             return sysMember;

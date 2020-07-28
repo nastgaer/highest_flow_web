@@ -9,6 +9,9 @@ import java.util.Date;
 @Data
 public class AddRankingTaskParam2 {
 
+    @JsonProperty("taocode")
+    private String taocode;
+
     @Data
     public class LiveRoom {
 

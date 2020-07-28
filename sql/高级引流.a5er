@@ -685,6 +685,7 @@ Left=1450
 Top=900
 Field="ID","id","INT","NOT NULL",0,"","",$FFFFFFFF,"AUTO_INCREMENT"
 Field="会员ID","member_id","INT",,,"","",$FFFFFFFF,""
+Field="淘口令","taocode","VARCHAR(256)",,,"","",$FFFFFFFF,""
 Field="直播间ID","live_id","VARCHAR(32)",,,"","",$FFFFFFFF,""
 Field="直播间账号ID","live_account_id","VARCHAR(32)",,,"","",$FFFFFFFF,""
 Field="直播间scope_id","live_scope_id","VARCHAR(128)",,,"","",$FFFFFFFF,""
@@ -703,7 +704,7 @@ Field="更新时间","updated_time","DATETIME",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20200726205333
+ModifiedDateTime=20200728012153
 Position="MAIN",1450,900
 
 [Relation]

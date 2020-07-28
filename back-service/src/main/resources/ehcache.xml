@@ -1,12 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns='http://www.ehcache.org/v3'>
 
+    <cache alias="queryTaobaoAccounts">
+        <key-type>java.lang.Object</key-type>
+        <value-type>java.util.List</value-type>
+
+        <resources>
+            <heap unit="entries">1000</heap>
+            <offheap unit="MB">100</offheap>
+        </resources>
+    </cache>
+
     <cache alias="getActiveAllByMember">
         <key-type>java.lang.Integer</key-type>
         <value-type>java.util.List</value-type>
 
         <resources>
             <heap unit="entries">1000</heap>
+            <offheap unit="MB">100</offheap>
+        </resources>
+    </cache>
+
+    <cache alias="assistRankAccounts">
+        <key-type>java.lang.String</key-type>
+        <value-type>java.util.List</value-type>
+        <expiry>
+            <ttl unit="hours">1</ttl>
+        </expiry>
+
+        <resources>
+            <heap unit="entries">1000</heap>
+            <offheap unit="MB">100</offheap>
+        </resources>
+    </cache>
+
+    <cache alias="assistRankUids">
+        <key-type>java.lang.String</key-type>
+        <value-type>java.util.List</value-type>
+        <expiry>
+            <ttl unit="hours">1</ttl>
+        </expiry>
+
+        <resources>
+            <heap unit="entries">1000</heap>
+            <offheap unit="MB">100</offheap>
         </resources>
     </cache>
 

@@ -2,8 +2,9 @@ package highest.flow.taobaolive.security.defines;
 
 public enum LicenseCodeType {
 
-    Test(0),        // 测试
-    License(1);     // 授权
+    Internal(0),    // 内部
+    Test(1),        // 测试
+    License(2);     // 授权
 
     private int type = 0;
 
@@ -18,6 +19,9 @@ public enum LicenseCodeType {
     public static LicenseCodeType from(int type) {
         if (License.getType() == type) {
             return License;
+        }
+        if (Internal.getType() == type) {
+            return Internal;
         }
         return Test;
     }

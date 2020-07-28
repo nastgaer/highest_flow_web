@@ -130,7 +130,32 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
         int pageSize = pageParam.getPageSize();
         String keyword = pageParam.getKeyword();
 
-        int memberId = sysMember == null || sysMember.isAdministrator() ? 0 : sysMember.getId();
+        int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put(Query.PAGE, pageNo);
+        params.put(Query.LIMIT, pageSize);
+
+        QueryWrapper<TaobaoAccountEntity> queryWrapper = new QueryWrapper<>();
+        if (memberId > 0) {
+            queryWrapper.like("member_id", memberId);
+        }
+        if (!HFStringUtils.isNullOrEmpty(keyword)) {
+            queryWrapper.like("nick", keyword);
+        }
+
+        IPage<TaobaoAccountEntity> page = this.page(new Query<TaobaoAccountEntity>().getPage(params), queryWrapper);
+        return new PageUtils<TaobaoAccountEntity>(page);
+    }
+
+    @Override
+    public PageUtils simpleQueryPage(SysMember sysMember, PageParam pageParam) {
+        // TODO
+        int pageNo = pageParam.getPageNo();
+        int pageSize = pageParam.getPageSize();
+        String keyword = pageParam.getKeyword();
+
+        int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
 
         Map<String, Object> params = new HashMap<>();
         params.put(Query.PAGE, pageNo);

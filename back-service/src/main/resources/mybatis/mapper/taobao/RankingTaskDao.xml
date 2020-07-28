@@ -6,6 +6,7 @@
     <resultMap id="rankingTaskMap" type="highest.flow.taobaolive.taobao.entity.RankingEntity">
         <result property="id" column="id"/>
         <result property="memberId" column="member_id"/>
+        <result property="taocode" column="taocode"/>
         <result property="liveId" column="live_id"/>
         <result property="liveAccountId" column="live_account_id"/>
         <result property="liveScopeId" column="live_scope_id"/>

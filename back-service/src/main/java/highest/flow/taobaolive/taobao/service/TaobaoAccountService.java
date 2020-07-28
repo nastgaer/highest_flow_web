@@ -38,6 +38,14 @@ public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
 
     PageUtils queryPage(SysMember sysMember, PageParam pageParam);
 
+    /**
+     * 只返回昵称和uid, 状态
+     * @param sysMember
+     * @param pageParam
+     * @return
+     */
+    PageUtils simpleQueryPage(SysMember sysMember, PageParam pageParam);
+
     TaobaoAccountEntity getActiveOne(SysMember sysMember);
 
     List<TaobaoAccountEntity> getActiveAllByMember(SysMember sysMember);

@@ -24,7 +24,7 @@ public class ThreadPoolInitializer {
 //        threadPoolExecutor.setQueueCapacity(40);//如果传入值大于0，底层队列使用的是LinkedBlockingQueue,否则默认使用SynchronousQueue
 
         threadPoolExecutor.setCorePoolSize(3000);
-        threadPoolExecutor.setMaxPoolSize(3000);
+        threadPoolExecutor.setMaxPoolSize(6000);
         threadPoolExecutor.setKeepAliveSeconds(3);//除核心线程外的线程存活时间
         threadPoolExecutor.setQueueCapacity(3000);
         threadPoolExecutor.setThreadNamePrefix("ranking-");

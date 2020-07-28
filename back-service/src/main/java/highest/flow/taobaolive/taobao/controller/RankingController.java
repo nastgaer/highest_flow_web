@@ -72,6 +72,7 @@ public class RankingController extends AbstractController {
             SysMember sysMember = this.getUser();
 
             RankingEntity rankingEntity = this.rankingService.addNewTask(sysMember,
+                    taocode,
                     liveRoomEntity,
                     targetScore,
                     doubleBuy,
@@ -93,6 +94,7 @@ public class RankingController extends AbstractController {
     @PostMapping("/add_task2")
     public R addTask2(@RequestBody AddRankingTaskParam2 param) {
         try {
+            String taocode = param.getTaocode();
             String liveId = param.getLiveRoom().getLiveId();
             String accountId = param.getLiveRoom().getAccountId();
             String scopeId = param.getLiveRoom().getScopeId();
@@ -112,6 +114,7 @@ public class RankingController extends AbstractController {
             SysMember sysMember = this.getUser();
 
             RankingEntity rankingEntity = this.rankingService.addNewTask(sysMember,
+                    taocode,
                     liveRoomEntity,
                     targetScore,
                     doubleBuy,

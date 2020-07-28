@@ -18,11 +18,17 @@ import highest.flow.taobaolive.taobao.dao.RankingTaskDao;
 import highest.flow.taobaolive.taobao.defines.RankingEntityState;
 import highest.flow.taobaolive.taobao.entity.LiveRoomEntity;
 import highest.flow.taobaolive.taobao.entity.RankingEntity;
+import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
 import highest.flow.taobaolive.taobao.service.RankingService;
+import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import org.quartz.JobExecutionContext;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -36,6 +42,12 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
 
     @Autowired
     private ScheduleJobService schedulerJobService;
+
+    @Autowired
+    private TaobaoAccountService taobaoAccountService;
+
+    @Autowired
+    private CacheManager cacheManager;
 
     @Override
     public PageUtils queryPage(SysMember sysMember, PageParam pageParam) {
@@ -67,10 +79,11 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
     }
 
     @Override
-    public RankingEntity addNewTask(SysMember sysMember, LiveRoomEntity liveRoomEntity, int targetScore, boolean doubleBuy, Date startTime) {
+    public RankingEntity addNewTask(SysMember sysMember, String taocode, LiveRoomEntity liveRoomEntity, int targetScore, boolean doubleBuy, Date startTime) {
         try {
             RankingEntity rankingEntity = new RankingEntity();
             rankingEntity.setMemberId(sysMember.getId());
+            rankingEntity.setTaocode(taocode);
             rankingEntity.setLiveId(liveRoomEntity.getLiveId());
             rankingEntity.setLiveAccountId(liveRoomEntity.getAccountId());
             rankingEntity.setLiveScopeId(liveRoomEntity.getHierarchyData().getScopeId());
@@ -188,29 +201,6 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
     }
 
     @Override
-    public boolean isRunning(RankingEntity rankingEntity, Long jobId) {
-        try {
-            int taskId = rankingEntity.getId();
-
-            if (jobId > 0) {
-                return ScheduleUtils.isRunning(scheduler, jobId);
-            }
-
-            ScheduleJobEntity scheduleJobEntity = this.schedulerJobService.getOne(Wrappers.<ScheduleJobEntity>lambdaQuery()
-                    .eq(ScheduleJobEntity::getParams, String.valueOf(taskId)));
-            if (scheduleJobEntity == null) {
-                return false;
-            }
-
-            return scheduleJobEntity.getState() == ScheduleState.NORMAL.getValue() ? true : false;
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return false;
-    }
-
-    @Override
     public boolean deleteTask(RankingEntity rankingEntity) {
         try {
             int taskId = rankingEntity.getId();
@@ -229,5 +219,66 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
             ex.printStackTrace();
         }
         return false;
+    }
+
+    @Override
+    @Cacheable(value = "assistRankAccounts", key = "#sysMember.id + '_' + #liveId")
+    public List<TaobaoAccountEntity> availableAccounts(SysMember sysMember, String liveId) {
+        try {
+            List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.getActiveAllByMember(sysMember);
+
+            Cache cache = cacheManager.getCache("assistRankUids");
+            String key = String.valueOf(sysMember.getId()) + "_" + liveId;
+            Cache.ValueWrapper valueWrapper = cache.get(key);
+            List<String> value = valueWrapper == null ? new ArrayList<>() : (List<String>) valueWrapper.get();
+
+            List<TaobaoAccountEntity> availableAccounts = new ArrayList<>();
+            availableAccounts.addAll(taobaoAccountEntities);
+
+            for (String uid : value) {
+                availableAccounts.removeIf(acc -> acc.getUid().compareTo(uid) == 0);
+            }
+
+            return availableAccounts;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    @CachePut(value = "assistRankAccounts", key = "#sysMember.id + '_' + #liveId", unless = "#result == null")
+    public List<TaobaoAccountEntity> markAssist(SysMember sysMember, String liveId, List<TaobaoAccountEntity> markedAccounts) {
+        try {
+            // 先标记已经助力完的账号
+            Cache cache = cacheManager.getCache("assistRankUids");
+            String key = String.valueOf(sysMember.getId()) + "_" + liveId;
+            Cache.ValueWrapper valueWrapper = cache.get(key);
+            List<String> value = valueWrapper == null ? new ArrayList<>() : (List<String>) valueWrapper.get();
+
+            for (TaobaoAccountEntity markedAccount : markedAccounts) {
+                value.add(markedAccount.getUid());
+            }
+
+            cache.put(key, value);
+
+            // 重新获取尚未助力的小号列表
+            List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.getActiveAllByMember(sysMember);
+
+            List<TaobaoAccountEntity> availableAccounts = new ArrayList<>();
+            availableAccounts.addAll(taobaoAccountEntities);
+
+            for (String uid : value) {
+                availableAccounts.removeIf(acc -> acc.getUid().compareTo(uid) == 0);
+            }
+
+            return availableAccounts;
+
+        } catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+        return null;
     }
 }

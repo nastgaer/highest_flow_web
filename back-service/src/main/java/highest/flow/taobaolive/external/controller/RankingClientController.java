@@ -20,6 +20,7 @@ import highest.flow.taobaolive.sys.defines.MemberState;
 import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.sys.service.MemberService;
 import highest.flow.taobaolive.sys.service.MemberTokenService;
+import highest.flow.taobaolive.taobao.defines.RankingScore;
 import highest.flow.taobaolive.taobao.entity.LiveRoomEntity;
 import highest.flow.taobaolive.taobao.entity.RankingEntity;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
@@ -28,6 +29,8 @@ import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
 import org.aspectj.apache.bcel.generic.RET;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,6 +64,9 @@ public class RankingClientController extends AbstractController {
 
     @Autowired
     private CryptoService cryptoService;
+
+    @Autowired
+    private CacheManager cacheManager;
 
     @PostMapping("/reg")
     public R reg(@RequestBody BaseParam param) {
@@ -243,6 +249,8 @@ public class RankingClientController extends AbstractController {
             ObjectMapper objectMapper = new ObjectMapper();
             PageParam pageParam = (PageParam) objectMapper.readValue(plain, PageParam.class);
 
+            logger.info("获取小号：pageNo=" + String.valueOf(pageParam.getPageNo()) + ", pageSize=" + String.valueOf(pageParam.getPageSize()));
+
             PageUtils pageUtils =
                     this.taobaoAccountService.queryPage(sysMember, pageParam);
 
@@ -256,6 +264,39 @@ public class RankingClientController extends AbstractController {
                 map.put("state", taobaoAccountEntity.getState());
                 list.add(map);
             }
+
+//            logger.info("开始在Cache备份小号");
+//
+//            // Cache采集的小号
+//            Cache cache = cacheManager.getCache("getActiveAllByMember");
+//            int key = sysMember.getId();
+//            Cache.ValueWrapper valueWrapper = cache.get(key);
+//            List<TaobaoAccountEntity> cachedAccounts = valueWrapper == null ? new ArrayList<>() : (List<TaobaoAccountEntity>)valueWrapper.get();
+//
+//            logger.info("成功获取以前的备份小号列表");
+//
+//            for (TaobaoAccountEntity taobaoAccountEntity : taobaoAccountEntities) {
+//                boolean found = false;
+//                for (TaobaoAccountEntity cachedAccount : cachedAccounts) {
+//                    if (cachedAccount.getUid().compareTo(taobaoAccountEntity.getUid()) == 0) {
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//                if (found) {
+//                    continue;
+//                }
+//                cachedAccounts.add(taobaoAccountEntity);
+//            }
+//
+//            cache.put(key, cachedAccounts);
+//
+//            logger.info("结束备份小号");
+
+            logger.info("获取小号状态：currentPage=" + String.valueOf(pageUtils.getCurrPage()) +
+                    ", pageSize=" + String.valueOf(pageUtils.getPageSize()) +
+                    ", totalPage=" + String.valueOf(pageUtils.getTotalPage()) +
+                    ", totalCount=" + String.valueOf(pageUtils.getTotalCount()));
 
             return R.ok()
                     .put("list", list)
@@ -338,6 +379,30 @@ public class RankingClientController extends AbstractController {
         return R.error();
     }
 
+    public R v1_1_limit_score(SysMember sysMember, String plain) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> map = (Map<String, Object>) objectMapper.readValue(plain, Map.class);
+
+            String liveId = (String) map.get("live_id");
+            boolean doubleBuy = (boolean) map.get("double_buy");
+
+            List<TaobaoAccountEntity> taobaoAccountEntities = this.rankingService.availableAccounts(sysMember, liveId);
+
+            int unitScore = doubleBuy ?
+                    (RankingScore.DoubleBuyFollow.getScore() + RankingScore.DoubleBuyBuy.getScore() + RankingScore.DoubleBuyWatch.getScore()) :
+                    (RankingScore.Follow.getScore() + RankingScore.Buy.getScore() + RankingScore.Watch.getScore());
+
+            int count = taobaoAccountEntities == null || taobaoAccountEntities.size() < 1 ? 0 : taobaoAccountEntities.size();
+
+            return R.ok().put("limit_score", unitScore * count);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
     /**
      * 开始刷热度任务
      * @param sysMember
@@ -349,6 +414,7 @@ public class RankingClientController extends AbstractController {
             ObjectMapper objectMapper = new ObjectMapper();
             AddRankingTaskParam2 param = (AddRankingTaskParam2) objectMapper.readValue(plain, AddRankingTaskParam2.class);
 
+            String taocode = param.getTaocode();
             String roomName = param.getLiveRoom().getRoomName();
             String liveId = param.getLiveRoom().getLiveId();
             String accountId = param.getLiveRoom().getAccountId();
@@ -368,6 +434,7 @@ public class RankingClientController extends AbstractController {
             liveRoomEntity.getHierarchyData().setSubScopeId(subScopeId);
 
             RankingEntity rankingEntity = this.rankingService.addNewTask(sysMember,
+                    taocode,
                     liveRoomEntity,
                     targetScore,
                     doubleBuy,

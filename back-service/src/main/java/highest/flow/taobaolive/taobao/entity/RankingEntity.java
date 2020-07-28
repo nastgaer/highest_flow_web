@@ -19,6 +19,8 @@ public class RankingEntity {
 
     private int memberId;
 
+    private String taocode;
+
     private String liveId;
 
     private String liveAccountId;
