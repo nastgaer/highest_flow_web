@@ -23,6 +23,14 @@ public class NumberUtils {
         return null;
     }
 
+    public static int parseInt(String s, int defaultValue) {
+        Integer integer = parseInt(s);
+        if (integer == null) {
+            return defaultValue;
+        }
+        return integer;
+    }
+
     /**
      * 字符串转Long
      * @param s 字符串
@@ -37,6 +45,14 @@ public class NumberUtils {
             }
         }
         return null;
+    }
+
+    public static long parseLong(String s, long defaultValue) {
+        Long longV = parseLong(s);
+        if (longV == null) {
+            return defaultValue;
+        }
+        return longV;
     }
 
     /**
@@ -55,6 +71,14 @@ public class NumberUtils {
         return null;
     }
 
+    public static double parseDouble(String s, double defaultValue) {
+        Double doubleV = parseDouble(s);
+        if (doubleV == null) {
+            return defaultValue;
+        }
+        return doubleV;
+    }
+
     /**
      * 字符串转Float
      * @param s 字符串
@@ -69,6 +93,14 @@ public class NumberUtils {
             }
         }
         return null;
+    }
+
+    public static float parseFloat(String s, float defaultValue) {
+        Float floatV = parseFloat(s);
+        if (floatV == null) {
+            return defaultValue;
+        }
+        return floatV;
     }
 
     /**

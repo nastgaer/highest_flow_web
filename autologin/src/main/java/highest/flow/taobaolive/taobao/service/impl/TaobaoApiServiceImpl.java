@@ -430,55 +430,55 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
         return R.error();
     }
 
-    @Override
-    public R getLiveInfo(String taocode, TaobaoAccountEntity taobaoAccountEntity) {
-        try {
-            R r = this.parseTaoCode(taocode);
-            if (r.getCode() != ErrorCodes.SUCCESS) {
-                return r;
-            }
-
-            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
-            liveRoomEntity.setLiveId((String) r.get("live_id"));
-            liveRoomEntity.setCreatorId((String) r.get("creator_id"));
-            liveRoomEntity.setTalentLiveUrl((String) r.get("talent_live_url"));
-
-            String liveId = (String) r.get("live_id");
-            r = this.getLiveDetail(liveId);
-            if (r.getCode() != ErrorCodes.SUCCESS) {
-                return r;
-            }
-
-            liveRoomEntity.setAccountId((String) r.get("account_id"));
-            liveRoomEntity.setAccountName((String) r.get("account_name"));
-            liveRoomEntity.setFansNum((int) r.get("fans_num"));
-            liveRoomEntity.setTopic((String) r.get("topic"));
-            liveRoomEntity.setViewCount((int) r.get("view_count"));
-            liveRoomEntity.setPraiseCount((int) r.get("praise_count"));
-            liveRoomEntity.setOnlineCount((int) r.get("online_count"));
-            liveRoomEntity.setLiveCoverImg((String) r.get("cover_img"));
-            liveRoomEntity.setLiveCoverImg169((String) r.get("cover_img169"));
-            liveRoomEntity.setLiveTitle((String) r.get("title"));
-            liveRoomEntity.setLiveIntro((String) r.get("intro"));
-            liveRoomEntity.setLiveChannelId((int) r.get("channel_id"));
-            liveRoomEntity.setLiveColumnId((int) r.get("column_id"));
-            liveRoomEntity.setLiveLocation((String) r.get("location"));
-
-            if (taobaoAccountEntity != null) {
-                this.getH5Token(taobaoAccountEntity);
-                r = this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
-                if (r.getCode() != ErrorCodes.SUCCESS) {
-                    return r;
-                }
-            }
-
-            return R.ok().put("live_room", liveRoomEntity);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return R.error();
-    }
+//    @Override
+//    public R getLiveInfo(String taocode, TaobaoAccountEntity taobaoAccountEntity) {
+//        try {
+//            R r = this.parseTaoCode(taocode);
+//            if (r.getCode() != ErrorCodes.SUCCESS) {
+//                return r;
+//            }
+//
+//            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+//            liveRoomEntity.setLiveId((String) r.get("live_id"));
+//            liveRoomEntity.setCreatorId((String) r.get("creator_id"));
+//            liveRoomEntity.setTalentLiveUrl((String) r.get("talent_live_url"));
+//
+//            String liveId = (String) r.get("live_id");
+//            r = this.getLiveDetail(liveId);
+//            if (r.getCode() != ErrorCodes.SUCCESS) {
+//                return r;
+//            }
+//
+//            liveRoomEntity.setAccountId((String) r.get("account_id"));
+//            liveRoomEntity.setAccountName((String) r.get("account_name"));
+//            liveRoomEntity.setFansNum((int) r.get("fans_num"));
+//            liveRoomEntity.setTopic((String) r.get("topic"));
+//            liveRoomEntity.setViewCount((int) r.get("view_count"));
+//            liveRoomEntity.setPraiseCount((int) r.get("praise_count"));
+//            liveRoomEntity.setOnlineCount((int) r.get("online_count"));
+//            liveRoomEntity.setLiveCoverImg((String) r.get("cover_img"));
+//            liveRoomEntity.setLiveCoverImg169((String) r.get("cover_img169"));
+//            liveRoomEntity.setLiveTitle((String) r.get("title"));
+//            liveRoomEntity.setLiveIntro((String) r.get("intro"));
+//            liveRoomEntity.setLiveChannelId((int) r.get("channel_id"));
+//            liveRoomEntity.setLiveColumnId((int) r.get("column_id"));
+//            liveRoomEntity.setLiveLocation((String) r.get("location"));
+//
+//            if (taobaoAccountEntity != null) {
+//                this.getH5Token(taobaoAccountEntity);
+//                r = this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+//                if (r.getCode() != ErrorCodes.SUCCESS) {
+//                    return r;
+//                }
+//            }
+//
+//            return R.ok().put("live_room", liveRoomEntity);
+//
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//        return R.error();
+//    }
 
     @Override
     public R getLiveList(TaobaoAccountEntity taobaoAccountEntity, int pageNo, int pageSize) {

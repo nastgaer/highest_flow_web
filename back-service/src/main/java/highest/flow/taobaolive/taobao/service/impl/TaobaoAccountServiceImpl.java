@@ -175,7 +175,7 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
 
     @Override
     public TaobaoAccountEntity getActiveOne(SysMember sysMember) {
-        if (sysMember == null || sysMember.isAdministrator()) {
+        if (sysMember == null || sysMember.isAdministrator() || sysMember.isNormal()) {
             return this.baseMapper.getActiveOne();
 //            return this.getOne(Wrappers.<TaobaoAccountEntity>lambdaQuery()
 //                    .eq(TaobaoAccountEntity::getType, TaobaoAccountState.Normal.getType()));
@@ -190,7 +190,7 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     @Override
     @Cacheable(value = "getActiveAllByMember", key = "#sysMember.id")
     public List<TaobaoAccountEntity> getActiveAllByMember(SysMember sysMember) {
-        if (sysMember == null || sysMember.isAdministrator()) {
+        if (sysMember == null || sysMember.isAdministrator() || sysMember.isNormal()) {
             return this.baseMapper.getActiveAll();
         }
 

@@ -3,6 +3,7 @@ package highest.flow.taobaolive.taobao.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.api.param.AddRoomParam;
 import highest.flow.taobaolive.api.param.SetLiveRoomStrategyParam;
 import highest.flow.taobaolive.common.annotation.SysLog;
@@ -92,7 +93,11 @@ public class LiveController extends AbstractController {
             liveRoomEntity.setCreatorId("");
             liveRoomEntity.setTalentLiveUrl("");
 
-            R r = taobaoApiService.getLiveDetail(liveId);
+            TaobaoAccountEntity tempAccount = new TaobaoAccountEntity();
+            taobaoApiService.getH5Token(tempAccount);
+            R r = taobaoApiService.getLiveDetail(liveId, tempAccount);
+
+            //R r = taobaoApiService.getLivePreGet(liveId);
             if (r.getCode() != ErrorCodes.SUCCESS) {
                 return r;
             }
@@ -152,7 +157,6 @@ public class LiveController extends AbstractController {
         return R.error("解析淘口令失败");
     }
 
-    @SysLog("上传封面图")
     @PostMapping("/upload_image")
     public R uploadImage(@RequestParam(name = "taobao_account_nick") String taobaoAccountNick,
                          @RequestParam(name = "file") MultipartFile file) {
@@ -175,6 +179,9 @@ public class LiveController extends AbstractController {
             Files.write(path, bytes);
 
             R r = this.taobaoApiService.uploadImage(path, taobaoAccountEntity);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            logger.info(taobaoAccountNick + "：上传封面图，" + objectMapper.writeValueAsString(r));
 
             return r;
 

@@ -28,9 +28,9 @@ public class DashboardController extends AbstractController {
             SysMember sysMember = this.getUser();
 
             int normalCount = taobaoAccountService.getNormalCount(
-                    sysMember.getLevel() == MemberLevel.Administrator.getLevel() ? null : sysMember);
+                    sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? null : sysMember);
             int expiredCount = taobaoAccountService.getExpiredCount(
-                    sysMember.getLevel() == MemberLevel.Administrator.getLevel() ? null : sysMember);
+                    sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? null : sysMember);
 
             return R.ok().put("total_count", normalCount + expiredCount)
                     .put("normal_count", normalCount)

@@ -149,7 +149,7 @@ public class LiveRoomEntityTests {
             ObjectMapper objectMapper = new ObjectMapper();
             System.out.println(objectMapper.writeValueAsString(r));
 
-            R r1 = taobaoApiService.getLiveDetail("267887980908");
+            R r1 = taobaoApiService.getLivePreGet("267887980908");
             System.out.println(objectMapper.writeValueAsString(r1));
 
             LiveRoomEntity liveRoomEntity = (LiveRoomEntity) r.get("live_room");

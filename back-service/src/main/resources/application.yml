@@ -59,6 +59,11 @@ mybatis-plus:
   mapper-locations: classpath:mybatis/mapper/**/*.xml
   config-location: classpath:mybatis/mybatis-config.xml
 
+threadpool:
+  core-pool-size: 3000
+  max-pool-size: 6000
+  queue-capacity: 3000
+
 sign:
   prefix: gaoji
   suffix: yinliu
@@ -72,6 +77,7 @@ license:
 
 taobaolive:
   simulate: true
+  httpsimulate: false
 
 http:
   inspect: true

@@ -8,6 +8,7 @@ import highest.flow.taobaolive.common.http.cookie.DefaultCookieStorePool;
 import highest.flow.taobaolive.common.http.httpclient.response.Response;
 import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
+import highest.flow.taobaolive.common.utils.NumberUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.taobao.defines.LiveRoomState;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
@@ -129,8 +130,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            String creatorId = String.valueOf(mapData.get("taopwdOwnerId"));
-            String talentLiveUrl = String.valueOf(mapData.get("url"));
+            String creatorId = HFStringUtils.valueOf(mapData.get("taopwdOwnerId"));
+            String talentLiveUrl = HFStringUtils.valueOf(mapData.get("url"));
             String liveId = "";
             String[] words = talentLiveUrl.split("[::?&/]");
             for (String word : words) {
@@ -152,21 +153,117 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R getLiveDetail(String liveId) {
+    public R getLiveDetail(String liveId, TaobaoAccountEntity taobaoAccountEntity) {
         try {
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            Map<String, Object> extendMap = new HashMap<>();
+            extendMap.put("version", "201903");
+
             Map<String, Object> jsonParams = new HashMap<>();
             jsonParams.put("ignoreH265", "false");
             jsonParams.put("liveId", liveId);
+            jsonParams.put("extendJson", objectMapper.writeValueAsString(extendMap));
+
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            H5Header h5Header = new H5Header(taobaoAccountEntity);
+            String subUrl = "mtop.mediaplatform.live.livedetail";
+
+            Map<String, Object> urlParams = new HashMap<>();
+            urlParams.put("appKey", h5Header.getAppKey());
+            urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
+            urlParams.put("api", subUrl);
+            urlParams.put("v", "4.0");
+            urlParams.put("data", jsonText);
+            urlParams.put("sign", signService.h5sign(h5Header, jsonText));
+
+            String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/4.0/?";
+
+            for (String key : urlParams.keySet()) {
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
+            }
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)"),
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error("解析直播间信息失败");
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
+            Map<String, Object> mapBroadCaster = (Map<String, Object>) mapData.get("broadCaster");
+            String accountId = HFStringUtils.valueOf(mapBroadCaster.get("accountId"));
+            String accountName = HFStringUtils.valueOf(mapBroadCaster.get("accountName"));
+            int fansNum = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBroadCaster.get("fansNum"))));
+
+            String topic = HFStringUtils.valueOf(mapData.get("topic"));
+            int viewCount = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("viewCount"))));
+            int praiseCount = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("praiseCount"))));
+            int onlineCount = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("joinCount"))));
+
+            long startTimestamp = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(mapData.get("startTime"))));
+            Date startTime = CommonUtils.timestampToDate(startTimestamp);
+            String coverImg = HFStringUtils.valueOf(mapData.get("coverImg"));
+            String coverImg169 = HFStringUtils.valueOf(mapData.get("coverImg169"));
+            String title = HFStringUtils.valueOf(mapData.get("title"));
+            String intro = HFStringUtils.valueOf(mapData.get("descInfo"));
+            int channelId = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("liveChannelId"))));
+            int columnId = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("liveColumnId"))));
+            String location = HFStringUtils.valueOf(mapData.get("location"));
+            int roomStatus = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("roomStatus"))));
+
+            return R.ok()
+                    .put("account_id", accountId)
+                    .put("account_name", accountName)
+                    .put("fans_num", fansNum)
+                    .put("topic", topic)
+                    .put("view_count", viewCount)
+                    .put("praise_count", praiseCount)
+                    .put("online_count", onlineCount)
+                    .put("start_time", startTime)
+                    .put("cover_img", coverImg)
+                    .put("cover_img169", coverImg169)
+                    .put("title", title)
+                    .put("intro", intro)
+                    .put("channel_id", channelId)
+                    .put("column_id", columnId)
+                    .put("location", location)
+                    .put("room_status", roomStatus);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
+    public R getLivePreGet(String liveId) {
+        try {
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("feedId", liveId);
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
-            String subUrl = "mtop.mediaplatform.live.livedetail";
-            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/3.0/?data=" + URLEncoder.encode(jsonText);
+            String subUrl = "mtop.mediaplatform.live.pre.get";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/2.0/?data=" + URLEncoder.encode(jsonText);
 
             XHeader xHeader = new XHeader(new Date());
             xHeader.setSubUrl(subUrl);
-            xHeader.setUrlVer("3.0");
+            xHeader.setUrlVer("2.0");
             xHeader.setData(jsonText);
             xHeader.setXsign(signService.xsign(xHeader));
 
@@ -191,25 +288,25 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
             Map<String, Object> mapBroadCaster = (Map<String, Object>) mapData.get("broadCaster");
-            String accountId = String.valueOf(mapBroadCaster.get("accountId"));
-            String accountName = String.valueOf(mapBroadCaster.get("accountName"));
-            int fansNum = Integer.parseInt(String.valueOf(mapBroadCaster.get("fansNum")));
+            String accountId = HFStringUtils.valueOf(mapBroadCaster.get("accountId"));
+            String accountName = HFStringUtils.valueOf(mapBroadCaster.get("accountName"));
+            int fansNum = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBroadCaster.get("fansNum"))));
 
-            String topic = String.valueOf(mapData.get("topic"));
-            int viewCount = Integer.parseInt(String.valueOf(mapData.get("viewCount")));
-            int praiseCount = Integer.parseInt(String.valueOf(mapData.get("praiseCount")));
-            int onlineCount = Integer.parseInt(String.valueOf(mapData.get("joinCount")));
+            String topic = HFStringUtils.valueOf(mapData.get("topic"));
+            int viewCount = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("viewCount"))));
+            int praiseCount = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("praiseCount"))));
+            int onlineCount = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("joinCount"))));
 
-            long startTimestamp = Long.parseLong(String.valueOf(mapData.get("startTime")));
+            long startTimestamp = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(mapData.get("startTime"))));
             Date startTime = CommonUtils.timestampToDate(startTimestamp);
-            String coverImg = String.valueOf(mapData.get("coverImg"));
-            String coverImg169 = String.valueOf(mapData.get("coverImg169"));
-            String title = String.valueOf(mapData.get("title"));
-            String intro = String.valueOf(mapData.get("descInfo"));
-            int channelId = Integer.parseInt(String.valueOf(mapData.get("liveChannelId")));
-            int columnId = Integer.parseInt(String.valueOf(mapData.get("liveColumnId")));
-            String location = String.valueOf(mapData.get("location"));
-            int roomStatus = Integer.parseInt(String.valueOf(mapData.get("roomStatus")));
+            String coverImg = HFStringUtils.valueOf(mapData.get("coverImg"));
+            String coverImg169 = HFStringUtils.valueOf(mapData.get("coverImg169"));
+            String title = HFStringUtils.valueOf(mapData.get("title"));
+            String intro = HFStringUtils.valueOf(mapData.get("descInfo"));
+            int channelId = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("liveChannelId"))));
+            int columnId = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("liveColumnId"))));
+            String location = HFStringUtils.valueOf(mapData.get("location"));
+            int roomStatus = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("roomStatus"))));
 
             return R.ok()
                     .put("account_id", accountId)
@@ -252,7 +349,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> urlParams = new HashMap<>();
             urlParams.put("appKey", h5Header.getAppKey());
-            urlParams.put("t", String.valueOf(h5Header.getLongTimestamp()));
+            urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
             urlParams.put("api", subUrl);
             urlParams.put("v", "4.0");
             urlParams.put("data", jsonText);
@@ -261,7 +358,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/4.0/?";
 
             for (String key : urlParams.keySet()) {
-                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -284,7 +381,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            int totalNum = Integer.parseInt(String.valueOf(mapData.get("totalNum")));
+            int totalNum = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("totalNum"))));
 
             List<ProductEntity> productEntities = new ArrayList<>();
             List<Map<String, Object>> itemList = (List<Map<String, Object>>) mapData.get("itemList");
@@ -295,11 +392,11 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                 }
 
                 for (Map<String, Object> goodObj : goodsList) {
-                    String itemId = String.valueOf(goodObj.get("itemId"));
-                    String itemName = String.valueOf(goodObj.get("itemName"));
-                    String itemPic = String.valueOf(goodObj.get("itemPic"));
-                    String itemPrice = String.valueOf(goodObj.get("itemPrice"));
-                    String itemUrl = "https://item.taobao.com/item.htm?id=" + itemId; // String.valueOf(goodObj.get("itemUrl"));
+                    String itemId = HFStringUtils.valueOf(goodObj.get("itemId"));
+                    String itemName = HFStringUtils.valueOf(goodObj.get("itemName"));
+                    String itemPic = HFStringUtils.valueOf(goodObj.get("itemPic"));
+                    String itemPrice = HFStringUtils.valueOf(goodObj.get("itemPrice"));
+                    String itemUrl = "https://item.taobao.com/item.htm?id=" + itemId; // HFStringUtils.valueOf(goodObj.get("itemUrl"));
 
                     ProductEntity productEntity = new ProductEntity();
                     productEntity.setProductId(itemId);
@@ -311,22 +408,22 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     Map<String, Object> mapExtendVal = (Map<String, Object>) goodObj.get("extendVal");
                     if (mapExtendVal != null) {
                         if (mapExtendVal.containsKey("timepoint")) {
-                            productEntity.setTimepoint(Long.parseLong(String.valueOf(mapExtendVal.get("timepoint"))));
+                            productEntity.setTimepoint(NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(mapExtendVal.get("timepoint")))));
                         }
 
-                        productEntity.setMonthSales(Integer.parseInt(String.valueOf(mapExtendVal.get("buyCount"))));
-                        productEntity.setCategoryId(String.valueOf(mapExtendVal.get("categoryLevelLeaf")));
-                        productEntity.setCategoryTitle(String.valueOf(mapExtendVal.get("categoryLevelOneName")));
+                        productEntity.setMonthSales(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapExtendVal.get("buyCount")))));
+                        productEntity.setCategoryId(HFStringUtils.valueOf(mapExtendVal.get("categoryLevelLeaf")));
+                        productEntity.setCategoryTitle(HFStringUtils.valueOf(mapExtendVal.get("categoryLevelOneName")));
 
-                        String business = String.valueOf(mapExtendVal.get("business"));
+                        String business = HFStringUtils.valueOf(mapExtendVal.get("business"));
                         Map<String, Object> mapBusiness = jsonParser.parseMap(business);
 
                         Map<String, Object> mapCpsTcpInfo = (Map<String, Object>) mapBusiness.get("cpsTcpInfo");
                         Map<String, Object> mapTaobaoLivetoc = (Map<String, Object>) mapCpsTcpInfo.get("taobaolivetoc");
-                        productEntity.setBusinessSceneId(Integer.parseInt(String.valueOf(mapTaobaoLivetoc.get("businessScenceId"))));
+                        productEntity.setBusinessSceneId(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapTaobaoLivetoc.get("businessScenceId")))));
 
                         Map<String, Object> mapItemBizInfo = (Map<String, Object>) mapBusiness.get("itemBizInfo");
-                        String itemJumpUrl = String.valueOf(mapItemBizInfo.get("itemJumpUrl"));
+                        String itemJumpUrl = HFStringUtils.valueOf(mapItemBizInfo.get("itemJumpUrl"));
                         itemJumpUrl = URLDecoder.decode(itemJumpUrl);
 
                         String [] words = itemJumpUrl.split("&");
@@ -349,7 +446,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                         }
                     }
 
-                    productEntity.setLiveId(String.valueOf(goodObj.get("liveId")));
+                    productEntity.setLiveId(HFStringUtils.valueOf(goodObj.get("liveId")));
 
                     productEntities.add(productEntity);
                 }
@@ -382,7 +479,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> urlParams = new HashMap<>();
             urlParams.put("appKey", h5Header.getAppKey());
-            urlParams.put("t", String.valueOf(h5Header.getLongTimestamp()));
+            urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
             urlParams.put("api", subUrl);
             urlParams.put("v", "1.0");
             urlParams.put("data", jsonText);
@@ -391,7 +488,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/1.0/?";
 
             for (String key : urlParams.keySet()) {
-                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -414,7 +511,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            liveRoomEntity.setHasRankingEntry(Boolean.parseBoolean(String.valueOf(mapData.get("hasRankingListEntry"))));
+            liveRoomEntity.setHasRankingEntry(Boolean.parseBoolean(HFStringUtils.valueOf(mapData.get("hasRankingListEntry"))));
             if (!liveRoomEntity.isHasRankingEntry()) {
                 liveRoomEntity.getRankingListData().setRankingScore(0);
                 liveRoomEntity.getRankingListData().setRankingNum(0);
@@ -424,14 +521,14 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                 Map<String, Object> mapRankingListData = (Map<String, Object>) mapData.get("rankingListData");
                 Map<String, Object> mapBizData = (Map<String, Object>) mapRankingListData.get("bizData");
 
-                liveRoomEntity.getRankingListData().setRankingScore(Integer.parseInt(String.valueOf(mapBizData.get("score"))));
-                liveRoomEntity.getRankingListData().setRankingNum(Integer.parseInt(String.valueOf(mapBizData.get("rankNum"))));
-                liveRoomEntity.getRankingListData().setRankingName(String.valueOf(mapBizData.get("name")));
+                liveRoomEntity.getRankingListData().setRankingScore(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("score")))));
+                liveRoomEntity.getRankingListData().setRankingNum(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("rankNum")))));
+                liveRoomEntity.getRankingListData().setRankingName(HFStringUtils.valueOf(mapBizData.get("name")));
             }
 
             Map<String, Object> mapHierachyData = (Map<String, Object>) mapData.get("hierarchyData");
-            liveRoomEntity.getHierarchyData().setScopeId(mapHierachyData == null ? "-1" : String.valueOf(mapHierachyData.get("scopeId")));
-            liveRoomEntity.getHierarchyData().setSubScopeId(mapHierachyData == null ? "-1" : String.valueOf(mapHierachyData.get("subScopeId")));
+            liveRoomEntity.getHierarchyData().setScopeId(mapHierachyData == null ? "-1" : HFStringUtils.valueOf(mapHierachyData.get("scopeId")));
+            liveRoomEntity.getHierarchyData().setSubScopeId(mapHierachyData == null ? "-1" : HFStringUtils.valueOf(mapHierachyData.get("subScopeId")));
 
             return R.ok()
                     .put("live_room", liveRoomEntity);
@@ -456,7 +553,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             liveRoomEntity.setTalentLiveUrl((String) r.get("talent_live_url"));
 
             String liveId = (String) r.get("live_id");
-            r = this.getLiveDetail(liveId);
+            r = this.getLivePreGet(liveId);
             if (r.getCode() != ErrorCodes.SUCCESS) {
                 return r;
             }
@@ -493,14 +590,14 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     public R getLiveList(TaobaoAccountEntity taobaoAccountEntity, int pageNo, int pageSize) {
         try {
             Map<String, Object> urlParams = new HashMap<>();
-            urlParams.put("currentPage", String.valueOf(pageNo));
-            urlParams.put("pagesize", String.valueOf(pageSize));
+            urlParams.put("currentPage", HFStringUtils.valueOf(pageNo));
+            urlParams.put("pagesize", HFStringUtils.valueOf(pageSize));
             urlParams.put("api", "get_live_list");
 
             String url = "https://liveplatform.taobao.com/live/action.do?";
 
             for (String key : urlParams.keySet()) {
-                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
             }
 
             String refererUrl = "https://liveplatform.taobao.com/live/liveList.htm";
@@ -534,20 +631,20 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             for (Map<String, Object> objData : lstData) {
                 LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
 
-                liveRoomEntity.setLiveId(String.valueOf(objData.get("id")));
-                liveRoomEntity.setAccountId(String.valueOf(objData.get("accountId")));
-                liveRoomEntity.setAccountName(String.valueOf(objData.get("nick")));
-                liveRoomEntity.setTalentLiveUrl(String.valueOf(objData.get("liveUrl")));
-                liveRoomEntity.setTopic(String.valueOf(objData.get("topic")));
-                long startTimestamp = Long.parseLong(String.valueOf(objData.get("startTime")));
+                liveRoomEntity.setLiveId(HFStringUtils.valueOf(objData.get("id")));
+                liveRoomEntity.setAccountId(HFStringUtils.valueOf(objData.get("accountId")));
+                liveRoomEntity.setAccountName(HFStringUtils.valueOf(objData.get("nick")));
+                liveRoomEntity.setTalentLiveUrl(HFStringUtils.valueOf(objData.get("liveUrl")));
+                liveRoomEntity.setTopic(HFStringUtils.valueOf(objData.get("topic")));
+                long startTimestamp = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(objData.get("startTime"))));
                 liveRoomEntity.setLiveAppointmentTime(CommonUtils.timestampToDate(startTimestamp));
-                liveRoomEntity.setLiveCoverImg(String.valueOf(objData.get("coverImg")));
-                int channelId = Integer.parseInt(String.valueOf(objData.get("liveChannelId")));
-                int columnId = Integer.parseInt(String.valueOf(objData.get("liveColumnId")));
+                liveRoomEntity.setLiveCoverImg(HFStringUtils.valueOf(objData.get("coverImg")));
+                int channelId = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(objData.get("liveChannelId"))));
+                int columnId = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(objData.get("liveColumnId"))));
                 liveRoomEntity.setLiveChannelId(channelId);
                 liveRoomEntity.setLiveColumnId(columnId);
-                liveRoomEntity.setLiveLocation(String.valueOf(objData.get("location")));
-                int status = Integer.parseInt(String.valueOf(objData.get("roomStatus")));
+                liveRoomEntity.setLiveLocation(HFStringUtils.valueOf(objData.get("location")));
+                int status = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(objData.get("roomStatus"))));
                 if (status == 0) { // 预告
                     liveRoomEntity.setLiveState(LiveRoomState.Published.getState());
                 } else if (status == 1) { // 正在直播
@@ -622,7 +719,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> urlParams = new HashMap<>();
             urlParams.put("appKey", h5Header.getAppKey());
-            urlParams.put("t", String.valueOf(h5Header.getLongTimestamp()));
+            urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
             urlParams.put("api", subUrl);
             urlParams.put("v", "1.0");
             urlParams.put("data", jsonText);
@@ -631,7 +728,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/1.0/?";
 
             for (String key : urlParams.keySet()) {
-                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -688,7 +785,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> urlParams = new HashMap<>();
             urlParams.put("appKey", h5Header.getAppKey());
-            urlParams.put("t", String.valueOf(h5Header.getLongTimestamp()));
+            urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
             urlParams.put("api", subUrl);
             urlParams.put("v", "1.0");
             urlParams.put("data", jsonText);
@@ -697,7 +794,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/1.0/?";
 
             for (String key : urlParams.keySet()) {
-                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -755,7 +852,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> urlParams = new HashMap<>();
             urlParams.put("appKey", h5Header.getAppKey());
-            urlParams.put("t", String.valueOf(h5Header.getLongTimestamp()));
+            urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
             urlParams.put("api", subUrl);
             urlParams.put("v", "1.0");
             urlParams.put("data", jsonText);
@@ -764,7 +861,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/1.0/?";
 
             for (String key : urlParams.keySet()) {
-                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -809,8 +906,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             postParams.put("coverImg916", "null");
             postParams.put("uploadId", "undefined");
             postParams.put("roomType", "0");
-            postParams.put("liveChannelId", String.valueOf(preLiveRoomSpec.getLiveChannelId()));
-            postParams.put("liveColumnId", String.valueOf(preLiveRoomSpec.getLiveColumnId()));
+            postParams.put("liveChannelId", HFStringUtils.valueOf(preLiveRoomSpec.getLiveChannelId()));
+            postParams.put("liveColumnId", HFStringUtils.valueOf(preLiveRoomSpec.getLiveColumnId()));
             postParams.put("syncYouku", "false");
             postParams.put("useLcps", "false");
             postParams.put("itemList", "[]");
@@ -831,8 +928,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             postParams.put("country", "");
             postParams.put("province", "");
             postParams.put("city", preLiveRoomSpec.getLiveLocation());
-            postParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpec.getLiveAppointmentTime())));
-            postParams.put("liveEndTime", String.valueOf(CommonUtils.dateToTimestamp(CommonUtils.addDays(preLiveRoomSpec.getLiveAppointmentTime(), 30))));
+            postParams.put("appointmentTime", HFStringUtils.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpec.getLiveAppointmentTime())));
+            postParams.put("liveEndTime", HFStringUtils.valueOf(CommonUtils.dateToTimestamp(CommonUtils.addDays(preLiveRoomSpec.getLiveAppointmentTime(), 30))));
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -858,7 +955,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, Object> mapModel = (Map<String, Object>) map.get("model");
 
             LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
-            liveRoomEntity.setLiveId(String.valueOf(mapModel.get("preLiveId")));
+            liveRoomEntity.setLiveId(HFStringUtils.valueOf(mapModel.get("preLiveId")));
             liveRoomEntity.setLiveAppointmentTime(preLiveRoomSpec.getLiveAppointmentTime());
             liveRoomEntity.setLiveCoverImg(preLiveRoomSpec.getLiveCoverImg());
             liveRoomEntity.setLiveCoverImg169(preLiveRoomSpec.getLiveCoverImg169());
@@ -883,12 +980,12 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, String> jsonParams = new HashMap<>();
             jsonParams.put("coverImg", preLiveRoomSpec.getLiveCoverImg());
             jsonParams.put("coverImg169", preLiveRoomSpec.getLiveCoverImg169());
-            jsonParams.put("appointmentTime", String.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpec.getLiveAppointmentTime())));
+            jsonParams.put("appointmentTime", HFStringUtils.valueOf(CommonUtils.dateToTimestamp(preLiveRoomSpec.getLiveAppointmentTime())));
             jsonParams.put("title", preLiveRoomSpec.getLiveTitle());
             jsonParams.put("intro", preLiveRoomSpec.getLiveIntro());
             jsonParams.put("itemIds", "");
-            jsonParams.put("liveChannelId", String.valueOf(preLiveRoomSpec.getLiveChannelId()));
-            jsonParams.put("liveColumnId", String.valueOf(preLiveRoomSpec.getLiveColumnId()));
+            jsonParams.put("liveChannelId", HFStringUtils.valueOf(preLiveRoomSpec.getLiveChannelId()));
+            jsonParams.put("liveColumnId", HFStringUtils.valueOf(preLiveRoomSpec.getLiveColumnId()));
             jsonParams.put("location", preLiveRoomSpec.getLiveLocation());
             jsonParams.put("landScape", "false");
             jsonParams.put("useLcps", "false");
@@ -928,19 +1025,19 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
             LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
-            liveRoomEntity.setLiveId(String.valueOf(mapData.get("liveId")));
-            liveRoomEntity.setAccountId(String.valueOf(mapData.get("accountId")));
-            liveRoomEntity.setTopic(String.valueOf(mapData.get("topic")));
-            liveRoomEntity.setViewCount(Integer.parseInt(String.valueOf(mapData.get("viewCount"))));
-            liveRoomEntity.setPraiseCount(Integer.parseInt(String.valueOf(mapData.get("praiseCount"))));
+            liveRoomEntity.setLiveId(HFStringUtils.valueOf(mapData.get("liveId")));
+            liveRoomEntity.setAccountId(HFStringUtils.valueOf(mapData.get("accountId")));
+            liveRoomEntity.setTopic(HFStringUtils.valueOf(mapData.get("topic")));
+            liveRoomEntity.setViewCount(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("viewCount")))));
+            liveRoomEntity.setPraiseCount(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("praiseCount")))));
             liveRoomEntity.setLiveAppointmentTime(preLiveRoomSpec.getLiveAppointmentTime());
-            liveRoomEntity.setLiveCoverImg(String.valueOf(mapData.get("coverImg")));
-            liveRoomEntity.setLiveCoverImg169(String.valueOf(mapData.get("coverImg169")));
-            liveRoomEntity.setLiveTitle(String.valueOf(mapData.get("title")));
-            liveRoomEntity.setLiveIntro(String.valueOf(mapData.get("intro")));
-            liveRoomEntity.setLiveChannelId(Integer.parseInt(String.valueOf(mapData.get("liveChannelId"))));
-            liveRoomEntity.setLiveColumnId(Integer.parseInt(String.valueOf(mapData.get("liveColumnId"))));
-            liveRoomEntity.setLiveLocation(String.valueOf(mapData.get("location")));
+            liveRoomEntity.setLiveCoverImg(HFStringUtils.valueOf(mapData.get("coverImg")));
+            liveRoomEntity.setLiveCoverImg169(HFStringUtils.valueOf(mapData.get("coverImg169")));
+            liveRoomEntity.setLiveTitle(HFStringUtils.valueOf(mapData.get("title")));
+            liveRoomEntity.setLiveIntro(HFStringUtils.valueOf(mapData.get("intro")));
+            liveRoomEntity.setLiveChannelId(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("liveChannelId")))));
+            liveRoomEntity.setLiveColumnId(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("liveColumnId")))));
+            liveRoomEntity.setLiveLocation(HFStringUtils.valueOf(mapData.get("location")));
 
             return R.ok()
                     .put("live_room", liveRoomEntity);
@@ -1100,9 +1197,9 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapModel = (Map<String, Object>) map.get("model");
-            String imgUrl = "//gw.alicdn.com/img/bao/uploaded/" + String.valueOf(mapModel.get("imgUrl"));
-            String title = String.valueOf(mapModel.get("itemTitle"));
-            String price = String.valueOf(mapModel.get("itemPrice"));
+            String imgUrl = "//gw.alicdn.com/img/bao/uploaded/" + HFStringUtils.valueOf(mapModel.get("imgUrl"));
+            String title = HFStringUtils.valueOf(mapModel.get("itemTitle"));
+            String price = HFStringUtils.valueOf(mapModel.get("itemPrice"));
 
             return R.ok()
                     .put("product_id", productId)
@@ -1266,7 +1363,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, Object> urlParams = new HashMap<>();
             urlParams.put("jsv", "2.5.1");
             urlParams.put("appKey", h5Header.getAppKey());
-            urlParams.put("t", String.valueOf(h5Header.getLongTimestamp()));
+            urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
             urlParams.put("api", subUrl);
             urlParams.put("v", "1.0");
             urlParams.put("data", jsonText);
@@ -1279,7 +1376,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/1.0/?";
 
             for (String key : urlParams.keySet()) {
-                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -1393,15 +1490,15 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String data = (String) mapReturnValue.get("data");
             Map<String, Object> mapRetData = jsonParser.parseMap(data);
 
-            String autoLoginToken = String.valueOf(mapRetData.get("autoLoginToken"));
-            long expires = Long.parseLong(String.valueOf(mapRetData.get("expires")));
+            String autoLoginToken = HFStringUtils.valueOf(mapRetData.get("autoLoginToken"));
+            long expires = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(mapRetData.get("expires"))));
             List<String> lstCookieHeaders = (List<String>) mapRetData.get("cookies");
 
             List<Cookie> lstCookies = CookieHelper.parseCookieHeaders(url, lstCookieHeaders);
 
-            String sid = String.valueOf(mapRetData.get("sid"));
-            String uid = String.valueOf(mapRetData.get("userId"));
-            String nick = String.valueOf(mapRetData.get("nick"));
+            String sid = HFStringUtils.valueOf(mapRetData.get("sid"));
+            String uid = HFStringUtils.valueOf(mapRetData.get("userId"));
+            String nick = HFStringUtils.valueOf(mapRetData.get("nick"));
 
             taobaoAccountEntity.setAutoLoginToken(autoLoginToken);
             taobaoAccountEntity.setSid(sid);
@@ -1452,9 +1549,9 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             QRCode qrCode = new QRCode();
-            String lgToken = String.valueOf(map.get("at"));
-            String qrCodeUrl = String.valueOf(map.get("url"));
-            long timestamp = Long.parseLong(String.valueOf(map.get("t")));
+            String lgToken = HFStringUtils.valueOf(map.get("at"));
+            String qrCodeUrl = HFStringUtils.valueOf(map.get("url"));
+            long timestamp = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(map.get("t"))));
 
             qrCode.setTimestamp(timestamp);
             qrCode.setAccessToken(lgToken);
@@ -1480,7 +1577,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             String url = "https://login.m.taobao.com/qrcodeLogin.htm?";
             for (String key : jsonParams.keySet()) {
-                url += key + "=" + URLEncoder.encode(String.valueOf(jsonParams.get(key))) + "&";
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(jsonParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -1556,7 +1653,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             tokenInfo.put("utdid", taobaoAccountEntity.getUtdid());
             tokenInfo.put("appName", "25443018");
             tokenInfo.put("token", qrCode.getAccessToken());
-            tokenInfo.put("t", String.valueOf(qrCode.getTimestamp()));
+            tokenInfo.put("t", HFStringUtils.valueOf(qrCode.getTimestamp()));
 
             Map<String, String> umidToken = new HashMap<>();
             umidToken.put("umidToken", taobaoAccountEntity.getUmidToken());
@@ -1597,18 +1694,18 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
             Map<String, Object> mapReturnValue = (Map<String, Object>) mapData.get("returnValue");
-            String data = String.valueOf(mapReturnValue.get("data"));
+            String data = HFStringUtils.valueOf(mapReturnValue.get("data"));
             Map<String, Object> mapRetData = jsonParser.parseMap(data);
 
-            String autoLoginToken = String.valueOf(mapRetData.get("autoLoginToken"));
-            long expires = Long.parseLong(String.valueOf(mapRetData.get("expires")));
+            String autoLoginToken = HFStringUtils.valueOf(mapRetData.get("autoLoginToken"));
+            long expires = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(mapRetData.get("expires"))));
             List<String> lstCookieHeaders = (List<String>) mapRetData.get("cookies");
 
             List<Cookie> lstCookies = CookieHelper.parseCookieHeaders(url, lstCookieHeaders);
 
-            String sid = String.valueOf(mapRetData.get("sid"));
-            String uid = String.valueOf(mapRetData.get("userId"));
-            String nick = String.valueOf(mapRetData.get("nick"));
+            String sid = HFStringUtils.valueOf(mapRetData.get("sid"));
+            String uid = HFStringUtils.valueOf(mapRetData.get("userId"));
+            String nick = HFStringUtils.valueOf(mapRetData.get("nick"));
 
             taobaoAccountEntity.setAutoLoginToken(autoLoginToken);
             taobaoAccountEntity.setSid(sid);
@@ -1697,7 +1794,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             List<Map> dataList = (List<Map>)map.get("data");
             if (dataList.size() > 0) {
                 Map<String, Object> testMap = (Map<String, Object>)dataList.get(0);
-                String umtid = String.valueOf(testMap.get("test"));
+                String umtid = HFStringUtils.valueOf(testMap.get("test"));
                 return R.ok()
                     .put("umtid", umtid.replace("{", "").replace("}", ""));
             }
@@ -1725,7 +1822,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             String url = "https://acs.m.taobao.com/h5/" + subUrl + "/1.0/?";
             for (String key : paramMap.keySet()) {
-                url += key + "=" + URLEncoder.encode(String.valueOf(paramMap.get(key))) + "&";
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(paramMap.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -1777,7 +1874,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> urlParams = new HashMap<>();
             urlParams.put("appKey", h5Header.getAppKey());
-            urlParams.put("t", String.valueOf(h5Header.getLongTimestamp()));
+            urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
             urlParams.put("api", subUrl);
             urlParams.put("v", "4.0");
             urlParams.put("data", jsonText);
@@ -1786,7 +1883,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/4.0/?";
 
             for (String key : urlParams.keySet()) {
-                url += key + "=" + URLEncoder.encode(String.valueOf(urlParams.get(key))) + "&";
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
             }
 
             Response<String> response = HttpHelper.execute(
@@ -1809,7 +1906,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            String deviceId = String.valueOf(mapData.get("device_id"));
+            String deviceId = HFStringUtils.valueOf(mapData.get("device_id"));
 
             return R.ok()
                     .put("device_id", deviceId);
@@ -1854,7 +1951,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapModel = (Map<String, Object>) map.get("model");
-            String filePath = String.valueOf(mapModel.get("tfsFilePath"));
+            String filePath = HFStringUtils.valueOf(mapModel.get("tfsFilePath"));
 
             return R.ok().put("file_path", "https://gw.alicdn.com/tfscom/" + filePath);
 

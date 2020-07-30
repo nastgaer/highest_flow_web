@@ -4,6 +4,9 @@
     <cache alias="queryTaobaoAccounts">
         <key-type>java.lang.Object</key-type>
         <value-type>java.util.List</value-type>
+        <expiry>
+            <ttl unit="hours">10</ttl>
+        </expiry>
 
         <resources>
             <heap unit="entries">1000</heap>
@@ -14,6 +17,9 @@
     <cache alias="getActiveAllByMember">
         <key-type>java.lang.Integer</key-type>
         <value-type>java.util.List</value-type>
+        <expiry>
+            <ttl unit="hours">10</ttl>
+        </expiry>
 
         <resources>
             <heap unit="entries">1000</heap>

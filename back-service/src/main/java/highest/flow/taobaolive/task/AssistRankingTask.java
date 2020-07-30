@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,6 +42,9 @@ public class AssistRankingTask implements ITask {
 
     @Value("${taobaolive.simulate:false}")
     private boolean simulate;
+
+    @Value("${taobaolive.httpsimulate:false}")
+    private boolean httpsimulate;
 
     @Autowired
     private MemberService memberService;
@@ -84,7 +88,21 @@ public class AssistRankingTask implements ITask {
 
             SysMember sysMember = memberService.getById(rankingEntity.getMemberId());
 
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            logger.info("任务详细，TaskID：" + taskId +
+                    ", 淘口令：" + rankingEntity.getTaocode() +
+                    "，直播间ID：" + rankingEntity.getLiveId() +
+                    "，直播间名称：" + rankingEntity.getRoomName() +
+                    ", 目标助力值：" + rankingEntity.getTargetScore() +
+                    ", 起始助力值：" + rankingEntity.getStartScore() +
+                    ", 是否加购：" + rankingEntity.isDoubleBuy() +
+                    "，开始时间：" + sdf.format(rankingEntity.getStartTime()));
+
             List<TaobaoAccountEntity> taobaoAccountEntities = rankingService.availableAccounts(sysMember, rankingEntity.getLiveId());
+
+            logger.info("TaskID：" + taskId + "，有效小号数：" + ((taobaoAccountEntities == null || taobaoAccountEntities.size() < 1) ? 0 : taobaoAccountEntities.size()));
+
             if (taobaoAccountEntities == null || taobaoAccountEntities.size() < 1) {
                 rankingEntity.setState(RankingEntityState.Stopped.getState());
                 return;
@@ -156,11 +174,16 @@ public class AssistRankingTask implements ITask {
                 int assistCount = 0;
                 int idx = 0;
                 for (idx = startIndex; idx < startIndex + totalCount && idx < taobaoAccountEntities.size() && this.isRunning(rankingEntity); idx++) {
-                    TaobaoAccountEntity taobaoAccountEntity = taobaoAccountEntities.get(idx);
-                    rankingExecutor.execute(
-                            new AssistRunnable(rankingEntity, liveRoomEntity, taobaoAccountEntity)
-                    );
-                    assistCount++;
+                    try {
+                        TaobaoAccountEntity taobaoAccountEntity = taobaoAccountEntities.get(idx);
+                        rankingExecutor.execute(
+                                new AssistRunnable(rankingEntity, liveRoomEntity, taobaoAccountEntity)
+                        );
+                        assistCount++;
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        idx--;
+                    }
                 }
 
                 // 万一被强制停止了呢？
@@ -219,6 +242,8 @@ public class AssistRankingTask implements ITask {
         } catch (Exception ex) {
             ex.printStackTrace();
 
+            logger.error(ex.toString());
+
             rankingEntity.setState(RankingEntityState.Error.getState());
 
         } finally {
@@ -264,6 +289,13 @@ public class AssistRankingTask implements ITask {
         }
     }
 
+    private synchronized void addScore(LiveRoomEntity liveRoomEntity, int score) {
+        if (!simulate) {
+            return;
+        }
+        liveRoomEntity.getRankingListData().setRankingScore(liveRoomEntity.getRankingListData().getRankingScore() + score);
+    }
+
     class AssistRunnable implements Runnable {
 
         private RankingEntity rankingEntity;
@@ -293,14 +325,32 @@ public class AssistRankingTask implements ITask {
 
                 // 清醒session
                 {
-                    Thread.sleep(100);
+                    if (httpsimulate) {
+                        // 初始化
+                        taobaoApiService.getH5Token(activeAccount);
+                    } else {
+                        Thread.sleep(100);
+                    }
                 }
 
                 // 关注
                 {
-                    Thread.sleep(100);
+                    if (httpsimulate) {
+                        R r = taobaoApiService.taskFollow(liveRoomEntity, activeAccount);
+                        if (r.getCode() != ErrorCodes.SUCCESS) {
+                            r = taobaoApiService.taskFollow(liveRoomEntity, activeAccount);
+                        }
+                        if (r.getCode() != ErrorCodes.SUCCESS) {
+                            r = taobaoApiService.taskFollow(liveRoomEntity, activeAccount);
+                        }
+                    } else {
+                        Thread.sleep(100);
+                    }
+
                     int followScore = rankingEntity.isDoubleBuy() ? RankingScore.DoubleBuyFollow.getScore() : RankingScore.Follow.getScore();
-                    liveRoomEntity.getRankingListData().setRankingScore(liveRoomEntity.getRankingListData().getRankingScore() + followScore);
+                    addScore(liveRoomEntity, followScore);
+
+                    logger.info(Thread.currentThread().getId() + " 加关注：" + followScore);
                 }
 
                 if (!isRunning(rankingEntity)) {
@@ -310,14 +360,40 @@ public class AssistRankingTask implements ITask {
                 // 观看停留
                 {
                     int stayScore = rankingEntity.isDoubleBuy() ? RankingScore.DoubleBuyWatch.getScore() : RankingScore.Watch.getScore();
-                    for (int time = 60; time <= 3000; time += 60) {
-                        Thread.sleep(100);
+                    if (httpsimulate) {
+                        if (stayScore > 0) {
+                            for (int time = 60; time <= 3000; time += 60) {
+                                R r = taobaoApiService.taskStay(liveRoomEntity, activeAccount, time);
 
-                        if (!isRunning(rankingEntity)) {
-                            return;
+                                logger.info(Thread.currentThread().getId() + " 停留：" + time + "秒");
+
+//                        if (r.getCode() != ErrorCodes.SUCCESS) {
+//                            r = taobaoApiService.taskStay(liveRoomEntity, activeAccount, time);
+//                        }
+//                        if (r.getCode() != ErrorCodes.SUCCESS) {
+//                            r = taobaoApiService.taskStay(liveRoomEntity, activeAccount, time);
+//                        }
+
+                                if (!isRunning(rankingEntity)) {
+                                    return;
+                                }
+                            }
+
+                            addScore(liveRoomEntity, stayScore);
+                        }
+                    } else {
+                        if (stayScore > 0) {
+                            for (int time = 60; time <= 3000; time += 60) {
+                                Thread.sleep(100);
+
+                                if (!isRunning(rankingEntity)) {
+                                    return;
+                                }
+                            }
+                            addScore(liveRoomEntity, stayScore);
                         }
                     }
-                    liveRoomEntity.getRankingListData().setRankingScore(liveRoomEntity.getRankingListData().getRankingScore() + stayScore);
+                    logger.info(Thread.currentThread().getId() + " 加观看停留：" + stayScore);
                 }
 
                 if (!isRunning(rankingEntity)) {
@@ -327,15 +403,41 @@ public class AssistRankingTask implements ITask {
                 // 购买
                 {
                     int buyScore = rankingEntity.isDoubleBuy() ? RankingScore.DoubleBuyBuy.getScore() : RankingScore.Buy.getScore();
-                    List<ProductEntity> productEntities = liveRoomEntity.getProducts();
-                    for (int idx = 0; idx < productEntities.size(); idx++) {
-                        Thread.sleep(100);
+                    if (httpsimulate) {
+                        if (buyScore > 0) {
+                            List<ProductEntity> productEntities = liveRoomEntity.getProducts();
+                            for (int idx = 0; idx < productEntities.size(); idx++) {
+                                R r = taobaoApiService.taskBuy(liveRoomEntity, activeAccount, productEntities.get(idx).getProductId());
+//                        if (r.getCode() != ErrorCodes.SUCCESS) {
+//                            r = taobaoApiService.taskBuy(liveRoomEntity, activeAccount, productEntities.get(idx).getProductId());
+//                        }
+//                        if (r.getCode() != ErrorCodes.SUCCESS) {
+//                            r = taobaoApiService.taskBuy(liveRoomEntity, activeAccount, productEntities.get(idx).getProductId());
+//                        }
 
-                        if (!isRunning(rankingEntity)) {
-                            return;
+                                logger.info(Thread.currentThread().getId() + " 购买：第" + (idx+1) + "个");
+
+                                if (!isRunning(rankingEntity)) {
+                                    return;
+                                }
+                            }
+
+                            addScore(liveRoomEntity, buyScore);
+                        }
+
+                    } else {
+                        if (buyScore > 0) {
+                            List<ProductEntity> productEntities = liveRoomEntity.getProducts();
+                            for (int idx = 0; idx < productEntities.size(); idx++) {
+                                Thread.sleep(100);
+
+                                if (!isRunning(rankingEntity)) {
+                                    return;
+                                }
+                            }
                         }
                     }
-                    liveRoomEntity.getRankingListData().setRankingScore(liveRoomEntity.getRankingListData().getRankingScore() + buyScore);
+                    logger.info(Thread.currentThread().getId() + " 加购买：" + buyScore);
                 }
 
             } catch (Exception ex) {
@@ -354,22 +456,22 @@ public class AssistRankingTask implements ITask {
             }
 
             try {
-                // 初始化
-                taobaoApiService.getH5Token(activeAccount);
-
                 if (!isRunning(rankingEntity)) {
                     return;
                 }
 
+                // 初始化
+                taobaoApiService.getH5Token(activeAccount);
+
                 // 关注
                 {
                     R r = taobaoApiService.taskFollow(liveRoomEntity, activeAccount);
-                    if (r.getCode() != ErrorCodes.SUCCESS) {
-                        r = taobaoApiService.taskFollow(liveRoomEntity, activeAccount);
-                    }
-                    if (r.getCode() != ErrorCodes.SUCCESS) {
-                        r = taobaoApiService.taskFollow(liveRoomEntity, activeAccount);
-                    }
+//                    if (r.getCode() != ErrorCodes.SUCCESS) {
+//                        r = taobaoApiService.taskFollow(liveRoomEntity, activeAccount);
+//                    }
+//                    if (r.getCode() != ErrorCodes.SUCCESS) {
+//                        r = taobaoApiService.taskFollow(liveRoomEntity, activeAccount);
+//                    }
                 }
 
                 if (!isRunning(rankingEntity)) {
@@ -381,12 +483,12 @@ public class AssistRankingTask implements ITask {
                     for (int time = 60; time <= 3000; time += 60) {
                         R r = taobaoApiService.taskStay(liveRoomEntity, activeAccount, time);
 
-                        if (r.getCode() != ErrorCodes.SUCCESS) {
-                            r = taobaoApiService.taskStay(liveRoomEntity, activeAccount, time);
-                        }
-                        if (r.getCode() != ErrorCodes.SUCCESS) {
-                            r = taobaoApiService.taskStay(liveRoomEntity, activeAccount, time);
-                        }
+//                        if (r.getCode() != ErrorCodes.SUCCESS) {
+//                            r = taobaoApiService.taskStay(liveRoomEntity, activeAccount, time);
+//                        }
+//                        if (r.getCode() != ErrorCodes.SUCCESS) {
+//                            r = taobaoApiService.taskStay(liveRoomEntity, activeAccount, time);
+//                        }
 
                         if (!isRunning(rankingEntity)) {
                             return;
@@ -403,12 +505,12 @@ public class AssistRankingTask implements ITask {
                     List<ProductEntity> productEntities = liveRoomEntity.getProducts();
                     for (int idx = 0; idx < productEntities.size(); idx++) {
                         R r = taobaoApiService.taskBuy(liveRoomEntity, activeAccount, productEntities.get(idx).getProductId());
-                        if (r.getCode() != ErrorCodes.SUCCESS) {
-                            r = taobaoApiService.taskBuy(liveRoomEntity, activeAccount, productEntities.get(idx).getProductId());
-                        }
-                        if (r.getCode() != ErrorCodes.SUCCESS) {
-                            r = taobaoApiService.taskBuy(liveRoomEntity, activeAccount, productEntities.get(idx).getProductId());
-                        }
+//                        if (r.getCode() != ErrorCodes.SUCCESS) {
+//                            r = taobaoApiService.taskBuy(liveRoomEntity, activeAccount, productEntities.get(idx).getProductId());
+//                        }
+//                        if (r.getCode() != ErrorCodes.SUCCESS) {
+//                            r = taobaoApiService.taskBuy(liveRoomEntity, activeAccount, productEntities.get(idx).getProductId());
+//                        }
 
                         if (!isRunning(rankingEntity)) {
                             return;

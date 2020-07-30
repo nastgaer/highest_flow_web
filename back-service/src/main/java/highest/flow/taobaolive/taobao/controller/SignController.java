@@ -1,6 +1,7 @@
 package highest.flow.taobaolive.taobao.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.security.service.CryptoService;
@@ -9,10 +10,7 @@ import highest.flow.taobaolive.taobao.service.SignService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class SignController {
@@ -25,6 +23,7 @@ public class SignController {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
+    @SysLog("xsign")
     @PostMapping("/v1.0/xsign")
     public R xsign(@RequestParam(name = "data") String data, @RequestParam(name = "sign") String sign) {
 
@@ -42,6 +41,23 @@ public class SignController {
             ObjectMapper objectMapper = new ObjectMapper();
             XHeader xHeader = objectMapper.readValue(plain, XHeader.class);
 
+            String xsign = signService.xsign(xHeader);
+            if (!HFStringUtils.isNullOrEmpty(xsign)) {
+                return R.ok("成功").put("xsign", xsign).put("encoded", xHeader.isEncoded());
+            }
+
+            return R.error("xsign验证失败");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return R.error("参数验证失败");
+        }
+    }
+
+    @SysLog("xsign2")
+    @PostMapping("/v1.0/xsign2")
+    public R xsign2(@RequestBody XHeader xHeader) {
+        try {
             String xsign = signService.xsign(xHeader);
             if (!HFStringUtils.isNullOrEmpty(xsign)) {
                 return R.ok("成功").put("xsign", xsign).put("encoded", xHeader.isEncoded());

@@ -220,4 +220,8 @@ public class HFStringUtils {
         byte[] bytes = rawString.getBytes(Charset.defaultCharset());
         return new String(bytes, Charset.defaultCharset());
     }
+
+    public static String valueOf(Object obj) {
+        return obj == null ? "" : String.valueOf(obj);
+    }
 }

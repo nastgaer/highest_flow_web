@@ -84,9 +84,13 @@ public class BatchLiveRoomTask implements ITask {
                 return;
             }
 
+            TaobaoAccountEntity tempAccount = new TaobaoAccountEntity();
+            taobaoApiService.getH5Token(tempAccount);
+
             // 等待直播中的直播间结束
             while (playingLiveRoom != null) {
-                R r = taobaoApiService.getLiveDetail(playingLiveRoom.getLiveId());
+                // R r = taobaoApiService.getLivePreGet(playingLiveRoom.getLiveId());
+                R r = taobaoApiService.getLiveDetail(playingLiveRoom.getLiveId(), tempAccount);
                 if (r.getCode() == ErrorCodes.SUCCESS) {
                     int roomStatus = (int) r.get("room_status");
                     if (roomStatus == LiveRoomState.Stopped.getState() ||

@@ -19,6 +19,9 @@ public class LiveRoomProductServiceImpl extends ServiceImpl<ProductDao, ProductE
 
     @Override
     public void saveProducts(String liveId, List<ProductEntity> products) {
+        if (products.size() < 1) {
+            return;
+        }
         for (ProductEntity productEntity : products) {
             productEntity.setLiveId(liveId);
         }

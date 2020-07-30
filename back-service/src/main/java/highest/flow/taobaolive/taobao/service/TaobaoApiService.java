@@ -81,7 +81,14 @@ public interface TaobaoApiService {
      * @param liveId
      * @return
      */
-    public R getLiveDetail(String liveId);
+    public R getLiveDetail(String liveId, TaobaoAccountEntity taobaoAccountEntity);
+
+    /**
+     * 获取直播间详细信息
+     * @param liveId
+     * @return
+     */
+    public R getLivePreGet(String liveId);
 
     /**
      * 获取直播间商品

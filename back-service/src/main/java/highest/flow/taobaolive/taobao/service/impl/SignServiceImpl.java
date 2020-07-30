@@ -21,12 +21,8 @@ public class SignServiceImpl implements SignService {
 
     private int mode = 1;
 
-    private int[] availablePorts = new int[]{
-            59316, 58119, 58114, 58120
-    };
-    private int port2 = 59316;
-
-    private String prepareXSign1(XHeader xHeader, int port) {
+    @Override
+    public String xsign1(XHeader xHeader) {
         try {
             xHeader.setEncoded(true);
             String aes = CryptoUtils.MD5(xHeader.getData());
@@ -37,7 +33,7 @@ public class SignServiceImpl implements SignService {
 
             String timeMD5 = CryptoUtils.MD5(String.valueOf(xHeader.getLongTimestamp()));
 
-            String url = "http://1.192.134.231:" + port + "/xdata?data=" + plain + "&apiKey=&t=&apiSign=" + URLEncoder.encode(timeMD5);
+            String url = "http://1.192.134.231:59316/xdata?data=" + plain + "&apiKey=&t=&apiSign=" + URLEncoder.encode(timeMD5);
 
             SiteConfig siteConfig = new SiteConfig()
                     .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
@@ -60,23 +56,6 @@ public class SignServiceImpl implements SignService {
         } catch (Exception ex) {
             System.out.println(ex.toString());
         }
-        return null;
-    }
-
-    @Override
-    public String xsign1(XHeader xHeader) {
-        String xsign = prepareXSign1(xHeader, port2);
-        if (!HFStringUtils.isNullOrEmpty(xsign)) {
-            return xsign;
-        }
-//
-//        for (int port : availablePorts) {
-//            xsign = prepareXSign1(xHeader, port);
-//            if (!HFStringUtils.isNullOrEmpty(xsign)) {
-//                port2 = port;
-//                return xsign;
-//            }
-//        }
         return null;
     }
 
@@ -180,16 +159,16 @@ public class SignServiceImpl implements SignService {
             if (!HFStringUtils.isNullOrEmpty(xsign)) {
                 return xsign;
             }
-            mode = 2;
-        }
-
-        if (mode == 2) {
-            String xsign = xsign2(xHeader);
-            if (!HFStringUtils.isNullOrEmpty(xsign)) {
-                return xsign;
-            }
             mode = 3;
         }
+
+//        if (mode == 2) {
+//            String xsign = xsign2(xHeader);
+//            if (!HFStringUtils.isNullOrEmpty(xsign)) {
+//                return xsign;
+//            }
+//            mode = 3;
+//        }
         return "";
     }
 

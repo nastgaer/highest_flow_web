@@ -58,6 +58,9 @@ public class LiveRoomStrategyServiceImpl extends ServiceImpl<LiveRoomStrategyDao
 
             String expression = String.format("%d %d %d 1/1 * ? *", second, minute, hour);
 
+            this.schedulerJobService.remove(Wrappers.<ScheduleJobEntity>lambdaQuery()
+                    .eq(ScheduleJobEntity::getParams, taobaoAccountNick));
+
             ScheduleJobEntity scheduleJobEntity = new ScheduleJobEntity();
             scheduleJobEntity.setBeanName("batchLiveRoomTask");
             scheduleJobEntity.setParams(taobaoAccountNick);

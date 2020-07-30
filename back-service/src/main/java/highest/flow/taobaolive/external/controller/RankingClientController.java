@@ -6,7 +6,9 @@ import highest.flow.taobaolive.api.param.AddRankingTaskParam;
 import highest.flow.taobaolive.api.param.AddRankingTaskParam2;
 import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.common.annotation.SysLog;
+import highest.flow.taobaolive.common.config.Config;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
+import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.external.params.BaseParam;
@@ -66,8 +68,8 @@ public class RankingClientController extends AbstractController {
     @Autowired
     private CryptoService cryptoService;
 
-    @Autowired
-    private CacheManager cacheManager;
+//    @Autowired
+//    private CacheManager cacheManager;
 
     @PostMapping("/reg")
     public R reg(@RequestBody BaseParam param) {
@@ -89,6 +91,16 @@ public class RankingClientController extends AbstractController {
             R r = callApi(param.getVersion(),
                     param.getApi(),
                     plain);
+
+            // LOGGING
+            Map<String, Object> map = new HashMap<>();
+            map.put("version", param.getVersion());
+            map.put("method", param.getApi());
+            map.put("params", plain);
+            map.put("returns", r);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String log = objectMapper.writeValueAsString(map);
+            logger.info(log);
 
             if (r.getCode() != ErrorCodes.SUCCESS) {
                 return r;
@@ -124,6 +136,16 @@ public class RankingClientController extends AbstractController {
             R r = callApi(param.getVersion(),
                     param.getApi(),
                     plain);
+
+            // LOGGING
+            Map<String, Object> map = new HashMap<>();
+            map.put("version", param.getVersion());
+            map.put("method", param.getApi());
+            map.put("params", plain);
+            map.put("returns", r);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String log = objectMapper.writeValueAsString(map);
+            logger.info(log);
 
             if (r.getCode() != ErrorCodes.SUCCESS) {
                 return r;
@@ -329,47 +351,41 @@ public class RankingClientController extends AbstractController {
         return R.error();
     }
 
-    @SysLog("获取直播间信息")
-    public R v1_1_get_live_info(SysMember sysMember, String plain) {
+    @SysLog("获取直播间赛道信息")
+    public R v1_1_get_live_entry(SysMember sysMember, String plain) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             Map<String, Object> map = (Map<String, Object>) objectMapper.readValue(plain, Map.class);
 
             String liveId = (String) map.get("live_id");
+            String accountId = (String) map.get("account_id");
 
             LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
             liveRoomEntity.setLiveId(liveId);
-            liveRoomEntity.setCreatorId("");
-            liveRoomEntity.setTalentLiveUrl("");
+            liveRoomEntity.setAccountId(accountId);
 
-            R r = taobaoApiService.getLiveDetail(liveId);
-            if (r.getCode() != ErrorCodes.SUCCESS) {
-                return r;
-            }
+            PageParam pageParam = new PageParam();
+            pageParam.setPageNo(1);
+            pageParam.setPageSize(20);
 
-            liveRoomEntity.setAccountId((String) r.get("account_id"));
-            liveRoomEntity.setAccountName((String) r.get("account_name"));
-            liveRoomEntity.setFansNum((int) r.get("fans_num"));
-            liveRoomEntity.setTopic((String) r.get("topic"));
-            liveRoomEntity.setViewCount((int) r.get("view_count"));
-            liveRoomEntity.setPraiseCount((int) r.get("praise_count"));
-            liveRoomEntity.setOnlineCount((int) r.get("online_count"));
-            liveRoomEntity.setLiveCoverImg((String) r.get("cover_img"));
-            liveRoomEntity.setLiveCoverImg169((String) r.get("cover_img169"));
-            liveRoomEntity.setLiveTitle((String) r.get("title"));
-            liveRoomEntity.setLiveIntro((String) r.get("intro"));
-            liveRoomEntity.setLiveChannelId((int) r.get("channel_id"));
-            liveRoomEntity.setLiveColumnId((int) r.get("column_id"));
-            liveRoomEntity.setLiveLocation((String) r.get("location"));
+            PageUtils pageUtils = this.taobaoAccountService.queryPage(null, pageParam);
 
-            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(null);
-
-            if (taobaoAccountEntity != null) {
+            List<TaobaoAccountEntity> taobaoAccountEntities = pageUtils.getList();
+            for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
+                TaobaoAccountEntity taobaoAccountEntity = taobaoAccountEntities.get(retry);
                 this.taobaoApiService.getH5Token(taobaoAccountEntity);
-                this.taobaoApiService.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+                R r = this.taobaoApiService.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+                if (r.getCode() != ErrorCodes.SUCCESS) {
+                    continue;
+                }
+                break;
             }
 
-            return R.ok().put("live_room", liveRoomEntity);
+            return R.ok()
+                    .put("has_ranking_entry", liveRoomEntity.isHasRankingEntry())
+                    .put("ranking_score", liveRoomEntity.getRankingListData().getRankingScore())
+                    .put("ranking_num", liveRoomEntity.getRankingListData().getRankingNum())
+                    .put("ranking_name", liveRoomEntity.getRankingListData().getRankingName());
 
         } catch (Exception ex) {
             ex.printStackTrace();

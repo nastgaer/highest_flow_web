@@ -12,6 +12,7 @@ import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import highest.flow.taobaolive.job.service.ScheduleJobService;
 import highest.flow.taobaolive.job.utils.ScheduleUtils;
 import highest.flow.taobaolive.sys.controller.AbstractController;
+import highest.flow.taobaolive.sys.defines.MemberLevel;
 import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.QRCode;
@@ -65,7 +66,16 @@ public class TaobaoAccountController extends AbstractController {
             SysMember sysMember = this.getUser();
             PageUtils pageUtils = this.taobaoAccountService.queryPage(sysMember, pageParam);
 
-            return R.ok().put("users", pageUtils.getList()).put("total_count", pageUtils.getTotalCount());
+            int normalCount = taobaoAccountService.getNormalCount(
+                    sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? null : sysMember);
+            int expiredCount = taobaoAccountService.getExpiredCount(
+                    sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? null : sysMember);
+
+            return R.ok()
+                    .put("users", pageUtils.getList())
+                    .put("total_count", pageUtils.getTotalCount())
+                    .put("normal_count", normalCount)
+                    .put("expired_count", expiredCount);
 
         } catch (Exception ex) {
             ex.printStackTrace();

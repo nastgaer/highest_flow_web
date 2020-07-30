@@ -96,13 +96,13 @@ public interface TaobaoApiService {
      */
     public R getLiveEntry(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
 
-    /**
-     * 解析淘口令获取直播间信息
-     * @param taocode
-     * @param taobaoAccountEntity
-     * @return
-     */
-    public R getLiveInfo(String taocode, TaobaoAccountEntity taobaoAccountEntity);
+//    /**
+//     * 解析淘口令获取直播间信息
+//     * @param taocode
+//     * @param taobaoAccountEntity
+//     * @return
+//     */
+//    public R getLiveInfo(String taocode, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 获取直播列表
