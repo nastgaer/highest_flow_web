@@ -17,8 +17,8 @@ public class PreLiveRoomSpec {
 
     private String liveIntro;
 
-    @JsonFormat(timezone = "GMT+8", pattern = "HH:mm:ss")
-    @DateTimeFormat(pattern = "HH:mm:ss")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date liveAppointmentTime;
 
     private int liveChannelId;

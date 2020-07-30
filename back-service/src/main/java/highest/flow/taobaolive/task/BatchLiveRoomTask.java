@@ -138,14 +138,18 @@ public class BatchLiveRoomTask implements ITask {
                 Date operationTime = memberTaoAccEntity.getOperationStartTime();
 
                 Date today = new Date();
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(today.getYear(), today.getMonth(), today.getDay(), appointmentTime.getHours(), appointmentTime.getMinutes(), appointmentTime.getSeconds());
+                today.setHours(appointmentTime.getHours());
+                today.setMinutes(appointmentTime.getMinutes());
+                today.setSeconds(appointmentTime.getSeconds());
 
                 if (operationTime.getHours() > appointmentTime.getHours() || (operationTime.getHours() == appointmentTime.getHours() && operationTime.getMinutes() > appointmentTime.getMinutes())) {
                     // 下一天
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(today);
                     calendar.add(Calendar.DAY_OF_MONTH, 1);
+                    today = calendar.getTime();
                 }
-                appointmentTime = calendar.getTime();
+                appointmentTime = today;
 
                 liveRoomEntity.setLiveAppointmentTime(appointmentTime);
 
@@ -210,12 +214,13 @@ public class BatchLiveRoomTask implements ITask {
                     }
                 }
 
-                List<ProductEntity> products = liveRoomProductService.getProducts(liveRoomEntity.getLiveId());
+                List<ProductEntity> products = liveRoomProductService.getProducts(liveRoomEntity);
 
                 for (ProductEntity productEntity : products) {
                     String productId = productEntity.getProductId();
                     productId = StringUtils.strip(productId, "\r\n ");
                     productEntity.setProductId(productId);
+                    productEntity.setLiveId(liveRoomEntity.getLiveId());
 
                     for (int idxRetry = 0; idxRetry < Config.MAX_RETRY; idxRetry++) {
                         if (HFStringUtils.isNullOrEmpty(productEntity.getPicurl()) || HFStringUtils.isNullOrEmpty(productEntity.getTitle())) {
@@ -241,7 +246,7 @@ public class BatchLiveRoomTask implements ITask {
                 }
 
                 liveRoomEntity.setProducts(products);
-                this.liveRoomProductService.saveProducts(liveRoomEntity.getLiveId(), products);
+                this.liveRoomProductService.saveProducts(products);
 
                 if (liveRoomEntity.getLiveKind() == LiveRoomKind.Flow.getKind() && liveRoomEntity.getLiveState() == LiveRoomState.Started.getState()) {
                     for (int idxRetry = 0; idxRetry < Config.MAX_RETRY; idxRetry++) {
@@ -290,9 +295,10 @@ public class BatchLiveRoomTask implements ITask {
     private void searchProducts(List<LiveRoomEntity> liveRoomEntities) {
         try {
             Set<String> productIds = new HashSet<>();
+            Map<ProductCategory, Integer> startAtMap = new HashMap<>();
 
             for (LiveRoomEntity liveRoomEntity : liveRoomEntities) {
-                List<ProductEntity> productEntities = this.liveRoomProductService.getProducts(liveRoomEntity.getLiveId());
+                List<ProductEntity> productEntities = this.liveRoomProductService.getProducts(liveRoomEntity);
                 liveRoomEntity.setProducts(productEntities);
 
                 for (ProductEntity productEntity : productEntities) {
@@ -307,9 +313,17 @@ public class BatchLiveRoomTask implements ITask {
 
                 List<ProductEntity> products = liveRoomEntity.getProducts();
 
-                int startAt = 0;
+
                 ProductCategory productCategory = productSearchService.getCategory(liveRoomEntity.getPscChannelId(),
                         liveRoomEntity.getPscCategoryId());
+                int startAt = 0;
+                for (ProductCategory pc : startAtMap.keySet()) {
+                    if (pc.compareTo(productCategory)) {
+                        startAt = startAtMap.get(pc);
+                        productCategory = pc;
+                        break;
+                    }
+                }
 
                 while (products.size() < liveRoomEntity.getPscProductCount()) {
                     List<ProductEntity> searchProducts = productSearchService.searchProducts(productCategory,
@@ -338,7 +352,15 @@ public class BatchLiveRoomTask implements ITask {
                     startAt += searchProducts.size();
                 }
 
+                for (ProductEntity productEntity : products) {
+                    productEntity.setHistoryId(liveRoomEntity.getId());
+                }
                 liveRoomEntity.setProducts(products);
+
+                // 保存当前的搜索状态
+                startAtMap.put(productCategory, startAt);
+
+                this.liveRoomProductService.saveProducts(products);
             }
 
         } catch (Exception ex) {

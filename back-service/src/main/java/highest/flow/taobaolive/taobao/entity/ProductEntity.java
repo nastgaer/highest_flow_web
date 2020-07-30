@@ -17,6 +17,8 @@ public class ProductEntity {
     @TableId(type = IdType.AUTO)
     private int id;
 
+    private int historyId;
+
     private String liveId;
 
     private String categoryId;

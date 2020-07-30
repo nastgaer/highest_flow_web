@@ -1,5 +1,5 @@
 -- Project Name : 高级引流
--- Date/Time    : 2020/7/28 16:41:48
+-- Date/Time    : 2020/7/31 4:18:39
 -- Author       : KKK
 -- RDBMS Type   : MySQL
 -- Application  : A5:SQL Mk-2
@@ -77,7 +77,7 @@ create table tbl_liveroom_history (
   , live_cover_img169 VARCHAR(256) comment '附封面图'
   , live_title VARCHAR(32) comment '标题'
   , live_intro VARCHAR(256) comment '简介'
-  , live_appointment_time TIME comment '开播时间'
+  , live_appointment_time DATETIME comment '开播时间'
   , live_started_time DATETIME comment '开播的时间'
   , live_end_time DATETIME comment '结束时间'
   , live_channel_id INT(4) comment '直播频道'
@@ -101,7 +101,8 @@ create table tbl_liveroom_history (
 -- 商品列表
 create table tbl_liveroom_products (
   id INT not null AUTO_INCREMENT comment 'ID'
-  , live_id VARCHAR(32) not null comment '直播间ID'
+  , history_id INT not null comment '直播间列表ID'
+  , live_id VARCHAR(32) comment '直播间ID'
   , category_id VARCHAR(32) comment '类目'
   , category_title VARCHAR(48) comment '类目名称'
   , product_id VARCHAR(32) comment '商品ID'

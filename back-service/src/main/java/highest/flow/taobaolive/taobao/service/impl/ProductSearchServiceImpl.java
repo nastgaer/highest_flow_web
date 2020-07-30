@@ -172,13 +172,13 @@ public class ProductSearchServiceImpl implements ProductSearchService {
             }
 
             String respText = response.getResult();
-            respText = respText.substring("jsonp970(".length(), respText.length() - "jsonp970(".length() - 1);
+            respText = respText.substring("jsonp970(".length(), respText.length() - 1);
 
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(respText);
 
             Map<String, Object> mapModes = (Map<String, Object>) map.get("mods");
-            Map<String, Object> mapPager = (Map<String, Object>) mapModes.get("pages");
+            Map<String, Object> mapPager = (Map<String, Object>) mapModes.get("pager");
             Map<String, Object> mapPagerData = (Map<String, Object>) mapPager.get("data");
 
             int totalCount = Integer.parseInt(String.valueOf(mapPagerData.get("totalCount")));

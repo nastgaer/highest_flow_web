@@ -5,6 +5,7 @@
 
     <resultMap id="productMap" type="highest.flow.taobaolive.taobao.entity.ProductEntity">
         <result property="id" column="id"/>
+        <result property="historyId" column="history_id"/>
         <result property="liveId" column="live_id"/>
         <result property="categoryId" column="category_id"/>
         <result property="categoryTitle" column="category_title"/>
