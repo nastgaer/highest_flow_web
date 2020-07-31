@@ -338,7 +338,6 @@ public class RankingController extends AbstractController {
         return R.error();
     }
 
-    @SysLog("获取刷记录")
     @PostMapping("/logs")
     public R logs(@RequestBody PageParam pageParam) {
         try {

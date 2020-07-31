@@ -378,7 +378,6 @@ public class LiveController extends AbstractController {
         return R.error();
     }
 
-    @SysLog("直播记录")
     @PostMapping("/logs")
     public R logs(@RequestBody PageParam pageParam) {
         try {
