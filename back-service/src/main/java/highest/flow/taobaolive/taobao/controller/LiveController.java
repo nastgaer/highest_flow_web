@@ -51,10 +51,13 @@ public class LiveController extends AbstractController {
     private LiveRoomService liveRoomService;
 
     @Autowired
-    private PreLiveRoomSpecService preLiveRoomSpecService;
+    private PreLiveRoomSpecService preLiveRoomSpecService; // 直播间基本信息
 
     @Autowired
     private LiveRoomStrategyService liveRoomStrategyService;
+
+    @Autowired
+    private LiveRoomProductService liveRoomProductService;
 
     @PostMapping("/columns")
     public R getLiveColumns() {
@@ -380,6 +383,12 @@ public class LiveController extends AbstractController {
     public R logs(@RequestBody PageParam pageParam) {
         try {
             PageUtils pageUtils = this.liveRoomService.queryPage(pageParam);
+
+            List<LiveRoomEntity> liveRoomEntities = pageUtils.getList();
+            for (LiveRoomEntity liveRoomEntity : liveRoomEntities) {
+                List<ProductEntity> productEntities = this.liveRoomProductService.getProducts(liveRoomEntity);
+                liveRoomEntity.setProducts(productEntities);
+            }
 
             return R.ok().put("logs", pageUtils.getList()).put("total_count", pageUtils.getTotalCount());
 
