@@ -350,4 +350,25 @@ public class LiveRoomEntityTests {
             ex.printStackTrace();
         }
     }
+
+    @Test
+    public void getLiveDetailWeb() {
+        try {
+            TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.getInfo("zhaoxiangchi00");
+            if (taobaoAccountEntity == null) {
+                return;
+            }
+
+            taobaoApiService.getH5Token(taobaoAccountEntity);
+
+            String liveId = "273474344567";
+            R r = taobaoApiService.getLiveDetailWeb(liveId, taobaoAccountEntity);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            System.out.println(objectMapper.writeValueAsString(r));
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 }

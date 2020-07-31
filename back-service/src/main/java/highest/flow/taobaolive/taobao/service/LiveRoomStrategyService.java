@@ -11,7 +11,18 @@ import java.util.List;
 @Service
 public interface LiveRoomStrategyService extends IService<LiveRoomStrategyEntity> {
 
+    /**
+     * 返回执行淘宝账号的引流操作内容
+     * @param memberTaoAccEntity
+     * @return
+     */
+    List<LiveRoomStrategyEntity> getLiveRoomStrategies(MemberTaoAccEntity memberTaoAccEntity);
+
     boolean setTask(MemberTaoAccEntity memberTaoAccEntity, List<LiveRoomStrategyEntity> liveRoomStrategyEntities);
 
-    List<LiveRoomStrategyEntity> getLiveRoomStrategies(String taobaoAccountNick);
+    // 续费操作
+    boolean resumeTask(MemberTaoAccEntity memberTaoAccEntity);
+
+    // 停止服务
+    boolean stopTask(MemberTaoAccEntity memberTaoAccEntity);
 }

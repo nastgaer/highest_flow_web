@@ -46,27 +46,41 @@ public class BatchLiveRoomTask implements ITask {
     @Autowired
     private ProductSearchService productSearchService;
 
+    private MemberTaoAccEntity memberTaoAccEntity;
+
+    private String taobaoAccountNick = "";
+
     @Override
     public void run(ScheduleJobEntity scheduleJobEntity) {
         String params = scheduleJobEntity.getParams();
         logger.info("开始发布批量发布预告任务, 参数=" + params);
 
-        try {
-            String taobaoAccountNick = params;
+        taobaoAccountNick = params;
 
+        try {
             // 等待直到该账号直播结束
             TaobaoAccountEntity taobaoAccountEntity = taobaoAccountService.getInfo(taobaoAccountNick);
             if (taobaoAccountEntity == null) {
-                logger.error("找不到账号");
+                logger.error("引流操作，找不到账号，昵称：" + taobaoAccountNick);
                 return;
             }
             if (taobaoAccountEntity.getState() != TaobaoAccountState.Normal.getState()) {
-                logger.error("账号过期");
+                logger.error("引流操作，账号过期，昵称：" + taobaoAccountNick);
                 return;
             }
 
-            MemberTaoAccEntity memberTaoAccEntity = this.memberTaoAccService.getMemberByTaobaoAccountNick(taobaoAccountNick);
+            memberTaoAccEntity = this.memberTaoAccService.getMemberByTaobaoAccountNick(taobaoAccountNick);
 
+            // 查看服务周期
+            if (memberTaoAccEntity.getState() != ServiceState.Normal.getState()) {
+                logger.error("引流操作，服务过期，昵称：" + taobaoAccountNick);
+                return;
+            }
+
+            if (memberTaoAccEntity.getServiceEndDate().getTime() < new Date().getTime()) {
+                logger.error("引流操作，服务过期，昵称：" + taobaoAccountNick);
+                return;
+            }
             LiveRoomEntity playingLiveRoom = null;
             int retry = 0;
             for (; retry < Config.MAX_RETRY; retry++) {
@@ -84,17 +98,16 @@ public class BatchLiveRoomTask implements ITask {
                 return;
             }
 
-            TaobaoAccountEntity tempAccount = new TaobaoAccountEntity();
-            taobaoApiService.getH5Token(tempAccount);
+            taobaoApiService.getH5Token(taobaoAccountEntity);
 
             // 等待直播中的直播间结束
             while (playingLiveRoom != null) {
                 // R r = taobaoApiService.getLivePreGet(playingLiveRoom.getLiveId());
-                R r = taobaoApiService.getLiveDetail(playingLiveRoom.getLiveId(), tempAccount);
+                R r = taobaoApiService.getLiveDetailWeb(playingLiveRoom.getLiveId(), taobaoAccountEntity);
                 if (r.getCode() == ErrorCodes.SUCCESS) {
-                    int roomStatus = (int) r.get("room_status");
-                    if (roomStatus == LiveRoomState.Stopped.getState() ||
-                            roomStatus == LiveRoomState.Deleted.getState()) {
+                    LiveRoomEntity roomEntity = (LiveRoomEntity) r.get("live_room");
+                    if (roomEntity.getLiveState() == LiveRoomState.Stopped.getState() ||
+                            roomEntity.getLiveState() == LiveRoomState.Deleted.getState()) {
                         break;
                     }
                 }
@@ -104,7 +117,7 @@ public class BatchLiveRoomTask implements ITask {
             List<LiveRoomEntity> liveRoomEntities = this.liveRoomHistoryService.getTodays(new Date());
 
             // 直播间已经结束了
-            List<LiveRoomStrategyEntity> liveRoomStrategyEntities = this.liveRoomStrategyService.getLiveRoomStrategies(taobaoAccountNick);
+            List<LiveRoomStrategyEntity> liveRoomStrategyEntities = this.liveRoomStrategyService.getLiveRoomStrategies(memberTaoAccEntity);
 
             for (int idx = liveRoomEntities.size(); idx < liveRoomStrategyEntities.size(); idx++) {
                 LiveRoomStrategyEntity liveRoomStrategyEntity = liveRoomStrategyEntities.get(idx);
@@ -164,34 +177,50 @@ public class BatchLiveRoomTask implements ITask {
             this.taobaoApiService.getUserSimple(taobaoAccountEntity);
 
             for (LiveRoomEntity liveRoomEntity : liveRoomEntities) {
+                if (!isRunnable()) {
+                    break;
+                }
+
                 if (liveRoomEntity.getLiveState() == LiveRoomState.Stopped.getState() ||
                         liveRoomEntity.getLiveState() == LiveRoomState.Deleted.getState()) {
                     continue;
                 }
 
                 if (liveRoomEntity.getLiveState() == LiveRoomState.Preparing.getState()) {
+                    String liveId = "";
                     for (int idx = 0; idx < Config.MAX_RETRY; idx++) {
                         R r = this.taobaoApiService.createLiveRoomWeb(liveRoomEntity, taobaoAccountEntity);
                         if (r.getCode() == ErrorCodes.SUCCESS) {
                             LiveRoomEntity newLiveRoomEntity = (LiveRoomEntity) r.get("live_room");
-                            liveRoomEntity.setLiveId(newLiveRoomEntity.getLiveId());
-                            liveRoomEntity.setLiveAppointmentTime(newLiveRoomEntity.getLiveAppointmentTime());
-                            liveRoomEntity.setLiveCoverImg(newLiveRoomEntity.getLiveCoverImg());
-                            liveRoomEntity.setLiveCoverImg169(newLiveRoomEntity.getLiveCoverImg169());
-                            liveRoomEntity.setLiveTitle(newLiveRoomEntity.getLiveTitle());
-                            liveRoomEntity.setLiveIntro(newLiveRoomEntity.getLiveIntro());
-                            liveRoomEntity.setLiveChannelId(newLiveRoomEntity.getLiveChannelId());
-                            liveRoomEntity.setLiveColumnId(newLiveRoomEntity.getLiveColumnId());
-                            liveRoomEntity.setLiveLocation(newLiveRoomEntity.getLiveLocation());
-
+                            liveId = newLiveRoomEntity.getLiveId();
+                            liveRoomEntity.setLiveId(liveId);
                             liveRoomEntity.setLiveState(LiveRoomState.Published.getState());
-
-                            this.liveRoomHistoryService.updateById(liveRoomEntity);
                             break;
 
                         } else {
                             logger.error("[" + taobaoAccountNick + "] 发布预告失败");
                             continue;
+                        }
+                    }
+
+                    if (!HFStringUtils.isNullOrEmpty(liveId)) {
+                        // 获取直播间详细内容
+                        for (int idx = 0; idx < Config.MAX_RETRY; idx++) {
+                            R r = this.taobaoApiService.getLiveDetailWeb(liveId, taobaoAccountEntity);
+                            if (r.getCode() == ErrorCodes.SUCCESS) {
+                                LiveRoomEntity createdLive = (LiveRoomEntity) r.get("live_room");
+                                String accountId = createdLive.getAccountId();
+                                String accountName = createdLive.getAccountName();
+                                String topic = createdLive.getTopic();
+                                liveRoomEntity.setAccountId(accountId);
+                                liveRoomEntity.setAccountName(accountName);
+                                liveRoomEntity.setTopic(topic);
+                                break;
+
+                            } else {
+                                logger.error("[" + taobaoAccountNick + "] 获取预告详细失败");
+                                continue;
+                            }
                         }
                     }
                 }
@@ -289,7 +318,25 @@ public class BatchLiveRoomTask implements ITask {
             ex.printStackTrace();
         } finally {
             logger.info("发布批量发布预告任务结束");
+
+            if (!isRunnable()) {
+                // 删除预定任务
+                this.liveRoomStrategyService.stopTask(memberTaoAccEntity);
+            }
         }
+    }
+
+    private boolean isRunnable() {
+        if (memberTaoAccEntity.getState() != ServiceState.Normal.getState()) {
+            logger.info("引流操作，服务过期，昵称：" + taobaoAccountNick);
+            return false;
+        }
+
+        if (memberTaoAccEntity.getServiceEndDate().getTime() < new Date().getTime()) {
+            logger.info("引流操作，服务过期，昵称：" + taobaoAccountNick);
+            return false;
+        }
+        return true;
     }
 
     private void searchProducts(List<LiveRoomEntity> liveRoomEntities) {

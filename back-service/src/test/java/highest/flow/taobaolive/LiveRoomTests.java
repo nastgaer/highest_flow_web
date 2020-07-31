@@ -8,8 +8,12 @@ import highest.flow.taobaolive.common.http.ResponseType;
 import highest.flow.taobaolive.common.http.SiteConfig;
 import highest.flow.taobaolive.common.http.httpclient.response.Response;
 import highest.flow.taobaolive.common.utils.R;
+import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
+import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
+import highest.flow.taobaolive.taobao.service.TaobaoApiService;
 import org.apache.http.entity.StringEntity;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
@@ -17,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SpringBootTest(classes = TaobaoliveApplication.class, args = "test")
 public class LiveRoomTests extends BaseTests {
 
     @Test

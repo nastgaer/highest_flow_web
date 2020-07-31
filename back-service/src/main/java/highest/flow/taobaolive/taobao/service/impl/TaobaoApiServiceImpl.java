@@ -333,6 +333,107 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
+    public R getLiveDetailWeb(String liveId, TaobaoAccountEntity taobaoAccountEntity) {
+        try {
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("liveIdList", "[" + liveId + "]");
+            jsonParams.put("source", "dbot");
+            jsonParams.put("fillType", "[1]");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            H5Header h5Header = new H5Header(taobaoAccountEntity);
+            String subUrl = "mtop.mediaplatform.live.batchGetByIdTypeList";
+
+            Map<String, Object> urlParams = new HashMap<>();
+            urlParams.put("appKey", h5Header.getAppKey());
+            urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
+            urlParams.put("api", subUrl);
+            urlParams.put("v", "1.0");
+            urlParams.put("data", jsonText);
+            urlParams.put("sign", signService.h5sign(h5Header, jsonText));
+
+            String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/1.0/?";
+
+            for (String key : urlParams.keySet()) {
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
+            }
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
+                            .addHeader("Referer", url),
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
+            List<Map<String, Object>> lstModel = (List<Map<String, Object>>) mapData.get("model");
+
+            for (Map<String, Object> objModel : lstModel) {
+                LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+
+                liveRoomEntity.setLiveId(HFStringUtils.valueOf(objModel.get("id")));
+                liveRoomEntity.setAccountId(HFStringUtils.valueOf(objModel.get("accountId")));
+                liveRoomEntity.setAccountName(HFStringUtils.valueOf(objModel.get("userNick")));
+                liveRoomEntity.setTalentLiveUrl(HFStringUtils.valueOf(objModel.get("liveUrl")));
+                liveRoomEntity.setTopic(HFStringUtils.valueOf(objModel.get("topic")));
+                long appointmentTime = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(objModel.get("appointmentTime"))));
+                liveRoomEntity.setLiveAppointmentTime(CommonUtils.timestampToDate(appointmentTime));
+                if (objModel.containsKey("startTime")) {
+                    long startTime = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(objModel.get("startTime"))));
+                    liveRoomEntity.setLiveStartedTime(CommonUtils.timestampToDate(startTime));
+                }
+                if (objModel.containsKey("endTime")) {
+                    long endTime = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(objModel.get("endTime"))));
+                    liveRoomEntity.setLiveEndTime(CommonUtils.timestampToDate(endTime));
+                }
+                liveRoomEntity.setLiveCoverImg(HFStringUtils.valueOf(objModel.get("coverImg")));
+                if (objModel.containsKey("coverImg169")) {
+                    liveRoomEntity.setLiveCoverImg169(HFStringUtils.valueOf(objModel.get("coverImg169")));
+                }
+                liveRoomEntity.setLiveTitle(HFStringUtils.valueOf(objModel.get("title")));
+                liveRoomEntity.setLiveIntro(HFStringUtils.valueOf(objModel.get("descInfo")));
+                int channelId = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(objModel.get("liveChannelId"))));
+                int columnId = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(objModel.get("liveColumnId"))));
+                liveRoomEntity.setLiveChannelId(channelId);
+                liveRoomEntity.setLiveColumnId(columnId);
+                liveRoomEntity.setLiveLocation(HFStringUtils.valueOf(objModel.get("location")));
+                int status = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(objModel.get("roomStatus"))));
+                if (status == 0) { // 预告
+                    liveRoomEntity.setLiveState(LiveRoomState.Published.getState());
+                } else if (status == 1) { // 正在直播
+                    liveRoomEntity.setLiveState(LiveRoomState.Started.getState());
+                } else if (status == 2) { // 回放
+                    liveRoomEntity.setLiveState(LiveRoomState.Stopped.getState());
+                } else if (status == 4) { // 正在推流
+                    liveRoomEntity.setLiveState(LiveRoomState.Pushing.getState());
+                }
+
+                return R.ok()
+                        .put("live_room", liveRoomEntity);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
     public R getLiveProducts(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             Map<String, Object> jsonParams = new HashMap<>();
@@ -633,12 +734,23 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
                 liveRoomEntity.setLiveId(HFStringUtils.valueOf(objData.get("id")));
                 liveRoomEntity.setAccountId(HFStringUtils.valueOf(objData.get("accountId")));
-                liveRoomEntity.setAccountName(HFStringUtils.valueOf(objData.get("nick")));
+                liveRoomEntity.setAccountName(HFStringUtils.valueOf(objData.get("userNick")));
                 liveRoomEntity.setTalentLiveUrl(HFStringUtils.valueOf(objData.get("liveUrl")));
                 liveRoomEntity.setTopic(HFStringUtils.valueOf(objData.get("topic")));
-                long startTimestamp = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(objData.get("startTime"))));
-                liveRoomEntity.setLiveAppointmentTime(CommonUtils.timestampToDate(startTimestamp));
+                long appointmentTime = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(objData.get("appointmentTime"))));
+                liveRoomEntity.setLiveAppointmentTime(CommonUtils.timestampToDate(appointmentTime));
+                long startTime = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(objData.get("startTime"))));
+                liveRoomEntity.setLiveStartedTime(CommonUtils.timestampToDate(startTime));
+                if (objData.containsKey("endTime")) {
+                    long endTime = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(objData.get("endTime"))));
+                    liveRoomEntity.setLiveEndTime(CommonUtils.timestampToDate(endTime));
+                }
                 liveRoomEntity.setLiveCoverImg(HFStringUtils.valueOf(objData.get("coverImg")));
+                if (objData.containsKey("coverImg169")) {
+                    liveRoomEntity.setLiveCoverImg169(HFStringUtils.valueOf(objData.get("coverImg169")));
+                }
+                liveRoomEntity.setLiveTitle(HFStringUtils.valueOf(objData.get("title")));
+                liveRoomEntity.setLiveIntro(HFStringUtils.valueOf(objData.get("descInfo")));
                 int channelId = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(objData.get("liveChannelId"))));
                 int columnId = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(objData.get("liveColumnId"))));
                 liveRoomEntity.setLiveChannelId(channelId);
@@ -964,6 +1076,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             liveRoomEntity.setLiveChannelId(preLiveRoomSpec.getLiveChannelId());
             liveRoomEntity.setLiveColumnId(preLiveRoomSpec.getLiveColumnId());
             liveRoomEntity.setLiveLocation(preLiveRoomSpec.getLiveLocation());
+            liveRoomEntity.setLiveState(LiveRoomState.Published.getState());
 
             return R.ok()
                     .put("live_room", liveRoomEntity);
@@ -1038,6 +1151,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             liveRoomEntity.setLiveChannelId(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("liveChannelId")))));
             liveRoomEntity.setLiveColumnId(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("liveColumnId")))));
             liveRoomEntity.setLiveLocation(HFStringUtils.valueOf(mapData.get("location")));
+            liveRoomEntity.setAccountName(HFStringUtils.valueOf(mapData.get("userNick")));
+            liveRoomEntity.setLiveState(LiveRoomState.Published.getState());
 
             return R.ok()
                     .put("live_room", liveRoomEntity);

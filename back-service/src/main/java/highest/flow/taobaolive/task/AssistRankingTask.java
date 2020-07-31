@@ -58,14 +58,14 @@ public class AssistRankingTask implements ITask {
     @Autowired
     private RankingService rankingService;
 
+    @Autowired
+    private Executor rankingExecutor;
+
     private CountDownLatch countDownLatch = null;
 
     private Thread monitorThread = null;
 
     private ScheduleJobEntity scheduleJobEntity = null;
-
-    @Autowired
-    private Executor rankingExecutor;
 
     @Override
     public void run(ScheduleJobEntity scheduleJobEntity) {

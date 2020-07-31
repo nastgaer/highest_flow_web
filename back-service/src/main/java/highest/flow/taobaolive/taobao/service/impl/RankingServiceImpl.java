@@ -128,8 +128,7 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
                 ScheduleUtils.runInstant(scheduler, scheduleJobEntity);
 
             } else {
-                ScheduleUtils.createScheduleJob(scheduler, scheduleJobEntity);
-                this.schedulerJobService.saveOrUpdate(scheduleJobEntity);
+                this.schedulerJobService.saveJob(scheduleJobEntity);
 
             }
 
@@ -145,11 +144,13 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
     public boolean startTask(RankingEntity rankingEntity) {
         try {
             int taskId = rankingEntity.getId();
-            ScheduleJobEntity scheduleJobEntity = this.schedulerJobService.getOne(Wrappers.<ScheduleJobEntity>lambdaQuery()
-                    .eq(ScheduleJobEntity::getParams, String.valueOf(taskId)));
+            ScheduleJobEntity scheduleJobEntity = this.schedulerJobService.findScheduledJob("assistRankingTask", String.valueOf(taskId));
+
             if (scheduleJobEntity == null) {
                 return false;
             }
+
+            this.schedulerJobService.runJob(scheduleJobEntity);
 
             ScheduleUtils.run(scheduler, scheduleJobEntity);
 
@@ -164,33 +165,19 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
     @Override
     public boolean stopTask(RankingEntity rankingEntity) {
         try {
-            ScheduleJobEntity scheduleJobEntity = null;
+            int taskId = rankingEntity.getId();
+            ScheduleJobEntity scheduleJobEntity = this.schedulerJobService.findRunnigJob("assistRankingTask", String.valueOf(taskId));
 
-            List<JobExecutionContext> jobExecutionContexts = scheduler.getCurrentlyExecutingJobs();
-            for (JobExecutionContext jobExecutionContext : jobExecutionContexts) {
-                ScheduleJobEntity runningJobEntity = (ScheduleJobEntity)jobExecutionContext.getMergedJobDataMap().get(ScheduleJobEntity.JOB_PARAM_KEY);
-                try {
-                    if (runningJobEntity.getBeanName().compareTo("assistRankingTask") != 0)
-                        continue;
-
-                    int taskId = Integer.parseInt(String.valueOf(runningJobEntity.getParams()));
-
-                    if (taskId == rankingEntity.getId()) {
-                        scheduleJobEntity = runningJobEntity;
-                        break;
-                    }
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+            if (scheduleJobEntity == null) {
+                scheduleJobEntity = this.schedulerJobService.findScheduledJob("assistRankingTask", String.valueOf(taskId));
+                return false;
             }
 
             if (scheduleJobEntity == null) {
                 return false;
             }
 
-            scheduleJobEntity.setState(ScheduleState.PAUSE.getValue());
-            ScheduleUtils.pauseJob(scheduler, scheduleJobEntity.getId());
+            this.schedulerJobService.stopJob(scheduleJobEntity);
 
             return true;
 
@@ -204,8 +191,7 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
     public boolean deleteTask(RankingEntity rankingEntity) {
         try {
             int taskId = rankingEntity.getId();
-            ScheduleJobEntity scheduleJobEntity = this.schedulerJobService.getOne(Wrappers.<ScheduleJobEntity>lambdaQuery()
-                    .eq(ScheduleJobEntity::getParams, String.valueOf(taskId)));
+            ScheduleJobEntity scheduleJobEntity = this.schedulerJobService.findRunnigJob("assistRankingTask", String.valueOf(taskId));
             if (scheduleJobEntity == null) {
                 return false;
             }

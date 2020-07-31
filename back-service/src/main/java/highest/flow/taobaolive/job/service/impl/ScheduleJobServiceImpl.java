@@ -1,5 +1,6 @@
 package highest.flow.taobaolive.job.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import highest.flow.taobaolive.job.defines.ScheduleState;
 import highest.flow.taobaolive.job.dao.ScheduleJobDao;
@@ -7,6 +8,7 @@ import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import highest.flow.taobaolive.job.service.ScheduleJobService;
 import highest.flow.taobaolive.job.utils.ScheduleUtils;
 import org.quartz.CronTrigger;
+import org.quartz.JobExecutionContext;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,7 +51,7 @@ public class ScheduleJobServiceImpl extends ServiceImpl<ScheduleJobDao, Schedule
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void update(ScheduleJobEntity scheduleJob) {
+    public void updateJob(ScheduleJobEntity scheduleJob) {
         ScheduleUtils.updateScheduleJob(scheduler, scheduleJob);
 
         this.updateById(scheduleJob);
@@ -57,50 +59,71 @@ public class ScheduleJobServiceImpl extends ServiceImpl<ScheduleJobDao, Schedule
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteBatch(Long[] jobIds) {
-        for (Long jobId : jobIds) {
-            ScheduleUtils.deleteScheduleJob(scheduler, jobId);
-        }
+    public void runJob(ScheduleJobEntity scheduleJob) {
+        scheduleJob.setState(ScheduleState.NORMAL.getValue());
+        this.updateById(scheduleJob);
 
-        // 删除数据
-        this.removeByIds(Arrays.asList(jobIds));
-    }
-
-    @Override
-    public int updateBatch(Long[] jobIds, int state) {
-        Map<String, Object> map = new HashMap<>(2);
-        map.put("list", jobIds);
-        map.put("state", state);
-        return baseMapper.updateBatch(map);
+        ScheduleUtils.run(scheduler, scheduleJob);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void run(Long[] jobIds) {
-        for (Long jobId : jobIds) {
-            ScheduleUtils.run(scheduler, this.getById(jobId));
-        }
+    public void stopJob(ScheduleJobEntity scheduleJob) {
+        scheduleJob.setState(ScheduleState.PAUSE.getValue());
+        this.updateById(scheduleJob);
+
+        ScheduleUtils.pauseJob(scheduler, scheduleJob.getId());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void pause(Long[] jobIds) {
-        for (Long jobId : jobIds) {
-            ScheduleUtils.pauseJob(scheduler, jobId);
-        }
+    public void deleteJob(ScheduleJobEntity scheduleJob) {
+        scheduleJob.setState(ScheduleState.PAUSE.getValue());
+        this.removeById(scheduleJob);
 
-        updateBatch(jobIds, ScheduleState.PAUSE.getValue());
+        ScheduleUtils.deleteScheduleJob(scheduler, scheduleJob.getId());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void resume(Long[] jobIds) {
-        for (Long jobId : jobIds) {
-            ScheduleUtils.resumeJob(scheduler, jobId);
-        }
+    public void resumeJob(ScheduleJobEntity scheduleJob) {
+        scheduleJob.setState(ScheduleState.NORMAL.getValue());
+        this.updateById(scheduleJob);
 
-        updateBatch(jobIds, ScheduleState.NORMAL.getValue());
+        ScheduleUtils.resumeJob(scheduler, scheduleJob.getId());
     }
 
+    @Override
+    public ScheduleJobEntity findRunnigJob(String beanName, String param) {
+        try {
+            ScheduleJobEntity scheduleJobEntity = null;
 
+            List<JobExecutionContext> jobExecutionContexts = scheduler.getCurrentlyExecutingJobs();
+            for (JobExecutionContext jobExecutionContext : jobExecutionContexts) {
+                ScheduleJobEntity runningJobEntity = (ScheduleJobEntity)jobExecutionContext.getMergedJobDataMap().get(ScheduleJobEntity.JOB_PARAM_KEY);
+                try {
+                    if (runningJobEntity.getBeanName().compareTo(beanName) != 0)
+                        continue;
+
+                    if (String.valueOf(runningJobEntity.getParams()).compareTo(param) == 0) {
+                        return runningJobEntity;
+                    }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public ScheduleJobEntity findScheduledJob(String beanName, String param) {
+        return this.getOne(Wrappers.<ScheduleJobEntity>lambdaQuery()
+                .eq(ScheduleJobEntity::getBeanName, beanName)
+                .eq(ScheduleJobEntity::getParams, param));
+    }
 }

@@ -6,6 +6,7 @@ import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.job.defines.ScheduleState;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import highest.flow.taobaolive.job.service.ScheduleJobService;
+import highest.flow.taobaolive.job.utils.ScheduleJob;
 import highest.flow.taobaolive.job.utils.ScheduleUtils;
 import highest.flow.taobaolive.taobao.dao.LiveRoomStrategyDao;
 import highest.flow.taobaolive.taobao.dao.ProductDao;
@@ -30,6 +31,12 @@ public class LiveRoomStrategyServiceImpl extends ServiceImpl<LiveRoomStrategyDao
 
     @Autowired
     private ScheduleJobService schedulerJobService;
+
+    @Override
+    public List<LiveRoomStrategyEntity> getLiveRoomStrategies(MemberTaoAccEntity memberTaoAccEntity) {
+        return this.list(Wrappers.<LiveRoomStrategyEntity>lambdaQuery().eq(LiveRoomStrategyEntity::getTaobaoAccountNick, memberTaoAccEntity.getTaobaoAccountNick())
+                .eq(LiveRoomStrategyEntity::isIsdel, false));
+    }
 
     @Override
     public boolean setTask(MemberTaoAccEntity memberTaoAccEntity, List<LiveRoomStrategyEntity> liveRoomStrategyEntities) {
@@ -81,8 +88,44 @@ public class LiveRoomStrategyServiceImpl extends ServiceImpl<LiveRoomStrategyDao
     }
 
     @Override
-    public List<LiveRoomStrategyEntity> getLiveRoomStrategies(String taobaoAccountNick) {
-        return this.list(Wrappers.<LiveRoomStrategyEntity>lambdaQuery().eq(LiveRoomStrategyEntity::getTaobaoAccountNick, taobaoAccountNick)
-                .eq(LiveRoomStrategyEntity::isIsdel, false));
+    public boolean resumeTask(MemberTaoAccEntity memberTaoAccEntity) {
+        try {
+            ScheduleJobEntity scheduleJobEntity = this.schedulerJobService.findRunnigJob("batchLiveRoomTask", memberTaoAccEntity.getTaobaoAccountNick());
+            if (scheduleJobEntity == null) {
+                scheduleJobEntity = this.schedulerJobService.findScheduledJob("batchLiveRoomTask", memberTaoAccEntity.getTaobaoAccountNick());
+            }
+
+            if (scheduleJobEntity == null) { // 已经停止了
+                return false;
+            }
+
+            scheduleJobEntity.setState(ScheduleState.NORMAL.getValue());
+            ScheduleUtils.resumeJob(scheduler, scheduleJobEntity.getId());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean stopTask(MemberTaoAccEntity memberTaoAccEntity) {
+        try {
+            ScheduleJobEntity scheduleJobEntity = this.schedulerJobService.findRunnigJob("batchLiveRoomTask", memberTaoAccEntity.getTaobaoAccountNick());
+            if (scheduleJobEntity == null) {
+                scheduleJobEntity = this.schedulerJobService.findScheduledJob("batchLiveRoomTask", memberTaoAccEntity.getTaobaoAccountNick());
+            }
+
+            if (scheduleJobEntity == null) { // 已经停止了
+                return true;
+            }
+
+            scheduleJobEntity.setState(ScheduleState.PAUSE.getValue());
+            ScheduleUtils.pauseJob(scheduler, scheduleJobEntity.getId());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
     }
 }

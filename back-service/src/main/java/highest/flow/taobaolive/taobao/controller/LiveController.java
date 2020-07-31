@@ -303,6 +303,8 @@ public class LiveController extends AbstractController {
 
             this.memberTaoAccService.updateById(memberTaoAccEntity);
 
+            this.liveRoomStrategyService.resumeTask(memberTaoAccEntity);
+
             return R.ok()
                     .put("start_date", startDate)
                     .put("end_date", endDate);
@@ -333,6 +335,8 @@ public class LiveController extends AbstractController {
 
             this.memberTaoAccService.updateById(memberTaoAccEntity);
 
+            this.liveRoomStrategyService.stopTask(memberTaoAccEntity);
+
             return R.ok();
 
         } catch (Exception ex) {
@@ -360,6 +364,8 @@ public class LiveController extends AbstractController {
             memberTaoAccEntity.setState(ServiceState.Normal.getState());
 
             this.memberTaoAccService.updateById(memberTaoAccEntity);
+
+            this.liveRoomStrategyService.resumeTask(memberTaoAccEntity);
 
             return R.ok();
 
@@ -399,7 +405,7 @@ public class LiveController extends AbstractController {
 
             memberTaoAccEntity.setPreLiveRoomSpecs(preLiveRoomSpecEntities);
 
-            List<LiveRoomStrategyEntity> strategyEntities = this.liveRoomStrategyService.getLiveRoomStrategies(taobaoAccountNick);
+            List<LiveRoomStrategyEntity> strategyEntities = this.liveRoomStrategyService.getLiveRoomStrategies(memberTaoAccEntity);
 
             memberTaoAccEntity.setLiveRoomStrategies(strategyEntities);
 

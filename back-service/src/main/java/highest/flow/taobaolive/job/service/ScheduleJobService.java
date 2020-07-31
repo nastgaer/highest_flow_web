@@ -15,30 +15,29 @@ public interface ScheduleJobService extends IService<ScheduleJobEntity> {
     /**
      * 更新定时任务
      */
-    void update(ScheduleJobEntity scheduleJob);
-
-    /**
-     * 批量删除定时任务
-     */
-    void deleteBatch(Long[] jobIds);
-
-    /**
-     * 批量更新定时任务状态
-     */
-    int updateBatch(Long[] jobIds, int state);
+    void updateJob(ScheduleJobEntity scheduleJob);
 
     /**
      * 立即执行
      */
-    void run(Long[] jobIds);
+    void runJob(ScheduleJobEntity scheduleJob);
 
     /**
      * 暂停运行
      */
-    void pause(Long[] jobIds);
+    void stopJob(ScheduleJobEntity scheduleJob);
+
+    /**
+     * 删除定时任务
+     */
+    void deleteJob(ScheduleJobEntity scheduleJob);
 
     /**
      * 恢复运行
      */
-    void resume(Long[] jobIds);
+    void resumeJob(ScheduleJobEntity scheduleJob);
+
+    ScheduleJobEntity findRunnigJob(String beanName, String param);
+
+    ScheduleJobEntity findScheduledJob(String beanName, String param);
 }
