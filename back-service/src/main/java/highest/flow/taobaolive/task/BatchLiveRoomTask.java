@@ -214,7 +214,7 @@ public class BatchLiveRoomTask implements ITask {
                                 String topic = createdLive.getTopic();
                                 liveRoomEntity.setAccountId(accountId);
                                 liveRoomEntity.setAccountName(accountName);
-                                liveRoomEntity.setTopic(topic);
+                                liveRoomEntity.setTopic(topic); // TODO, copy all the items from detailed liveroom
                                 break;
 
                             } else {
@@ -272,6 +272,7 @@ public class BatchLiveRoomTask implements ITask {
                             break;
                         }
                     }
+                    Thread.sleep(1000);
                 }
 
                 liveRoomEntity.setProducts(products);

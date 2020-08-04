@@ -16,9 +16,9 @@ public class LiveRoomProductServiceImpl extends ServiceImpl<ProductDao, ProductE
 
     @Override
     public List<ProductEntity> getProducts(LiveRoomEntity liveRoomEntity) {
-        if (!HFStringUtils.isNullOrEmpty(liveRoomEntity.getLiveId())) {
-            return this.list(Wrappers.<ProductEntity>lambdaQuery().eq(ProductEntity::getLiveId, liveRoomEntity.getLiveId()));
-        }
+//        if (!HFStringUtils.isNullOrEmpty(liveRoomEntity.getLiveId())) {
+//            return this.list(Wrappers.<ProductEntity>lambdaQuery().eq(ProductEntity::getLiveId, liveRoomEntity.getLiveId()));
+//        }
         return this.list(Wrappers.<ProductEntity>lambdaQuery().eq(ProductEntity::getHistoryId, liveRoomEntity.getId()));
     }
 
