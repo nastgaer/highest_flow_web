@@ -29,6 +29,11 @@ public class SignController {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
+    @PostMapping("/v1.0/test")
+    public R test() {
+        return R.ok("SUCCESS");
+    }
+
     @PostMapping("/v1.0/xsign")
     public R xsign(@RequestParam(name = "data") String data, @RequestParam(name = "sign") String sign) {
 
@@ -71,7 +76,10 @@ public class SignController {
                 return R.error(ErrorCodes.INVALID_PARAMETER, "不合法参数");
             }
 
-            String respText = MinaService.sendMessage(objectMapper.writeValueAsString(mTopSignParam));
+            String jsonText = objectMapper.writeValueAsString(mTopSignParam);
+            String respText = MinaService.sendMessage(jsonText);
+
+            logger.info(">> " + jsonText + ", " + respText);
 
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(respText);

@@ -1,3 +1,15 @@
+#server:
+#  tomcat:
+#    uri-encoding: UTF-8
+#    max-threads: 1000
+#    min-spare-threads: 30
+#    port: 9999
+#    connection-timeout: 5000ms
+
+spring:
+  profiles:
+    active: dev
+
 sign:
   prefix: gaoji
   suffix: yinliu

@@ -11,6 +11,8 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 public class MinaService {
+
+    private static Logger logger = LoggerFactory.getLogger(MinaService.class);
 
     private static List<IoSession> sessiones = new CopyOnWriteArrayList<>();
 
@@ -75,6 +79,7 @@ public class MinaService {
 
 
     public static void start(){
+        logger.info("准备启动");
         IoAcceptor acceptor = new NioSocketAcceptor();
         //添加日志过滤器
         acceptor.getFilterChain().addLast("logger", new LoggingFilter());
@@ -87,7 +92,7 @@ public class MinaService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("启动服务");
+        logger.info("启动服务");
     }
 
     /**
@@ -101,7 +106,7 @@ public class MinaService {
         //服务器与客户端创建连接
         @Override
         public void sessionCreated(IoSession session) throws Exception {
-            System.out.println("服务器与客户端创建连接...");
+            logger.info("服务器与客户端创建连接...");
             super.sessionCreated(session);
             sessiones.add(session);
         }
@@ -109,7 +114,7 @@ public class MinaService {
 
         @Override
         public void sessionOpened(IoSession session) throws Exception {
-            System.out.println("服务器与客户端连接打开...");
+            logger.info("服务器与客户端连接打开...");
             super.sessionOpened(session);
         }
 
@@ -121,7 +126,7 @@ public class MinaService {
             String str = message.toString();
             Date date = new Date();
             session.write(date.toString());
-            System.out.println("接收到的数据："+str);
+            logger.info("接收到的数据："+str);
 
         }
 
