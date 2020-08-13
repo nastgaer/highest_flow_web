@@ -8,6 +8,8 @@ import highest.taolive.xdata.entity.XHeader;
 import highest.taolive.xdata.service.CryptoService;
 import highest.taolive.xdata.service.MinaService;
 import highest.taolive.xdata.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
@@ -20,6 +22,8 @@ import java.util.Map;
 
 @RestController
 public class SignController {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private CryptoService cryptoService;
@@ -70,16 +74,25 @@ public class SignController {
                 return R.error(ErrorCodes.INVALID_PARAMETER, "不合法参数");
             }
 
-            String respText = minaService.sendMessage(objectMapper.writeValueAsString(mTopSignParam));
+            String jsonText = objectMapper.writeValueAsString(mTopSignParam);
+
+            logger.info("<< " + jsonText);
+            String respText = minaService.sendMessage(jsonText);
+            logger.info(">> " + (respText == null ? "null" : respText));
+
+            if (StringUtils.isNullOrEmpty(respText)) {
+                return R.error("空了");
+            }
 
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(respText);
             Map<String, Object> mapData = (Map) map.get("data");
 
-            String xsign = String.valueOf(mapData.get("x-sign"));
+            String xsign = mapData == null || !mapData.containsKey("x-sign") ? "" : String.valueOf(mapData.get("x-sign"));
+            String miniWua = mapData == null || !mapData.containsKey("mini-wua") ? "" : String.valueOf(mapData.get("mini-wua"));
 
             if (!StringUtils.isNullOrEmpty(xsign)) {
-                return R.ok("成功").put("xsign", xsign).put("encoded", false);
+                return R.ok("成功").put("xsign", xsign).put("encoded", false).put("mini-wua", miniWua);
             }
 
             return R.error("xsign验证失败");
