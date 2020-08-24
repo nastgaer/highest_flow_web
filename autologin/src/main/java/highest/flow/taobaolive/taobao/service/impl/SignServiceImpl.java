@@ -19,67 +19,8 @@ import java.net.URLEncoder;
 @Service("signService")
 public class SignServiceImpl implements SignService {
 
-    private int[] availablePorts = new int[]{
-            59316, 58119, 58114, 58120
-    };
-    private int port2 = 59316;
-
-    private String prepareXSign1(XHeader xHeader, int port) {
-        try {
-            xHeader.setEncoded(true);
-            String aes = CryptoUtils.MD5(xHeader.getData());
-            String plain = xHeader.getUtdid() + "%26" + xHeader.getUid() + "%26%26" + xHeader.getAppkey() + "%26" + aes + "%26" +
-                    xHeader.getShortTimestamp() + "%26" + xHeader.getSubUrl() + "%26" + xHeader.getUrlVer() + "%26" +
-                    xHeader.getSid() + "%26" + xHeader.getTtid() + "%26" + xHeader.getDevid() + "%26" +
-                    xHeader.getLocation2() + "%26" + xHeader.getLocation1() + "%26" + xHeader.getFeatures();
-
-            String timeMD5 = CryptoUtils.MD5(String.valueOf(xHeader.getLongTimestamp()));
-
-            String url = "http://1.192.134.231:" + port + "/xdata?data=" + plain + "&apiKey=&t=&apiSign=" + URLEncoder.encode(timeMD5);
-
-            SiteConfig siteConfig = new SiteConfig()
-                    .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
-                    .setConnectTimeout(30000)
-                    .setSocketTimeout(45000);
-
-            Response<String> response = HttpHelper.execute(siteConfig, new Request("GET", url, ResponseType.TEXT));
-            if (response.getStatusCode() != HttpStatus.SC_OK) {
-                return null;
-            }
-
-            String respText = response.getResult();
-            respText = StringUtils.strip(respText, "\"\r\n");
-
-            if (respText.startsWith("ab2")) {
-                return respText;
-            }
-            return null;
-
-        } catch (Exception ex) {
-            System.out.println(ex.toString());
-        }
-        return null;
-    }
-
     @Override
-    public String xsign1(XHeader xHeader) {
-        String xsign = prepareXSign1(xHeader, port2);
-        if (!HFStringUtils.isNullOrEmpty(xsign)) {
-            return xsign;
-        }
-
-        for (int port : availablePorts) {
-            xsign = prepareXSign1(xHeader, port);
-            if (!HFStringUtils.isNullOrEmpty(xsign)) {
-                port2 = port;
-                return xsign;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public String xsign2(XHeader xHeader) {
+    public String xsign(XHeader xHeader) {
         try {
             xHeader.setEncoded(false);
             String aes = CryptoUtils.MD5(xHeader.getData());
@@ -88,13 +29,13 @@ public class SignServiceImpl implements SignService {
                     xHeader.getSid() + "&" + xHeader.getTtid() + "&" + xHeader.getDevid() + "&" +
                     xHeader.getLocation2() + "&" + xHeader.getLocation1() + "&" + xHeader.getFeatures();
 
-            String url = "http://39.100.74.215:2345/x-xsign.php?" + plain;
+            String url = "http://39.100.74.215:2345/x-sign.php?" + plain;
 
             SiteConfig siteConfig = new SiteConfig()
                     .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
                     .addHeaders(xHeader.getHeaders())
-                    .setConnectTimeout(30000)
-                    .setSocketTimeout(45000);
+                    .setConnectTimeout(10000)
+                    .setSocketTimeout(10000);
 
             Response<String> response = HttpHelper.execute(siteConfig, new Request("GET", url, ResponseType.TEXT));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
@@ -118,16 +59,6 @@ public class SignServiceImpl implements SignService {
             System.out.println(ex.toString());
         }
         return null;
-    }
-
-    @Override
-    public String xsign(XHeader xHeader) {
-        String xsign = xsign1(xHeader);
-        if (!HFStringUtils.isNullOrEmpty(xsign)) {
-            return xsign;
-        }
-
-        return xsign2(xHeader);
     }
 
     @Override

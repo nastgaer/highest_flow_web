@@ -9,9 +9,5 @@ public interface SignService {
 
     public String xsign(XHeader xHeader);
 
-    public String xsign1(XHeader xHeader);
-
-    public String xsign2(XHeader xHeader);
-
     public String h5sign(H5Header h5Header, String data);
 }
