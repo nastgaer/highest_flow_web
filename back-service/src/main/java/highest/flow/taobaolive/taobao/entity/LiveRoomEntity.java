@@ -126,16 +126,16 @@ public class LiveRoomEntity extends BaseLiveRoom {
     private int messageCount = 0;
 
     /**
-     * 有没有排位赛
+     * 有没有总榜
      */
     @TableField(exist = false)
-    private boolean hasRankingEntry = false;
+    private boolean hasRankingListEntry = false;
 
     @Data
-    public class RankingListData {
+    public class RankingListDataBiz {
 
         /**
-         * 当前的热度值
+         * 当前的助力值
          */
         private int rankingScore = 0;
 
@@ -151,7 +151,35 @@ public class LiveRoomEntity extends BaseLiveRoom {
     }
 
     @TableField(exist = false)
-    private RankingListData rankingListData = new RankingListData();
+    private RankingListDataBiz rankingListData = new RankingListDataBiz();
+
+    /**
+     * 有没有小时榜
+     */
+    @TableField(exist = false)
+    private boolean hasHourRankingListEntry = false;
+
+    @Data
+    public class HourRankingListDataBiz {
+
+        /**
+         * 当前的助力值
+         */
+        private int rankingScore = 0;
+
+        /**
+         * 当前的排位
+         */
+        private int rankingNum = 0;
+
+        /**
+         * 排位赛赛道
+         */
+        private String rankingName = "";
+    }
+
+    @TableField(exist = false)
+    private HourRankingListDataBiz hourRankingListData = new HourRankingListDataBiz();
 
     /**
      * 采集的商品

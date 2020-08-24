@@ -379,7 +379,7 @@ public class RankingClientController extends AbstractController {
             }
 
             return R.ok()
-                    .put("has_ranking_entry", liveRoomEntity.isHasRankingEntry())
+                    .put("has_ranking_entry", liveRoomEntity.isHasRankingListEntry())
                     .put("ranking_score", liveRoomEntity.getRankingListData().getRankingScore())
                     .put("ranking_num", liveRoomEntity.getRankingListData().getRankingNum())
                     .put("ranking_name", liveRoomEntity.getRankingListData().getRankingName());

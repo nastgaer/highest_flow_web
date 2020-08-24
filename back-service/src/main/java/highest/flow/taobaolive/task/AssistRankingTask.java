@@ -131,7 +131,7 @@ public class AssistRankingTask implements ITask {
             activeAccountEntity = taobaoAccountEntities.get(0);
             taobaoApiService.getH5Token(activeAccountEntity);
             taobaoApiService.getLiveEntry(liveRoomEntity, activeAccountEntity);
-            taobaoApiService.getLiveProducts(liveRoomEntity, activeAccountEntity);
+            taobaoApiService.getLiveProducts(liveRoomEntity, activeAccountEntity, 10);
 
             if (simulate) {
                 if (liveRoomEntity == null) {
@@ -140,7 +140,7 @@ public class AssistRankingTask implements ITask {
                 }
 
             } else {
-                if (liveRoomEntity == null || !liveRoomEntity.isHasRankingEntry()) {
+                if (liveRoomEntity == null || !liveRoomEntity.isHasRankingListEntry()) {
                     rankingEntity.setState(RankingEntityState.Stopped.getState());
                     return;
                 }

@@ -104,15 +104,39 @@ public interface TaobaoApiService {
      * @param taobaoAccountEntity
      * @return
      */
-    public R getLiveProducts(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
+    public R getLiveProducts(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, int count);
 
     /**
-     * 查询直播间赛道
+     * 获取直播间商品
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
+     * @return
+     */
+    public R getLiveProductsWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, int count);
+
+    /**
+     * 查询直播间赛道和当前助力值
      * @param liveRoomEntity
      * @param taobaoAccountEntity
      * @return
      */
     public R getLiveEntry(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
+
+    /**
+     * 查询直播间赛道和当前助力值
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
+     * @return
+     */
+    public R getLiveEntryWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
+
+    /**
+     * 查询直播间的小时榜赛道和当前助力值
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
+     * @return
+     */
+    public R GetRankByMtop2(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 解析淘口令获取直播间信息
@@ -129,9 +153,17 @@ public interface TaobaoApiService {
      * @param pageSize
      * @return
      */
-    public R getLiveList(TaobaoAccountEntity taobaoAccountEntity, int pageNo, int pageSize);
+    public R getLiveListWeb(TaobaoAccountEntity taobaoAccountEntity, int pageNo, int pageSize);
 
     public R getPlayingLiveRoom(TaobaoAccountEntity taobaoAccountEntity);
+
+    /**
+     * 获取亲密度初始化
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
+     * @return
+     */
+    public R getIntimacyDetail(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 助力：关注任务
@@ -140,6 +172,14 @@ public interface TaobaoApiService {
      * @return
      */
     public R taskFollow(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
+
+    /**
+     * 助力：关注任务
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
+     * @return
+     */
+    public R taskFollowWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 助力：在直播间等待几分钟
@@ -151,6 +191,15 @@ public interface TaobaoApiService {
     public R taskStay(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, int staySeconds);
 
     /**
+     * 助力：在直播间等待几分钟
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
+     * @param staySeconds
+     * @return
+     */
+    public R taskStayWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, int staySeconds);
+
+    /**
      * 助力：购买商品
      * @param liveRoomEntity
      * @param taobaoAccountEntity
@@ -158,6 +207,15 @@ public interface TaobaoApiService {
      * @return
      */
     public R taskBuy(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, String productId);
+
+    /**
+     * 助力：购买商品
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
+     * @param productId
+     * @return
+     */
+    public R taskBuyWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, String productId);
 
     /**
      * 发布预告（Web)

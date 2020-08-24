@@ -66,7 +66,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
-                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .addHeaders(xHeader.getHeaders()),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -112,7 +112,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
-                            .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
                     new Request("GET", url, ResponseType.TEXT));
 
@@ -133,18 +134,34 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String creatorId = HFStringUtils.valueOf(mapData.get("taopwdOwnerId"));
             String talentLiveUrl = HFStringUtils.valueOf(mapData.get("url"));
             String liveId = "";
-            String[] words = talentLiveUrl.split("[::?&/]");
+            String liveUrl = URLDecoder.decode(talentLiveUrl);
+            String[] words = liveUrl.split("[::?&/]");
             for (String word : words) {
                 if (word.startsWith("id=")) {
                     liveId = word.substring("id=".length());
                     break;
                 }
             }
+            String accountId = "";
+            int pos = liveUrl.indexOf("\"account_id\":");
+            if (pos >= 0) {
+                pos += "\"account_id\":".length();
+                int nextpos = liveUrl.indexOf("\"", pos + 1);
+                accountId = liveUrl.substring(pos + 1, nextpos - 1);
+            }
+            String content = HFStringUtils.valueOf(mapData.get("content"));
+            String accountName = content;
+            pos = content.indexOf("的直播");
+            if (pos >= 0) {
+                accountName = content.substring(0, pos);
+            }
 
             return R.ok()
                     .put("creator_id", creatorId)
                     .put("talent_live_url", talentLiveUrl)
-                    .put("live_id", liveId);
+                    .put("live_id", liveId)
+                    .put("account_id", accountId)
+                    .put("account_name", accountName);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -186,7 +203,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
-                            .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)"),
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
@@ -269,7 +287,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
-                            .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
                     new Request("GET", url, ResponseType.TEXT));
 
@@ -434,39 +453,33 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R getLiveProducts(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+    public R getLiveProducts(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, int count) {
         try {
             Map<String, Object> jsonParams = new HashMap<>();
             jsonParams.put("groupNum", "0");
             jsonParams.put("liveId", liveRoomEntity.getLiveId());
-            jsonParams.put("n", "350");
+            jsonParams.put("creatorId", liveRoomEntity.getAccountId());
+            jsonParams.put("n", String.valueOf(count));
             jsonParams.put("type", "0");
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
-            H5Header h5Header = new H5Header(taobaoAccountEntity);
-            String subUrl = "mtop.mediaplatform.video.livedetail.itemlist.withpagination";
+            String subUrl = "mtop.mediaplatform.video.livedetail.itemlist.withpaginationv5";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?";
 
-            Map<String, Object> urlParams = new HashMap<>();
-            urlParams.put("appKey", h5Header.getAppKey());
-            urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
-            urlParams.put("api", subUrl);
-            urlParams.put("v", "4.0");
-            urlParams.put("data", jsonText);
-            urlParams.put("sign", signService.h5sign(h5Header, jsonText));
-
-            String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/4.0/?";
-
-            for (String key : urlParams.keySet()) {
-                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
-            }
+            XHeader xHeader = new XHeader(new Date());
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer("1.0");
+            xHeader.setData(jsonText);
+            xHeader.setXsign(signService.xsign(xHeader));
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
-                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
-                    new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -485,72 +498,67 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             int totalNum = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("totalNum"))));
 
             List<ProductEntity> productEntities = new ArrayList<>();
-            List<Map<String, Object>> itemList = (List<Map<String, Object>>) mapData.get("itemList");
+            List<Map<String, Object>> itemList = (List<Map<String, Object>>) mapData.get("itemListv1");
             for (Map<String, Object> mapItem : itemList) {
-                List<Map<String, Object>> goodsList = (List<Map<String, Object>>) mapItem.get("goodsList");
-                if (goodsList.size() < 1) {
-                    continue;
-                }
+                Map<String, Object> goodObj = (Map<String, Object>) map.get("itemListv1");
 
-                for (Map<String, Object> goodObj : goodsList) {
-                    String itemId = HFStringUtils.valueOf(goodObj.get("itemId"));
-                    String itemName = HFStringUtils.valueOf(goodObj.get("itemName"));
-                    String itemPic = HFStringUtils.valueOf(goodObj.get("itemPic"));
-                    String itemPrice = HFStringUtils.valueOf(goodObj.get("itemPrice"));
-                    String itemUrl = "https://item.taobao.com/item.htm?id=" + itemId; // HFStringUtils.valueOf(goodObj.get("itemUrl"));
+                String itemId = HFStringUtils.valueOf(goodObj.get("itemId"));
+                String itemName = HFStringUtils.valueOf(goodObj.get("itemName"));
+                String itemPic = HFStringUtils.valueOf(goodObj.get("itemPic"));
+                String itemPrice = HFStringUtils.valueOf(goodObj.get("itemPrice"));
+                String itemUrl = "https://item.taobao.com/item.htm?id=" + itemId; // HFStringUtils.valueOf(goodObj.get("itemUrl"));
 
-                    ProductEntity productEntity = new ProductEntity();
-                    productEntity.setProductId(itemId);
-                    productEntity.setTitle(itemName);
-                    productEntity.setPicurl(itemPic);
-                    productEntity.setUrl(itemUrl);
-                    productEntity.setPrice(itemPrice);
+                ProductEntity productEntity = new ProductEntity();
+                productEntity.setProductId(itemId);
+                productEntity.setTitle(itemName);
+                productEntity.setPicurl(itemPic);
+                productEntity.setUrl(itemUrl);
+                productEntity.setPrice(itemPrice);
 
-                    Map<String, Object> mapExtendVal = (Map<String, Object>) goodObj.get("extendVal");
-                    if (mapExtendVal != null) {
-                        if (mapExtendVal.containsKey("timepoint")) {
-                            productEntity.setTimepoint(NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(mapExtendVal.get("timepoint")))));
-                        }
-
-                        productEntity.setMonthSales(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapExtendVal.get("buyCount")))));
-                        productEntity.setCategoryId(HFStringUtils.valueOf(mapExtendVal.get("categoryLevelLeaf")));
-                        productEntity.setCategoryTitle(HFStringUtils.valueOf(mapExtendVal.get("categoryLevelOneName")));
-
-                        String business = HFStringUtils.valueOf(mapExtendVal.get("business"));
-                        Map<String, Object> mapBusiness = jsonParser.parseMap(business);
-
-                        Map<String, Object> mapCpsTcpInfo = (Map<String, Object>) mapBusiness.get("cpsTcpInfo");
-                        Map<String, Object> mapTaobaoLivetoc = (Map<String, Object>) mapCpsTcpInfo.get("taobaolivetoc");
-                        productEntity.setBusinessSceneId(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapTaobaoLivetoc.get("businessScenceId")))));
-
-                        Map<String, Object> mapItemBizInfo = (Map<String, Object>) mapBusiness.get("itemBizInfo");
-                        String itemJumpUrl = HFStringUtils.valueOf(mapItemBizInfo.get("itemJumpUrl"));
-                        itemJumpUrl = URLDecoder.decode(itemJumpUrl);
-
-                        String [] words = itemJumpUrl.split("&");
-                        for (String word : words) {
-                            if (word.toLowerCase().startsWith("pg1stepk=")) {
-                                productEntity.setPg1stepk(word.substring("pg1stepk=".length()));
-                            } else if (word.toLowerCase().startsWith("liveinfo=")) {
-                                productEntity.setLiveInfo(word.substring("liveInfo=".length()));
-                            } else if (word.toLowerCase().startsWith("descversion=")) {
-                                productEntity.setDescVersion(word.substring("descversion=".length()));
-                            } else if (word.toLowerCase().startsWith("scm=")) {
-                                productEntity.setScm(word.substring("scm=".length()));
-                            } else if (word.toLowerCase().startsWith("spm=")) {
-                                productEntity.setSpm(word.substring("spm=".length()));
-                            } else if (word.toLowerCase().startsWith("utparam=")) {
-                                productEntity.setUtparam(word.substring("utparam=".length()));
-                            } else if (word.toLowerCase().startsWith("biztype=")) {
-                                productEntity.setBizType(word.substring("biztype=".length()));
-                            }
-                        }
+                Map<String, Object> mapExtendVal = (Map<String, Object>) goodObj.get("extendVal");
+                if (mapExtendVal != null) {
+                    if (mapExtendVal.containsKey("timepoint")) {
+                        productEntity.setTimepoint(NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(mapExtendVal.get("timepoint")))));
                     }
 
-                    productEntity.setLiveId(HFStringUtils.valueOf(goodObj.get("liveId")));
+                    productEntity.setMonthSales(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapExtendVal.get("buyCount")))));
+                    productEntity.setCategoryId(HFStringUtils.valueOf(mapExtendVal.get("categoryLevelLeaf")));
+                    productEntity.setCategoryTitle(HFStringUtils.valueOf(mapExtendVal.get("categoryLevelOneName")));
 
-                    productEntities.add(productEntity);
+                    String business = HFStringUtils.valueOf(mapExtendVal.get("business"));
+                    Map<String, Object> mapBusiness = jsonParser.parseMap(business);
+
+                    Map<String, Object> mapCpsTcpInfo = (Map<String, Object>) mapBusiness.get("cpsTcpInfo");
+                    Map<String, Object> mapTaobaoLivetoc = (Map<String, Object>) mapCpsTcpInfo.get("taobaolivetoc");
+                    productEntity.setBusinessSceneId(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapTaobaoLivetoc.get("businessScenceId")))));
+
+                    Map<String, Object> mapItemBizInfo = (Map<String, Object>) mapBusiness.get("itemBizInfo");
+                    String itemJumpUrl = HFStringUtils.valueOf(mapItemBizInfo.get("itemJumpUrl"));
+                    itemJumpUrl = URLDecoder.decode(itemJumpUrl);
+
+                    String [] words = itemJumpUrl.split("&");
+                    for (String word : words) {
+                        if (word.toLowerCase().startsWith("pg1stepk=")) {
+                            productEntity.setPg1stepk(word.substring("pg1stepk=".length()));
+                        } else if (word.toLowerCase().startsWith("liveinfo=")) {
+                            productEntity.setLiveInfo(word.substring("liveInfo=".length()));
+                        } else if (word.toLowerCase().startsWith("descversion=")) {
+                            productEntity.setDescVersion(word.substring("descversion=".length()));
+                        } else if (word.toLowerCase().startsWith("scm=")) {
+                            productEntity.setScm(word.substring("scm=".length()));
+                        } else if (word.toLowerCase().startsWith("spm=")) {
+                            productEntity.setSpm(word.substring("spm=".length()));
+                        } else if (word.toLowerCase().startsWith("utparam=")) {
+                            productEntity.setUtparam(word.substring("utparam=".length()));
+                        } else if (word.toLowerCase().startsWith("biztype=")) {
+                            productEntity.setBizType(word.substring("biztype=".length()));
+                        }
+                    }
                 }
+
+                productEntity.setLiveId(HFStringUtils.valueOf(goodObj.get("liveId")));
+
+                productEntities.add(productEntity);
             }
 
             liveRoomEntity.setProducts(productEntities);
@@ -566,17 +574,20 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R getLiveEntry(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+    public R getLiveProductsWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, int count) {
         try {
             Map<String, Object> jsonParams = new HashMap<>();
-            jsonParams.put("accountId", liveRoomEntity.getAccountId());
+            jsonParams.put("groupNum", "0");
             jsonParams.put("liveId", liveRoomEntity.getLiveId());
+            jsonParams.put("creatorId", liveRoomEntity.getAccountId());
+            jsonParams.put("n", String.valueOf(count));
+            jsonParams.put("type", "0");
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
             H5Header h5Header = new H5Header(taobaoAccountEntity);
-            String subUrl = "mtop.mediaplatform.livedetail.entry";
+            String subUrl = "mtop.mediaplatform.video.livedetail.itemlist.withpaginationv5";
 
             Map<String, Object> urlParams = new HashMap<>();
             urlParams.put("appKey", h5Header.getAppKey());
@@ -612,8 +623,127 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            liveRoomEntity.setHasRankingEntry(Boolean.parseBoolean(HFStringUtils.valueOf(mapData.get("hasRankingListEntry"))));
-            if (!liveRoomEntity.isHasRankingEntry()) {
+            int totalNum = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("totalNum"))));
+
+            List<ProductEntity> productEntities = new ArrayList<>();
+            List<Map<String, Object>> itemList = (List<Map<String, Object>>) mapData.get("itemListv1");
+            for (Map<String, Object> mapItem : itemList) {
+                Map<String, Object> goodObj = (Map<String, Object>) map.get("itemListv1");
+
+                String itemId = HFStringUtils.valueOf(goodObj.get("itemId"));
+                String itemName = HFStringUtils.valueOf(goodObj.get("itemName"));
+                String itemPic = HFStringUtils.valueOf(goodObj.get("itemPic"));
+                String itemPrice = HFStringUtils.valueOf(goodObj.get("itemPrice"));
+                String itemUrl = "https://item.taobao.com/item.htm?id=" + itemId; // HFStringUtils.valueOf(goodObj.get("itemUrl"));
+
+                ProductEntity productEntity = new ProductEntity();
+                productEntity.setProductId(itemId);
+                productEntity.setTitle(itemName);
+                productEntity.setPicurl(itemPic);
+                productEntity.setUrl(itemUrl);
+                productEntity.setPrice(itemPrice);
+
+                Map<String, Object> mapExtendVal = (Map<String, Object>) goodObj.get("extendVal");
+                if (mapExtendVal != null) {
+                    if (mapExtendVal.containsKey("timepoint")) {
+                        productEntity.setTimepoint(NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(mapExtendVal.get("timepoint")))));
+                    }
+
+                    productEntity.setMonthSales(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapExtendVal.get("buyCount")))));
+                    productEntity.setCategoryId(HFStringUtils.valueOf(mapExtendVal.get("categoryLevelLeaf")));
+                    productEntity.setCategoryTitle(HFStringUtils.valueOf(mapExtendVal.get("categoryLevelOneName")));
+
+                    String business = HFStringUtils.valueOf(mapExtendVal.get("business"));
+                    Map<String, Object> mapBusiness = jsonParser.parseMap(business);
+
+                    Map<String, Object> mapCpsTcpInfo = (Map<String, Object>) mapBusiness.get("cpsTcpInfo");
+                    Map<String, Object> mapTaobaoLivetoc = (Map<String, Object>) mapCpsTcpInfo.get("taobaolivetoc");
+                    productEntity.setBusinessSceneId(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapTaobaoLivetoc.get("businessScenceId")))));
+
+                    Map<String, Object> mapItemBizInfo = (Map<String, Object>) mapBusiness.get("itemBizInfo");
+                    String itemJumpUrl = HFStringUtils.valueOf(mapItemBizInfo.get("itemJumpUrl"));
+                    itemJumpUrl = URLDecoder.decode(itemJumpUrl);
+
+                    String [] words = itemJumpUrl.split("&");
+                    for (String word : words) {
+                        if (word.toLowerCase().startsWith("pg1stepk=")) {
+                            productEntity.setPg1stepk(word.substring("pg1stepk=".length()));
+                        } else if (word.toLowerCase().startsWith("liveinfo=")) {
+                            productEntity.setLiveInfo(word.substring("liveInfo=".length()));
+                        } else if (word.toLowerCase().startsWith("descversion=")) {
+                            productEntity.setDescVersion(word.substring("descversion=".length()));
+                        } else if (word.toLowerCase().startsWith("scm=")) {
+                            productEntity.setScm(word.substring("scm=".length()));
+                        } else if (word.toLowerCase().startsWith("spm=")) {
+                            productEntity.setSpm(word.substring("spm=".length()));
+                        } else if (word.toLowerCase().startsWith("utparam=")) {
+                            productEntity.setUtparam(word.substring("utparam=".length()));
+                        } else if (word.toLowerCase().startsWith("biztype=")) {
+                            productEntity.setBizType(word.substring("biztype=".length()));
+                        }
+                    }
+                }
+
+                productEntity.setLiveId(HFStringUtils.valueOf(goodObj.get("liveId")));
+
+                productEntities.add(productEntity);
+            }
+
+            liveRoomEntity.setProducts(productEntities);
+
+            return R.ok()
+                    .put("products", productEntities)
+                    .put("total_num", totalNum);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
+    public R getLiveEntry(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+        try {
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("accountId", liveRoomEntity.getAccountId());
+            jsonParams.put("liveId", liveRoomEntity.getLiveId());
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            String subUrl = "mtop.mediaplatform.livedetail.entry";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/2.0/?data=" + URLEncoder.encode(jsonText);
+
+            XHeader xHeader = new XHeader(new Date());
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer("2.0");
+            xHeader.setData(jsonText);
+            xHeader.setXsign(signService.xsign(xHeader));
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
+            // 总榜
+            liveRoomEntity.setHasRankingListEntry(NumberUtils.valueOf(NumberUtils.parseBoolean(HFStringUtils.valueOf(mapData.get("hasRankingListEntry")))));
+            if (!liveRoomEntity.isHasRankingListEntry()) {
                 liveRoomEntity.getRankingListData().setRankingScore(0);
                 liveRoomEntity.getRankingListData().setRankingNum(0);
                 liveRoomEntity.getRankingListData().setRankingName("");
@@ -627,9 +757,190 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                 liveRoomEntity.getRankingListData().setRankingName(HFStringUtils.valueOf(mapBizData.get("name")));
             }
 
+            // 小时榜
+            liveRoomEntity.setHasHourRankingListEntry(
+                    mapData.containsKey("hasRankingListEntry") ? NumberUtils.valueOf(NumberUtils.parseBoolean(HFStringUtils.valueOf(mapData.get("hasRankingListEntry")))) : false);
+            if (!liveRoomEntity.isHasHourRankingListEntry()) {
+                liveRoomEntity.getHourRankingListData().setRankingScore(0);
+                liveRoomEntity.getHourRankingListData().setRankingNum(0);
+                liveRoomEntity.getHourRankingListData().setRankingName("");
+
+            } else {
+                Map<String, Object> mapRankingListData = (Map<String, Object>) mapData.get("hourRankingListData");
+                Map<String, Object> mapBizData = (Map<String, Object>) mapRankingListData.get("bizData");
+
+                liveRoomEntity.getHourRankingListData().setRankingScore(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("score")))));
+                liveRoomEntity.getHourRankingListData().setRankingNum(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("rankNum")))));
+                liveRoomEntity.getHourRankingListData().setRankingName(HFStringUtils.valueOf(mapBizData.get("name")));
+            }
+
             Map<String, Object> mapHierachyData = (Map<String, Object>) mapData.get("hierarchyData");
             liveRoomEntity.getHierarchyData().setScopeId(mapHierachyData == null ? "-1" : HFStringUtils.valueOf(mapHierachyData.get("scopeId")));
             liveRoomEntity.getHierarchyData().setSubScopeId(mapHierachyData == null ? "-1" : HFStringUtils.valueOf(mapHierachyData.get("subScopeId")));
+
+            return R.ok()
+                    .put("live_room", liveRoomEntity);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
+    public R getLiveEntryWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+        try {
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("accountId", liveRoomEntity.getAccountId());
+            jsonParams.put("liveId", liveRoomEntity.getLiveId());
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            H5Header h5Header = new H5Header(taobaoAccountEntity);
+            String subUrl = "mtop.mediaplatform.livedetail.entry";
+
+            Map<String, Object> urlParams = new HashMap<>();
+            urlParams.put("appKey", h5Header.getAppKey());
+            urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
+            urlParams.put("api", subUrl);
+            urlParams.put("v", "2.0");
+            urlParams.put("data", jsonText);
+            urlParams.put("sign", signService.h5sign(h5Header, jsonText));
+
+            String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/2.0/?";
+
+            for (String key : urlParams.keySet()) {
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
+            }
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
+            // 总榜
+            liveRoomEntity.setHasRankingListEntry(NumberUtils.valueOf(NumberUtils.parseBoolean(HFStringUtils.valueOf(mapData.get("hasRankingListEntry")))));
+            if (!liveRoomEntity.isHasRankingListEntry()) {
+                liveRoomEntity.getRankingListData().setRankingScore(0);
+                liveRoomEntity.getRankingListData().setRankingNum(0);
+                liveRoomEntity.getRankingListData().setRankingName("");
+
+            } else {
+                Map<String, Object> mapRankingListData = (Map<String, Object>) mapData.get("rankingListData");
+                Map<String, Object> mapBizData = (Map<String, Object>) mapRankingListData.get("bizData");
+
+                liveRoomEntity.getRankingListData().setRankingScore(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("score")))));
+                liveRoomEntity.getRankingListData().setRankingNum(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("rankNum")))));
+                liveRoomEntity.getRankingListData().setRankingName(HFStringUtils.valueOf(mapBizData.get("name")));
+            }
+
+            // 小时榜
+            liveRoomEntity.setHasHourRankingListEntry(
+                    mapData.containsKey("hasRankingListEntry") ? NumberUtils.valueOf(NumberUtils.parseBoolean(HFStringUtils.valueOf(mapData.get("hasRankingListEntry")))) : false);
+            if (!liveRoomEntity.isHasHourRankingListEntry()) {
+                liveRoomEntity.getHourRankingListData().setRankingScore(0);
+                liveRoomEntity.getHourRankingListData().setRankingNum(0);
+                liveRoomEntity.getHourRankingListData().setRankingName("");
+
+            } else {
+                Map<String, Object> mapRankingListData = (Map<String, Object>) mapData.get("hourRankingListData");
+                Map<String, Object> mapBizData = (Map<String, Object>) mapRankingListData.get("bizData");
+
+                liveRoomEntity.getHourRankingListData().setRankingScore(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("score")))));
+                liveRoomEntity.getHourRankingListData().setRankingNum(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("rankNum")))));
+                liveRoomEntity.getHourRankingListData().setRankingName(HFStringUtils.valueOf(mapBizData.get("name")));
+            }
+
+            Map<String, Object> mapHierachyData = (Map<String, Object>) mapData.get("hierarchyData");
+            liveRoomEntity.getHierarchyData().setScopeId(mapHierachyData == null ? "-1" : HFStringUtils.valueOf(mapHierachyData.get("scopeId")));
+            liveRoomEntity.getHierarchyData().setSubScopeId(mapHierachyData == null ? "-1" : HFStringUtils.valueOf(mapHierachyData.get("subScopeId")));
+
+            return R.ok()
+                    .put("live_room", liveRoomEntity);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
+    public R GetRankByMtop2(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+        try {
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("creatorId", liveRoomEntity.getAccountId());
+            jsonParams.put("liveId", liveRoomEntity.getLiveId());
+            jsonParams.put("type", "activity");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            String subUrl = "mtop.mediaplatform.livedetail.messinfo";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
+
+            XHeader xHeader = new XHeader(new Date());
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer("1.0");
+            xHeader.setData(jsonText);
+            xHeader.setXsign(signService.xsign(xHeader));
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
+            Map<String, Object> mapActivity = (Map<String, Object>) mapData.get("activity");
+            Map<String, Object> mapBizData = (Map<String, Object>) mapData.get("bizData");
+
+            if (mapBizData.containsKey("rankNum") && mapBizData.containsKey("score")) {
+                liveRoomEntity.setHasRankingListEntry(true);
+                liveRoomEntity.setHasHourRankingListEntry(true);
+
+                liveRoomEntity.getRankingListData().setRankingScore(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("score")))));
+                liveRoomEntity.getRankingListData().setRankingNum(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("rankNum")))));
+                liveRoomEntity.getRankingListData().setRankingName(HFStringUtils.valueOf(mapBizData.get("name")));
+
+                liveRoomEntity.getHourRankingListData().setRankingScore(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("score")))));
+                liveRoomEntity.getHourRankingListData().setRankingNum(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("rankNum")))));
+                liveRoomEntity.getHourRankingListData().setRankingName(HFStringUtils.valueOf(mapBizData.get("name")));
+
+            } else {
+                liveRoomEntity.setHasRankingListEntry(false);
+                liveRoomEntity.setHasHourRankingListEntry(false);
+
+            }
 
             return R.ok()
                     .put("live_room", liveRoomEntity);
@@ -688,7 +999,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R getLiveList(TaobaoAccountEntity taobaoAccountEntity, int pageNo, int pageSize) {
+    public R getLiveListWeb(TaobaoAccountEntity taobaoAccountEntity, int pageNo, int pageSize) {
         try {
             Map<String, Object> urlParams = new HashMap<>();
             urlParams.put("currentPage", HFStringUtils.valueOf(pageNo));
@@ -782,7 +1093,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     @Override
     public R getPlayingLiveRoom(TaobaoAccountEntity taobaoAccountEntity) {
         try {
-            R r = this.getLiveList(taobaoAccountEntity, 1, 20);
+            R r = this.getLiveListWeb(taobaoAccountEntity, 1, 20);
             if (r.getCode() != ErrorCodes.SUCCESS) {
                 return r;
             }
@@ -805,7 +1116,121 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
+    public R getIntimacyDetail(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("liveId", liveRoomEntity.getLiveId());
+            jsonParams.put("accountId", liveRoomEntity.getAccountId());
+
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            H5Header h5Header = new H5Header(taobaoAccountEntity);
+            String subUrl = "mtop.mediaplatform.hierarchy.detail";
+
+            Map<String, Object> urlParams = new HashMap<>();
+            urlParams.put("appKey", h5Header.getAppKey());
+            urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
+            urlParams.put("api", subUrl);
+            urlParams.put("v", "1.0");
+            urlParams.put("data", jsonText);
+            urlParams.put("sign", signService.h5sign(h5Header, jsonText));
+
+            String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/1.0/?";
+
+            for (String key : urlParams.keySet()) {
+                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
+            }
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
     public R taskFollow(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            Map<String, Object> mapTrackParams = new HashMap<>();
+            mapTrackParams.put("activityId", liveRoomEntity.getLiveId());
+            mapTrackParams.put("broadcasterId", liveRoomEntity.getAccountId());
+            mapTrackParams.put("userId", taobaoAccountEntity.getUid());
+
+            Map<String, Object> mapParams = new HashMap<>();
+            mapParams.put("accountId", liveRoomEntity.getAccountId());
+
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("scopeId", liveRoomEntity.getHierarchyData().getScopeId());
+            jsonParams.put("subScope", liveRoomEntity.getHierarchyData().getSubScopeId());
+            jsonParams.put("trackParams", objectMapper.writeValueAsString(mapTrackParams));
+            jsonParams.put("action", "follow");
+            jsonParams.put("params", objectMapper.writeValueAsString(mapParams));
+
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            String subUrl = "mtop.taobao.iliad.task.action";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
+
+            XHeader xHeader = new XHeader(new Date());
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer("1.0");
+            xHeader.setData(jsonText);
+            xHeader.setXsign(signService.xsign(xHeader));
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
+    public R taskFollowWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
@@ -892,6 +1317,65 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
+            String subUrl = "mtop.taobao.iliad.task.action";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
+
+            XHeader xHeader = new XHeader(new Date());
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer("1.0");
+            xHeader.setData(jsonText);
+            xHeader.setXsign(signService.xsign(xHeader));
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
+    public R taskStayWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, int staySeconds) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            Map<String, Object> mapTrackParams = new HashMap<>();
+            mapTrackParams.put("activityId", liveRoomEntity.getLiveId());
+            mapTrackParams.put("broadcasterId", liveRoomEntity.getAccountId());
+            mapTrackParams.put("userId", taobaoAccountEntity.getUid());
+
+            Map<String, Object> mapParams = new HashMap<>();
+            mapParams.put("stayTime", staySeconds);
+
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("scopeId", liveRoomEntity.getHierarchyData().getScopeId());
+            jsonParams.put("subScope", liveRoomEntity.getHierarchyData().getSubScopeId());
+            jsonParams.put("trackParams", objectMapper.writeValueAsString(mapTrackParams));
+            jsonParams.put("action", "stay");
+            jsonParams.put("params", objectMapper.writeValueAsString(mapParams));
+
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
             H5Header h5Header = new H5Header(taobaoAccountEntity);
             String subUrl = "mtop.taobao.iliad.task.action";
 
@@ -938,6 +1422,66 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
     @Override
     public R taskBuy(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, String productId) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            Map<String, Object> mapTrackParams = new HashMap<>();
+            mapTrackParams.put("activityId", liveRoomEntity.getLiveId());
+            mapTrackParams.put("broadcasterId", liveRoomEntity.getAccountId());
+            mapTrackParams.put("userId", taobaoAccountEntity.getUid());
+
+            Map<String, Object> mapParams = new HashMap<>();
+            mapParams.put("itemId", productId);
+            mapParams.put("cost", 50);
+
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("scopeId", liveRoomEntity.getHierarchyData().getScopeId());
+            jsonParams.put("subScope", liveRoomEntity.getHierarchyData().getSubScopeId());
+            jsonParams.put("trackParams", objectMapper.writeValueAsString(mapTrackParams));
+            jsonParams.put("action", "payCarts");
+            jsonParams.put("params", objectMapper.writeValueAsString(mapParams));
+
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            String subUrl = "mtop.taobao.iliad.task.action";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
+
+            XHeader xHeader = new XHeader(new Date());
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer("1.0");
+            xHeader.setData(jsonText);
+            xHeader.setXsign(signService.xsign(xHeader));
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
+    public R taskBuyWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, String productId) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
@@ -1118,7 +1662,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
-                            .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .addHeaders(xHeader.getHeaders()),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -1435,7 +1979,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
-                            .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .addHeaders(xHeader.getHeaders()),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -1579,7 +2123,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
-                            .setUserAgent("MTOPSDK/3.1.1.7 (Android;5.1.1)")
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .addHeaders(xHeader.getHeaders())
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
                     new Request("POST", url, ResponseType.TEXT)
@@ -1914,8 +2458,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     .put("umtid", umtid.replace("{", "").replace("}", ""));
             }
 
-            // TODO
-            return R.ok().put("umtid", CommonUtils.randomAlphabetic("ax4WpF7jPU0DAEfs1bkDAGEcooO5rmzg".length()));
+//            // TODO
+//            return R.ok().put("umtid", CommonUtils.randomAlphabetic("ax4WpF7jPU0DAEfs1bkDAGEcooO5rmzg".length()));
 
         } catch (Exception ex) {
             ex.printStackTrace();

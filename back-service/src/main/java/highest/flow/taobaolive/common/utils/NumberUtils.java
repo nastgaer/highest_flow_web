@@ -7,6 +7,17 @@ public class NumberUtils {
 
     private static Logger logger = LoggerFactory.getLogger(NumberUtils.class);
 
+    public static Boolean parseBoolean(String s) {
+        if (s != null && s.length() > 0) {
+            try {
+                return Boolean.parseBoolean(s);
+            } catch (Exception ex) {
+                logger.error(ex.getMessage(), ex);
+            }
+        }
+        return null;
+    }
+
     /**
      * 字符串转Integer
      * @param s 字符串
@@ -101,6 +112,10 @@ public class NumberUtils {
             return defaultValue;
         }
         return floatV;
+    }
+
+    public static Boolean valueOf(Boolean value) {
+        return value != null ? value : false;
     }
 
     /**

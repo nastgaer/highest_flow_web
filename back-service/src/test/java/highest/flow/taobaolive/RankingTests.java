@@ -59,7 +59,7 @@ public class RankingTests extends BaseTests {
             LiveRoomEntity liveRoomEntity = (LiveRoomEntity) r.get("live_room");
 
             if (activeAccount != null) {
-                r = taobaoApiService.getLiveProducts(liveRoomEntity, activeAccount);
+                r = taobaoApiService.getLiveProductsWeb(liveRoomEntity, activeAccount, 350);
                 System.out.println(objectMapper.writeValueAsString(r));
             }
 
@@ -143,7 +143,7 @@ public class RankingTests extends BaseTests {
             System.out.println(objectMapper.writeValueAsString(r));
 
             LiveRoomEntity liveRoomEntity = (LiveRoomEntity) r.get("live_room");
-            r = taobaoApiService.getLiveProducts(liveRoomEntity, activeAccount);
+            r = taobaoApiService.getLiveProductsWeb(liveRoomEntity, activeAccount, 350);
             System.out.println(objectMapper.writeValueAsString(r));
 
             List<ProductEntity> productEntities = (List<ProductEntity>) r.get("products");

@@ -267,7 +267,7 @@ public class LiveRoomEntityTests {
 
             taobaoApiService.getH5Token(activeAccount);
 
-            R r = taobaoApiService.getLiveList(activeAccount, 1, 20);
+            R r = taobaoApiService.getLiveListWeb(activeAccount, 1, 20);
 
             List<LiveRoomEntity> liveRoomEntities = (List<LiveRoomEntity>) r.get("live_rooms");
 
@@ -276,7 +276,7 @@ public class LiveRoomEntityTests {
 
             LiveRoomEntity activeLiveRoom = null;
             for (LiveRoomEntity liveRoomEntity : liveRoomEntities) {
-                r = taobaoApiService.getLiveProducts(liveRoomEntity, activeAccount);
+                r = taobaoApiService.getLiveProductsWeb(liveRoomEntity, activeAccount, 350);
 
                 System.out.println(objectMapper.writeValueAsString(r));
 
@@ -328,7 +328,7 @@ public class LiveRoomEntityTests {
 
             taobaoApiService.getH5Token(activeAccount);
 
-            R r = taobaoApiService.getLiveList(activeAccount, 1, 20);
+            R r = taobaoApiService.getLiveListWeb(activeAccount, 1, 20);
 
             List<LiveRoomEntity> liveRoomEntities = (List<LiveRoomEntity>) r.get("live_rooms");
 
@@ -337,7 +337,7 @@ public class LiveRoomEntityTests {
 
             LiveRoomEntity activeLiveRoom = null;
             for (LiveRoomEntity liveRoomEntity : liveRoomEntities) {
-                r = taobaoApiService.getLiveProducts(liveRoomEntity, activeAccount);
+                r = taobaoApiService.getLiveProductsWeb(liveRoomEntity, activeAccount, 350);
 
                 if (liveRoomEntity.getLiveState() == LiveRoomState.Stopped.getState()) {
                     r = taobaoApiService.deleteLive(liveRoomEntity, activeAccount);
