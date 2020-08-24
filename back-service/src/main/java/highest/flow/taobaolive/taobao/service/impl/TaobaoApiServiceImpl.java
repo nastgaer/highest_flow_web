@@ -1890,29 +1890,29 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     @Override
     public R getUmtidToken() {
         try {
-//            String url = "http://zb.dcdnz.com/api/notify/umtid.php?action=select";
-//            Response<String> response = HttpHelper.execute(
-//                new SiteConfig()
-//                    .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
-//                new Request("GET", url, ResponseType.TEXT));
-//
-//            if (response.getStatusCode() != HttpStatus.SC_OK) {
-//                return R.error("生成UmtidToken失败");
-//            }
-//
-//            String respText = response.getResult();
-//            respText = StringUtils.strip(respText, "\"\r\n");
-//
-//            JsonParser jsonParser = JsonParserFactory.getJsonParser();
-//            Map<String, Object> map = jsonParser.parseMap(respText);
-//
-//            List<Map> dataList = (List<Map>)map.get("data");
-//            if (dataList.size() > 0) {
-//                Map<String, Object> testMap = (Map<String, Object>)dataList.get(0);
-//                String umtid = HFStringUtils.valueOf(testMap.get("test"));
-//                return R.ok()
-//                    .put("umtid", umtid.replace("{", "").replace("}", ""));
-//            }
+            String url = "http://zb.dcdnz.com/api/notify/umtid.php?action=select";
+            Response<String> response = HttpHelper.execute(
+                new SiteConfig()
+                    .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
+                new Request("GET", url, ResponseType.TEXT));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error("生成UmtidToken失败");
+            }
+
+            String respText = response.getResult();
+            respText = StringUtils.strip(respText, "\"\r\n");
+
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            List<Map> dataList = (List<Map>)map.get("data");
+            if (dataList.size() > 0) {
+                Map<String, Object> testMap = (Map<String, Object>)dataList.get(0);
+                String umtid = HFStringUtils.valueOf(testMap.get("test"));
+                return R.ok()
+                    .put("umtid", umtid.replace("{", "").replace("}", ""));
+            }
 
             // TODO
             return R.ok().put("umtid", CommonUtils.randomAlphabetic("ax4WpF7jPU0DAEfs1bkDAGEcooO5rmzg".length()));

@@ -104,7 +104,7 @@ public class TaobaoAccountController extends AbstractController {
 
             r = taobaoApiService.getUmtidToken();
             if (r.getCode() != ErrorCodes.SUCCESS) {
-                return r;
+                return R.error(ErrorCodes.INVALID_UMTID, "获取UMTID_TOKEN失败了，请联系管理员");
             }
 
             newAccount.setUmidToken((String) r.get("umtid"));

@@ -2,6 +2,9 @@ package highest.flow.taobaolive.security.defines;
 
 public enum LicenseCodeType {
 
+    /**
+     * 内部用的：作为代理版的，可以扫号上传
+     */
     Internal(0),    // 内部
     Test(1),        // 测试
     License(2);     // 授权

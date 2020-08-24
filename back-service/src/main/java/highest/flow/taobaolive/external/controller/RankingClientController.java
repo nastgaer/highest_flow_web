@@ -215,10 +215,7 @@ public class RankingClientController extends AbstractController {
                 licenseCode.setState(LicenseCodeState.Accepted.getState());
                 licenseCode.setMemberId(sysMember.getId());
                 Date serviceStartTime = new Date();
-                Calendar calender = Calendar.getInstance();
-                calender.setTime(serviceStartTime);
-                calender.add(Calendar.HOUR, licenseCode.getHours());
-                Date serviceEndTime = calender.getTime();
+                Date serviceEndTime = CommonUtils.addHours(serviceStartTime, licenseCode.getHours());
                 licenseCode.setServiceStartTime(serviceStartTime);
                 licenseCode.setServiceEndTime(serviceEndTime);
 

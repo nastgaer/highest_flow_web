@@ -161,14 +161,6 @@ public class SignServiceImpl implements SignService {
             }
             mode = 3;
         }
-
-//        if (mode == 2) {
-//            String xsign = xsign2(xHeader);
-//            if (!HFStringUtils.isNullOrEmpty(xsign)) {
-//                return xsign;
-//            }
-//            mode = 3;
-//        }
         return "";
     }
 

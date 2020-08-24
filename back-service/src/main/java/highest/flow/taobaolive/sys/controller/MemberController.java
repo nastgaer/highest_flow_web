@@ -3,18 +3,20 @@ package highest.flow.taobaolive.sys.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import highest.flow.taobaolive.api.param.IdsParam;
-import highest.flow.taobaolive.api.param.PageParam;
-import highest.flow.taobaolive.api.param.RegisterMemberParam;
-import highest.flow.taobaolive.api.param.UpdateMemberParam;
+import highest.flow.taobaolive.api.param.*;
 import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.config.Config;
 import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.common.utils.R;
+import highest.flow.taobaolive.security.defines.LicenseCodeState;
+import highest.flow.taobaolive.security.defines.LicenseCodeType;
+import highest.flow.taobaolive.security.entity.LicenseCode;
+import highest.flow.taobaolive.security.service.LicenseCodeService;
 import highest.flow.taobaolive.sys.defines.MemberLevel;
 import highest.flow.taobaolive.sys.defines.MemberRole;
+import highest.flow.taobaolive.sys.defines.MemberServiceType;
 import highest.flow.taobaolive.sys.entity.*;
 import highest.flow.taobaolive.sys.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,9 @@ public class MemberController extends AbstractController {
 
     @Autowired
     private MemberService memberService;
+
+    @Autowired
+    private LicenseCodeService licenseCodeService;
 
     @SysLog("注册会员")
     @PostMapping("/register")
@@ -147,5 +152,92 @@ public class MemberController extends AbstractController {
             ex.printStackTrace();
         }
         return R.error("批量删除会员失败");
+    }
+
+    @SysLog("注册软件代码")
+    @PostMapping("/add_internal_code")
+    public R addInternalCode(@RequestBody AddNewLicenseCodeParam internalCodeParam) {
+        try {
+            String code = "internal" + CommonUtils.randomAlphabetic(8);
+
+            LicenseCode licenseCode = new LicenseCode();
+            licenseCode.setCodeType(internalCodeParam.getLicenseCodeType());
+            licenseCode.setServiceType(internalCodeParam.getServiceType());
+            licenseCode.setHours(internalCodeParam.getHours());
+            licenseCode.setCode(code);
+            licenseCode.setState(LicenseCodeState.Created.getState());
+            licenseCode.setCreatedTime(new Date());
+
+            Date expires = CommonUtils.addHours(new Date(), internalCodeParam.getHours());
+
+            licenseCodeService.save(licenseCode);
+
+            return R.ok()
+                    .put("code", code)
+                    .put("expires", expires);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("生成软件代码失败");
+    }
+
+    @SysLog("获取软件代码")
+    @PostMapping("/list_internal_code")
+    public R listInternalCode(@RequestBody PageParam pageParam) {
+        try {
+            PageUtils pageUtils = this.licenseCodeService.queryPage(pageParam);
+
+            List<LicenseCode> codes = pageUtils.getList();
+
+            return R.ok().put("codes", codes);
+
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return R.error("获取会员列表失败");
+    }
+
+    @SysLog("延期软件代码")
+    @PostMapping("/recharge_internal_code")
+    public R rechargeInternalCode(@RequestBody Map<String, Object> params) {
+        try {
+            String code = (String) params.get("code");
+            int hours = Integer.parseInt(String.valueOf(params.get("hours")));
+
+            LicenseCode licenseCode = this.licenseCodeService.getCodeDesc(code);
+            if (licenseCode == null) {
+                return R.error("找不到代码");
+            }
+
+            if (licenseCode.getState() == LicenseCodeState.Created.getState()) {
+                return R.error("还没激活的代码");
+            }
+
+            if (licenseCode.getState() == LicenseCodeState.Deleted.getState()) {
+                return R.error("已经删除的代码");
+            }
+
+            Date startTime = licenseCode.getServiceStartTime();
+            Date endTime = licenseCode.getServiceEndTime();
+
+            if (endTime.getTime() < new Date().getTime()) {
+                startTime = new Date();
+                endTime = new Date();
+            }
+
+            endTime = CommonUtils.addHours(endTime, hours);
+
+            licenseCode.setServiceStartTime(startTime);
+            licenseCode.setServiceEndTime(endTime);
+
+            this.licenseCodeService.updateById(licenseCode);
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("延期软件代码");
     }
 }
