@@ -12,7 +12,7 @@
     <modules>
         <module>back-service</module>
         <module>autologin</module>
-        <module>xsign</module>
+        <module>xdata</module>
     </modules>
 
 </project>

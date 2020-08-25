@@ -702,6 +702,27 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
+    public R getRankingListData(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+        try {
+            if (HFStringUtils.isNullOrEmpty(liveRoomEntity.getHierarchyData().getScopeId()) ||
+                    HFStringUtils.isNullOrEmpty(liveRoomEntity.getHierachyData().getSubScopeId())) {
+                return this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+            }
+
+            R r = this.getRankByMtop2(liveRoomEntity, taobaoAccountEntity);
+            if (r.getCode() != ErrorCodes.SUCCESS) {
+                return this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+            }
+
+            return r;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
     public R getLiveEntry(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             Map<String, Object> jsonParams = new HashMap<>();
@@ -881,7 +902,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R GetRankByMtop2(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+    public R getRankByMtop2(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             Map<String, Object> jsonParams = new HashMap<>();
             jsonParams.put("creatorId", liveRoomEntity.getAccountId());

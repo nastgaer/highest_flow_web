@@ -120,6 +120,14 @@ public interface TaobaoApiService {
      * @param taobaoAccountEntity
      * @return
      */
+    public R getRankingListData(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
+
+    /**
+     * 查询直播间赛道和当前助力值
+     * @param liveRoomEntity
+     * @param taobaoAccountEntity
+     * @return
+     */
     public R getLiveEntry(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
@@ -136,7 +144,7 @@ public interface TaobaoApiService {
      * @param taobaoAccountEntity
      * @return
      */
-    public R GetRankByMtop2(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
+    public R getRankByMtop2(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 解析淘口令获取直播间信息

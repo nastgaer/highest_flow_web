@@ -73,18 +73,18 @@ public class LiveController extends AbstractController {
     }
 
     //@SysLog("解析淘口令")
-    @PostMapping("/parse_taocode")
-    public R parseTaoCode(@RequestBody Map<String, Object> params) {
-        try {
-            String taocode = (String) params.get("taocode");
-
-            return taobaoApiService.getLiveInfo(taocode, null);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return R.error("解析淘口令失败");
-    }
+//    @PostMapping("/parse_taocode")
+//    public R parseTaoCode(@RequestBody Map<String, Object> params) {
+//        try {
+//            String taocode = (String) params.get("taocode");
+//
+//            return taobaoApiService.getLiveInfo(taocode, null);
+//
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//        return R.error("解析淘口令失败");
+//    }
 
     @PostMapping("/get_live_info")
     public R getLiveInfo(@RequestBody Map<String, Object> params) {

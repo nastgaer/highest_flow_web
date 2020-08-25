@@ -3,6 +3,7 @@ package highest.taolive.xdata.utils;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -54,7 +55,9 @@ public class CryptoUtils {
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
 
-            byte[] encrypted = cipher.doFinal(value.getBytes());
+            byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+
+            byte[] encrypted = cipher.doFinal(bytes);
             return encrypted;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -70,7 +73,7 @@ public class CryptoUtils {
             cipher.init(Cipher.DECRYPT_MODE, skeySpec);
             byte[] original = cipher.doFinal(encrypted);
 
-            return new String(original);
+            return new String(original, StandardCharsets.UTF_8);
 
         } catch (Exception ex) {
             ex.printStackTrace();

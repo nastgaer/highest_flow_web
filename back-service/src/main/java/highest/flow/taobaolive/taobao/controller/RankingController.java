@@ -117,7 +117,7 @@ public class RankingController extends AbstractController {
 
             if (taobaoAccountEntity != null) {
                 this.taobaoApiService.getH5Token(taobaoAccountEntity);
-                this.taobaoApiService.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+                this.taobaoApiService.getRankingListData(liveRoomEntity, taobaoAccountEntity);
             }
 
             // 可用热度值

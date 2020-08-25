@@ -277,9 +277,9 @@ public class AssistRankingTask implements ITask {
 
         } else {
             for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
-                R r = taobaoApiService.getLiveEntry(liveRoomEntity, activeAccountEntity);
+                R r = taobaoApiService.getRankingListData(liveRoomEntity, activeAccountEntity);
                 if (r.getCode() == ErrorCodes.SUCCESS) {
-                    int currentScore = liveRoomEntity.getRankingListData().getRankingScore();
+                    int currentScore = liveRoomEntity.getHourRankingListData().getRankingScore();
 
                     rankingEntity.setEndScore(currentScore);
                     rankingService.updateById(rankingEntity);
@@ -462,6 +462,7 @@ public class AssistRankingTask implements ITask {
 
                 // 初始化
                 taobaoApiService.getH5Token(activeAccount);
+                taobaoApiService.getIntimacyDetail(liveRoomEntity, activeAccount);
 
                 // 关注
                 {
