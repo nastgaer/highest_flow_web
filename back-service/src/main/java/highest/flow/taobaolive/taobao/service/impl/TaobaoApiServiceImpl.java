@@ -705,7 +705,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     public R getRankingListData(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             if (HFStringUtils.isNullOrEmpty(liveRoomEntity.getHierarchyData().getScopeId()) ||
-                    HFStringUtils.isNullOrEmpty(liveRoomEntity.getHierachyData().getSubScopeId())) {
+                    HFStringUtils.isNullOrEmpty(liveRoomEntity.getHierarchyData().getSubScopeId())) {
                 return this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
             }
 
