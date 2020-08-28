@@ -30,36 +30,36 @@ public class AppRunner implements CommandLineRunner {
     }
 
     private void initializeJob() {
-//        try {
-//            List<ScheduleJobEntity> scheduleJobList = schedulerJobService.list();
-//            boolean found = false;
-//            for (ScheduleJobEntity scheduleJobEntity : scheduleJobList) {
-//                if (scheduleJobEntity.getBeanName().compareTo("autoLoginTask") == 0) {
-//                    found = true;
-//                    break;
-//                }
-//            }
-//            if (!found) {
-//                ScheduleJobEntity scheduleJobEntity = new ScheduleJobEntity();
-//                scheduleJobEntity.setBeanName("autoLoginTask");
-//                scheduleJobEntity.setParams(null);
-//                // EVERY 4 hours begining at 0:00
-//                scheduleJobEntity.setCronExpression("0 0 0/4 ? * * *");
-//                scheduleJobEntity.setCreatedTime(new Date());
-//                scheduleJobEntity.setState(ScheduleState.NORMAL.getValue());
-//                scheduleJobEntity.setRemark("延期任务");
-//
-//                schedulerJobService.saveOrUpdate(scheduleJobEntity);
-//                ScheduleUtils.createScheduleJob(scheduler, scheduleJobEntity);
-//
-//                scheduler.start();
-//            }
-//
-//        } catch (SchedulerException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            List<ScheduleJobEntity> scheduleJobList = schedulerJobService.list();
+            boolean found = false;
+            for (ScheduleJobEntity scheduleJobEntity : scheduleJobList) {
+                if (scheduleJobEntity.getBeanName().compareTo("autoLoginTask") == 0) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                ScheduleJobEntity scheduleJobEntity = new ScheduleJobEntity();
+                scheduleJobEntity.setBeanName("autoLoginTask");
+                scheduleJobEntity.setParams(null);
+                // EVERY 4 hours begining at 0:00
+                scheduleJobEntity.setCronExpression("0 0 0/4 ? * * *");
+                scheduleJobEntity.setCreatedTime(new Date());
+                scheduleJobEntity.setState(ScheduleState.NORMAL.getValue());
+                scheduleJobEntity.setRemark("延期任务");
 
-        AutoLoginTask autoLoginTask = (AutoLoginTask) SpringContextUtils.getBean("autoLoginTask");
-        autoLoginTask.run(null);
+                schedulerJobService.saveOrUpdate(scheduleJobEntity);
+                ScheduleUtils.createScheduleJob(scheduler, scheduleJobEntity);
+
+                scheduler.start();
+            }
+
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
+
+//        AutoLoginTask autoLoginTask = (AutoLoginTask) SpringContextUtils.getBean("autoLoginTask");
+//        autoLoginTask.run(null);
     }
 }

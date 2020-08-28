@@ -54,7 +54,7 @@ sign:
   prefix: gaoji
   suffix: yinliu
   method: md5
-  url: http://localhost:9999/xdata
+  url: http://119.45.148.200:9999/xdata
 
 secure:
   key: 1234!@#$
