@@ -59,7 +59,7 @@ public class AppRunner implements CommandLineRunner {
             e.printStackTrace();
         }
 
-//        AutoLoginTask autoLoginTask = (AutoLoginTask) SpringContextUtils.getBean("autoLoginTask");
-//        autoLoginTask.run(null);
+        AutoLoginTask autoLoginTask = (AutoLoginTask) SpringContextUtils.getBean("autoLoginTask");
+        autoLoginTask.run(null);
     }
 }

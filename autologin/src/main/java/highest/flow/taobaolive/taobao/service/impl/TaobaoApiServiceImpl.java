@@ -262,7 +262,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                return R.error();
+                return R.error("获取二维码失败");
             }
 
             String respText = response.getResult();
@@ -287,7 +287,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return R.error();
+        return R.error("获取二维码Token失败2");
     }
 
     @Override

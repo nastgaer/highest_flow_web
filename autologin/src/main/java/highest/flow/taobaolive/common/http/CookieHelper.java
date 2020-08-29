@@ -173,7 +173,9 @@ public class CookieHelper {
                             Date expiryDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
                             cookie.setExpiryDate(expiryDate);
                         } else {
-                            Date expiryDate = DateFormat.getDateTimeInstance().parse(paramValue);
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            Date expiryDate = sdf.parse(paramValue);
+                            // Date expiryDate = DateFormat.getDateTimeInstance().parse(paramValue);
                             cookie.setExpiryDate(expiryDate);
                         }
                     } else if (paramName.equalsIgnoreCase("max-age")) {
