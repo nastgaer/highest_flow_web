@@ -15,11 +15,11 @@ public class XHeader {
 
     private String utdid = "";
     private String uid = "";
-    private String appkey = "21646297";
-    private String pv = "5.1";
+    private String appkey = "25443018";
+    private String pv = "6.2";
     private long timestamp = 0;
     private String sid = "";
-    private String ttid = "600000@taobao_android_7.6.0";
+    private String ttid = "10005533@taobaolive_android_1.4.0";
     private String devid = "";
     private String location1 = "1568.459875";
     private String location2 = "454.451236";
@@ -29,8 +29,6 @@ public class XHeader {
     private String data = "";
     @JsonIgnore
     private String xsign = "";
-    @JsonIgnore
-    private boolean encoded = false;
 
     public XHeader() {
     }
@@ -60,16 +58,11 @@ public class XHeader {
     }
 
     public String getTtid() {
-        if (encoded) {
-            return URLEncoder.encode(ttid).replace("_", "%5F");
-        }
         return ttid;
     }
 
     @JsonIgnore
     public String getLocation() {
-        if (encoded)
-            return URLEncoder.encode(location1 + "," + location2);
         return location1 + "," + location2;
     }
 
@@ -81,7 +74,7 @@ public class XHeader {
         map.put("x-pv", pv);
         map.put("x-sign", xsign);
         map.put("x-features", String.valueOf(features));
-        map.put("x-location", getLocation());
+//        map.put("x-location", getLocation());
         map.put("x-ttid", getTtid());
         if (!HFStringUtils.isNullOrEmpty(utdid)) {
             map.put("x-utdid", utdid);

@@ -9,7 +9,6 @@ import highest.flow.taobaolive.common.http.httpclient.response.Response;
 import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.R;
-import highest.flow.taobaolive.taobao.defines.LiveRoomState;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.*;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
@@ -25,7 +24,6 @@ import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
 

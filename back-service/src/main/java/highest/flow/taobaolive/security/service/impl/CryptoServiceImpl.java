@@ -51,4 +51,9 @@ public class CryptoServiceImpl implements CryptoService {
         byte[] encryptBytes = CryptoUtils.encryptAES(data, encryptKey);
         return HFStringUtils.byteArrayToHexString(encryptBytes);
     }
+
+    @Override
+    public String sign(String data) {
+        return CryptoUtils.MD5(prefix + data + suffix);
+    }
 }
