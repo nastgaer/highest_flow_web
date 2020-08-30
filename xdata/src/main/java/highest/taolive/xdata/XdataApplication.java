@@ -1,5 +1,6 @@
 package highest.taolive.xdata;
 
+import highest.taolive.xdata.service.MinaService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -10,6 +11,16 @@ public class XdataApplication {
         Log4jConfiguration.configure("xsign.log");
 
         SpringApplication.run(XdataApplication.class, args);
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+
+            @Override
+            public void run() {
+                super.run();
+
+                MinaService.stop();
+            }
+        });
     }
 
 }

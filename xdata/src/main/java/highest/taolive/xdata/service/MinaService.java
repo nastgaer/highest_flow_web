@@ -106,6 +106,12 @@ public class MinaService {
         logger.info("启动服务");
     }
 
+    public static void stop() {
+        for (IoSession session : sessiones) {
+            session.closeOnFlush();
+        }
+    }
+
     private static class KeepAliveMessageFactoryImpl implements KeepAliveMessageFactory {
 
         @Override
