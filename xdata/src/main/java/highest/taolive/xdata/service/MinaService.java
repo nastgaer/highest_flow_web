@@ -124,12 +124,15 @@ public class MinaService {
 
         @Override
         public boolean isResponse(IoSession ioSession, Object o) {
+            if (o.equals(HEARTBEATRESPONSE)) {
+                return true;
+            }
             return false;
         }
 
         @Override
         public Object getRequest(IoSession ioSession) {
-            return null;
+            return HEARTBEATREQUEST;
         }
 
         @Override
