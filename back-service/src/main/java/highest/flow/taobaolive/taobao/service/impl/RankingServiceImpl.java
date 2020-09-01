@@ -36,9 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntity> implements RankingService {
 
     @Autowired
-    private Scheduler scheduler;
-
-    @Autowired
     private ScheduleJobService schedulerJobService;
 
     @Autowired
@@ -107,6 +104,24 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
     }
 
     @Override
+    public List<RankingEntity> getRunningTasks(SysMember sysMember) {
+        try {
+            QueryWrapper<RankingEntity> queryWrapper = new QueryWrapper<>();
+            queryWrapper
+                    .and(i -> i.eq("member_id", sysMember.getId()))
+                    .and(i -> i.eq("state", RankingEntityState.Running.getState())
+                            .or()
+                            .eq("state", RankingEntityState.Waiting.getState()));
+
+            return this.baseMapper.selectList(queryWrapper);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
     public RankingEntity getRunningTask(SysMember sysMember, String liveId) {
         try {
             QueryWrapper<RankingEntity> queryWrapper = new QueryWrapper<>();
@@ -145,7 +160,7 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
             rankingEntity.setHasStay(hasStay);
             rankingEntity.setHasBuy(hasBuy);
             rankingEntity.setHasDoubleBuy(hasDoubleBuy);
-            rankingEntity.setStartTime(startTime == null ? new Date() : startTime);
+            rankingEntity.setStartTime(startTime);
             rankingEntity.setEndTime(null);
             rankingEntity.setComment(comment);
             rankingEntity.setMsg("");
@@ -170,7 +185,7 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
                 expression = String.format("%d %d %d %d %d ? %d", second, minute, hour, date, month, year);
 
             } else {
-                Date next = CommonUtils.addMinutes(new Date(), 5);
+                Date next = CommonUtils.addHours(new Date(), 1);
 
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(next);
@@ -209,17 +224,43 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
     @Override
     public boolean startTask(RankingEntity rankingEntity) {
         try {
+            if (rankingEntity.getState() != RankingEntityState.Waiting.getState()) {
+                return false;
+            }
+
             int taskId = rankingEntity.getId();
             ScheduleJobEntity scheduleJobEntity = this.schedulerJobService.findScheduledJob("assistRankingTask", String.valueOf(taskId));
 
             if (scheduleJobEntity == null) {
-                return false;
+                Date next = CommonUtils.addHours(new Date(), 1);
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(next);
+                int year = calendar.get(Calendar.YEAR);
+                int month = calendar.get(Calendar.MONTH) + 1;
+                int date = calendar.get(Calendar.DAY_OF_MONTH);
+                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                int minute = calendar.get(Calendar.MINUTE);
+                int second = calendar.get(Calendar.SECOND);
+
+                String expression = String.format("%d %d %d %d %d ? %d", second, minute, hour, date, month, year);
+
+                scheduleJobEntity = new ScheduleJobEntity();
+                scheduleJobEntity.setBeanName("assistRankingTask");
+                scheduleJobEntity.setParams(String.valueOf(rankingEntity.getId()));
+                scheduleJobEntity.setCronExpression(expression);
+                scheduleJobEntity.setCreatedTime(new Date());
+                scheduleJobEntity.setState(ScheduleState.NORMAL.getValue());
+                scheduleJobEntity.setRemark("刷热度");
+
+                this.schedulerJobService.saveJob(scheduleJobEntity);
             }
 
-            // 立即开始任务
-            this.schedulerJobService.runJob(scheduleJobEntity);
             // 避免重现开始定时任务，把已经设置的定时任务删掉
             this.schedulerJobService.deleteJob(scheduleJobEntity);
+//            // 立即开始任务
+//            this.schedulerJobService.runJob(scheduleJobEntity);
+            this.schedulerJobService.runInstantJob(scheduleJobEntity);
 
             return true;
 

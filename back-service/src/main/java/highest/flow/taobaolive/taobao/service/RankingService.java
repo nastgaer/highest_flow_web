@@ -22,6 +22,8 @@ public interface RankingService extends IService<RankingEntity> {
 
     List<RankingEntity> getTodaysTask(String today);
 
+    List<RankingEntity> getRunningTasks(SysMember sysMember);
+
     RankingEntity getRunningTask(SysMember sysMember, String liveId);
 
     /**

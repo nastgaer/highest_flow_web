@@ -31,6 +31,7 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.web.bind.annotation.*;
@@ -55,6 +56,9 @@ public class RankingController extends AbstractController {
 
     @Autowired
     private TaobaoApiService taobaoLiveApiService;
+
+    @Value("${ranking.max-sync-count:20}")
+    private int maxSyncCount; // 同时刷的最多线程数
 
     @PostConstruct
     public void init() {
@@ -223,6 +227,11 @@ public class RankingController extends AbstractController {
             RankingEntity currentEntity = this.rankingService.getRunningTask(sysMember, liveId);
             if (currentEntity != null) {
                 return R.error("已经添加好了该直播间");
+            }
+
+            List<RankingEntity> runningEntities = this.rankingService.getRunningTasks(sysMember);
+            if (runningEntities != null && runningEntities.size() >= maxSyncCount) {
+                return R.error("已经刷热度任务上限了，请等到任务完成");
             }
 
             // 创建刷热度任务

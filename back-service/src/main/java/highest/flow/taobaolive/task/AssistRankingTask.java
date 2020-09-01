@@ -43,8 +43,8 @@ public class AssistRankingTask implements ITask {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Value("${taobaolive.simulate:false}")
-    private boolean simulate;
+    @Value("${ranking.unit-pool-size:300}")
+    private int maxUnitPoolSize; // 一个刷任务的最多线程数
 
     @Autowired
     private MemberService memberService;
@@ -171,7 +171,7 @@ public class AssistRankingTask implements ITask {
                     break;
                 }
 
-                totalCount = Math.min(100, Math.min(taobaoAccountEntities.size() - startIndex, totalCount));
+                totalCount = Math.min(maxUnitPoolSize, Math.min(taobaoAccountEntities.size() - startIndex, totalCount));
 
                 countDownLatch = new CountDownLatch(totalCount);
 
@@ -229,6 +229,9 @@ public class AssistRankingTask implements ITask {
             if (markedAccounts.size() > 0) {
                 rankingService.markAssist(sysMember, liveRoomEntity.getLiveId(), markedAccounts);
             }
+
+            endScore = liveRoomEntity.getHourRankingListData().getRankingScore();
+            leftScore = rankingEntity.getTargetScore() - (endScore - rankingEntity.getStartScore());
 
             rankingEntity.setEndScore(endScore);
             rankingEntity.setEndTime(new Date());
@@ -289,13 +292,6 @@ public class AssistRankingTask implements ITask {
         }
     }
 
-//    private synchronized void addScore(LiveRoomEntity liveRoomEntity, int score) {
-//        if (!simulate) {
-//            return;
-//        }
-//        liveRoomEntity.getHourRankingListData().setRankingScore(liveRoomEntity.getHourRankingListData().getRankingScore() + score);
-//    }
-
     class AssistRunnable implements Runnable {
 
         private RankingEntity rankingEntity;
@@ -314,140 +310,6 @@ public class AssistRankingTask implements ITask {
                     liveRoomEntity,
                     taobaoAccountEntity);
         }
-
-//        private void simulateAssistRanking(RankingEntity rankingEntity, LiveRoomEntity liveRoomEntity, TaobaoAccountEntity activeAccount) {
-//            try {
-//                logger.info("AssistRunnable 成功启动：" + Thread.currentThread().getId());
-//
-//                if (!isRunning(rankingEntity)) {
-//                    return;
-//                }
-//
-//                // 清醒session
-//                {
-//                    if (httpsimulate) {
-//                        // 初始化
-//                        taobaoLiveApiService.getH5Token(activeAccount);
-//                    } else {
-//                        Thread.sleep(100);
-//                    }
-//                }
-//
-//                // 关注
-//                {
-//                    if (httpsimulate) {
-//                        R r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
-////                        if (r.getCode() != ErrorCodes.SUCCESS) {
-////                            r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
-////                        }
-////                        if (r.getCode() != ErrorCodes.SUCCESS) {
-////                            r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
-////                        }
-//                    } else {
-//                        Thread.sleep(100);
-//                    }
-//
-//                    int followScore = rankingService.getRankingUnitScore(RankingScore.Follow);
-//                    addScore(liveRoomEntity, followScore);
-//
-//                    logger.info(Thread.currentThread().getId() + " 加关注：" + followScore);
-//                }
-//
-//                if (!isRunning(rankingEntity)) {
-//                    return;
-//                }
-//
-//                // 观看停留
-//                {
-//                    int stayScore = rankingService.getRankingUnitScore(RankingScore.Stay);
-//                    if (httpsimulate) {
-//                        if (stayScore > 0) {
-//                            for (int time = 60; time <= 3000; time += 60) {
-//                                R r = taobaoLiveApiService.taskStay(liveRoomEntity, activeAccount, time);
-//
-//                                logger.info(Thread.currentThread().getId() + " 停留：" + time + "秒");
-//
-////                        if (r.getCode() != ErrorCodes.SUCCESS) {
-////                            r = taobaoLiveApiService.taskStay(liveRoomEntity, activeAccount, time);
-////                        }
-////                        if (r.getCode() != ErrorCodes.SUCCESS) {
-////                            r = taobaoLiveApiService.taskStay(liveRoomEntity, activeAccount, time);
-////                        }
-//
-//                                if (!isRunning(rankingEntity)) {
-//                                    return;
-//                                }
-//                            }
-//
-//                            addScore(liveRoomEntity, stayScore);
-//                        }
-//                    } else {
-//                        if (stayScore > 0) {
-//                            for (int time = 60; time <= 3000; time += 60) {
-//                                Thread.sleep(100);
-//
-//                                if (!isRunning(rankingEntity)) {
-//                                    return;
-//                                }
-//                            }
-//                            addScore(liveRoomEntity, stayScore);
-//                        }
-//                    }
-//                    logger.info(Thread.currentThread().getId() + " 加观看停留：" + stayScore);
-//                }
-//
-//                if (!isRunning(rankingEntity)) {
-//                    return;
-//                }
-//
-//                // 购买
-//                {
-//                    int buyScore = rankingEntity.isHasDoubleBuy() ? rankingService.getRankingUnitScore(RankingScore.DoubleBuy) : rankingService.getRankingUnitScore(RankingScore.Buy);
-//                    if (httpsimulate) {
-//                        if (buyScore > 0) {
-//                            List<ProductEntity> productEntities = liveRoomEntity.getProducts();
-//                            for (int idx = 0; idx < productEntities.size(); idx++) {
-//                                R r = taobaoLiveApiService.taskBuy(liveRoomEntity, activeAccount, productEntities.get(idx).getProductId());
-////                        if (r.getCode() != ErrorCodes.SUCCESS) {
-////                            r = taobaoLiveApiService.taskBuy(liveRoomEntity, activeAccount, productEntities.get(idx).getProductId());
-////                        }
-////                        if (r.getCode() != ErrorCodes.SUCCESS) {
-////                            r = taobaoLiveApiService.taskBuy(liveRoomEntity, activeAccount, productEntities.get(idx).getProductId());
-////                        }
-//
-//                                logger.info(Thread.currentThread().getId() + " 购买：第" + (idx+1) + "个");
-//
-//                                if (!isRunning(rankingEntity)) {
-//                                    return;
-//                                }
-//                            }
-//
-//                            addScore(liveRoomEntity, buyScore);
-//                        }
-//
-//                    } else {
-//                        if (buyScore > 0) {
-//                            List<ProductEntity> productEntities = liveRoomEntity.getProducts();
-//                            for (int idx = 0; idx < productEntities.size(); idx++) {
-//                                Thread.sleep(100);
-//
-//                                if (!isRunning(rankingEntity)) {
-//                                    return;
-//                                }
-//                            }
-//                        }
-//                    }
-//                    logger.info(Thread.currentThread().getId() + " 加购买：" + buyScore);
-//                }
-//
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            } finally {
-//                countDownLatch.countDown();
-//
-//                logger.info("AssistRunnable 结束：" + Thread.currentThread().getId());
-//            }
-//        }
 
         private void assistRanking(RankingEntity rankingEntity, LiveRoomEntity liveRoomEntity, TaobaoAccountEntity activeAccount) {
             try {

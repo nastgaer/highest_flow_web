@@ -37,6 +37,12 @@ public interface ScheduleJobService extends IService<ScheduleJobEntity> {
      */
     void resumeJob(ScheduleJobEntity scheduleJob);
 
+    /**
+     * 立即创建任务执行
+     * @param scheduleJob
+     */
+    void runInstantJob(ScheduleJobEntity scheduleJob);
+
     ScheduleJobEntity findRunnigJob(String beanName, String param);
 
     ScheduleJobEntity findScheduledJob(String beanName, String param);

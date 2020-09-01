@@ -105,6 +105,12 @@ public class ScheduleJobServiceImpl extends ServiceImpl<ScheduleJobDao, Schedule
     }
 
     @Override
+    public void runInstantJob(ScheduleJobEntity scheduleJob) {
+        scheduleJob.setState(ScheduleState.NORMAL.getValue());
+        ScheduleUtils.runInstant(scheduler, scheduleJob);
+    }
+
+    @Override
     public ScheduleJobEntity findRunnigJob(String beanName, String param) {
         try {
             ScheduleJobEntity scheduleJobEntity = null;

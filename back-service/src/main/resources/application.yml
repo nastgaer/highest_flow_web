@@ -60,9 +60,15 @@ mybatis-plus:
   config-location: classpath:mybatis/mybatis-config.xml
 
 threadpool:
-  core-pool-size: 3000
-  max-pool-size: 6000
+  core-pool-size: 6000
+  max-pool-size: 9000
   queue-capacity: 3000
+
+ranking:
+  # 每个直播间的最大线程数
+  unit-pool-size: 300
+  # 同时刷的最多直播间数
+  max-sync-count: 20
 
 sign:
   prefix: gaoji

@@ -26,7 +26,7 @@
     </resultMap>
 
     <select id="queryTodaysTask" resultMap="rankingTaskMap">
-        select * from tbl_ranking_task where DATE_FORMAT(start_time, "%Y-%m-%d") like #{today};
+        select * from tbl_ranking_task where start_time is null or DATE_FORMAT(start_time, "%Y-%m-%d") like #{today};
     </select>
 
 </mapper>
