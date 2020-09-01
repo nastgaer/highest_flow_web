@@ -68,7 +68,8 @@ sign:
   prefix: gaoji
   suffix: yinliu
   method: md5
-  url: http://119.45.148.200:9999/xdata
+  #http://119.45.148.200:9999/xdata
+  url: http://localhost:9999/xdata
 
 secure:
   key: 1234!@#$
@@ -78,7 +79,6 @@ license:
 
 taobaolive:
   simulate: true
-  httpsimulate: false
 
 http:
   inspect: true

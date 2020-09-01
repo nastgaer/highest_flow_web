@@ -11,6 +11,7 @@ import highest.flow.taobaolive.common.http.Request;
 import highest.flow.taobaolive.common.http.ResponseType;
 import highest.flow.taobaolive.common.http.SiteConfig;
 import highest.flow.taobaolive.common.http.httpclient.response.Response;
+import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.common.utils.R;
@@ -22,6 +23,7 @@ import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.LiveRoomEntity;
 import highest.flow.taobaolive.taobao.entity.RankingEntity;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
+import highest.flow.taobaolive.taobao.provider.TaobaoApiProvider;
 import highest.flow.taobaolive.taobao.service.RankingService;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
@@ -33,6 +35,7 @@ import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -48,16 +51,24 @@ public class RankingController extends AbstractController {
     private TaobaoAccountService taobaoAccountService;
 
     @Autowired
-    private TaobaoApiService taobaoApiService;
+    private RankingService rankingService;
 
     @Autowired
-    private RankingService rankingService;
+    private TaobaoApiService taobaoLiveApiService;
+
+    @PostConstruct
+    public void init() {
+
+    }
 
     @PostMapping("/parse_taocode")
     public R parseTaocode(@RequestBody Map<String, Object> param) {
         try {
-            String taocode = (String) param.get("taocode");
-            boolean doubleBuy = (boolean) param.get("double_buy");
+            String taocode = ((String) param.get("taocode")).trim();
+            boolean hasFollow = (boolean) param.get("has_follow");
+            boolean hasStay = (boolean) param.get("has_stay");
+            boolean hasBuy = (boolean) param.get("has_buy");
+            boolean hasDoubleBuy = (boolean) param.get("has_double_buy");
 
             String url = "http://www.taofake.com/index/tools/gettkljm.html?tkl=" + URLEncoder.encode(taocode);
 
@@ -86,11 +97,11 @@ public class RankingController extends AbstractController {
 
             talentUrl = URLDecoder.decode(talentUrl);
             String liveId = "";
-            int pos = talentUrl.indexOf("&id=");
+            int pos = talentUrl.indexOf("\"feed_id\":");
             if (pos > 0) {
-                pos += "&id=".length();
-                int nextpos = talentUrl.indexOf("&", pos + 1);
-                liveId = talentUrl.substring(pos, nextpos);
+                pos += "\"feed_id\":".length();
+                int nextpos = talentUrl.indexOf("\"", pos + 1);
+                liveId = talentUrl.substring(pos + 1, nextpos);
             }
 
             pos = talentUrl.indexOf("\"account_id\":");
@@ -116,8 +127,8 @@ public class RankingController extends AbstractController {
             TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(null);
 
             if (taobaoAccountEntity != null) {
-                this.taobaoApiService.getH5Token(taobaoAccountEntity);
-                this.taobaoApiService.getRankingListData(liveRoomEntity, taobaoAccountEntity);
+                this.taobaoLiveApiService.getH5Token(taobaoAccountEntity);
+                this.taobaoLiveApiService.getRankingListData(liveRoomEntity, taobaoAccountEntity);
             }
 
             // 可用热度值
@@ -125,9 +136,10 @@ public class RankingController extends AbstractController {
 
             List<TaobaoAccountEntity> taobaoAccountEntities = this.rankingService.availableAccounts(sysMember, liveId);
 
-            int unitScore = doubleBuy ?
-                    (RankingScore.DoubleBuyFollow.getScore() + RankingScore.DoubleBuyBuy.getScore() + RankingScore.DoubleBuyWatch.getScore()) :
-                    (RankingScore.Follow.getScore() + RankingScore.Buy.getScore() + RankingScore.Watch.getScore());
+            int unitScore = hasDoubleBuy ? this.rankingService.getRankingUnitScore(RankingScore.DoubleBuy) :
+                    (hasBuy ? this.rankingService.getRankingUnitScore(RankingScore.Buy) : 0);
+            unitScore += hasFollow ? this.rankingService.getRankingUnitScore(RankingScore.Follow) : 0;
+            unitScore += hasStay ? this.rankingService.getRankingUnitScore(RankingScore.Stay) : 0;
 
             int count = taobaoAccountEntities == null || taobaoAccountEntities.size() < 1 ? 0 : taobaoAccountEntities.size();
 
@@ -145,19 +157,25 @@ public class RankingController extends AbstractController {
     public R getLimitScore(@RequestBody Map<String, Object> param) {
         try {
             String liveId = (String) param.get("live_id");
-            boolean doubleBuy = (boolean) param.get("double_buy");
+            boolean hasFollow = (boolean) param.get("has_follow");
+            boolean hasStay = (boolean) param.get("has_stay");
+            boolean hasBuy = (boolean) param.get("has_buy");
+            boolean hasDoubleBuy = (boolean) param.get("has_double_buy");
 
             SysMember sysMember = this.getUser();
 
             List<TaobaoAccountEntity> taobaoAccountEntities = this.rankingService.availableAccounts(sysMember, liveId);
 
-            int unitScore = doubleBuy ?
-                    (RankingScore.DoubleBuyFollow.getScore() + RankingScore.DoubleBuyBuy.getScore() + RankingScore.DoubleBuyWatch.getScore()) :
-                    (RankingScore.Follow.getScore() + RankingScore.Buy.getScore() + RankingScore.Watch.getScore());
+            int unitScore = hasDoubleBuy ? this.rankingService.getRankingUnitScore(RankingScore.DoubleBuy) :
+                    (hasBuy ? this.rankingService.getRankingUnitScore(RankingScore.Buy) : 0);
+            unitScore += hasFollow ? this.rankingService.getRankingUnitScore(RankingScore.Follow) : 0;
+            unitScore += hasStay ? this.rankingService.getRankingUnitScore(RankingScore.Stay) : 0;
 
             int count = taobaoAccountEntities == null || taobaoAccountEntities.size() < 1 ? 0 : taobaoAccountEntities.size();
 
-            return R.ok().put("limit_score", unitScore * count);
+            return R.ok()
+                    .put("live_id", liveId)
+                    .put("limit_score", unitScore * count);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -165,44 +183,62 @@ public class RankingController extends AbstractController {
         return R.error("获取可用热度值失败");
     }
 
-    @SysLog("添加新热度任务")
+    @SysLog("创建刷热度任务")
     @PostMapping("/add_task")
     public R addTask(@RequestBody AddRankingTaskParam param) {
         try {
             String taocode = param.getTaocode();
+            String liveId = param.getLiveId();
+            String accountName = param.getAccountName();
             int targetScore = param.getTargetScore();
-            boolean doubleBuy = param.isDoubleBuy();
+            boolean hasFollow = param.isHasFollow();
+            boolean hasStay = param.isHasStay();
+            boolean hasBuy = param.isHasBuy();
+            boolean hasDoubleBuy = param.isHasDoubleBuy();
             Date startTime = param.getStartTime();
+            String comment = param.getComment();
 
             if (startTime != null && startTime.getTime() < new Date().getTime()) {
                 return R.error("请正确输入开始时间");
             }
 
-            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(getUser());
-            if (taobaoAccountEntity == null) {
-                return R.error("找不到活跃的用户");
-            }
-
-            logger.debug("找到活跃用户：" + taobaoAccountEntity.getNick());
-
-            R r = taobaoApiService.getLiveInfo(taocode, taobaoAccountEntity);
-            if (r.getCode() != ErrorCodes.SUCCESS) {
-                return r;
-            }
-
-            LiveRoomEntity liveRoomEntity = (LiveRoomEntity) r.get("live_room");
+//            // 任意选择正常用户
+//            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(getUser());
+//            if (taobaoAccountEntity == null) {
+//                return R.error("找不到活跃的用户");
+//            }
+//
+//            logger.debug("找到活跃用户：" + taobaoAccountEntity.getNick());
+//
+//            // 获取直播间信息
+//            R r = taobaoLiveApiService.getLiveInfo(liveId, taobaoAccountEntity);
+//            if (r.getCode() != ErrorCodes.SUCCESS) {
+//                return r;
+//            }
+//
+//            LiveRoomEntity liveRoomEntity = (LiveRoomEntity) r.get("live_room");
 
             SysMember sysMember = this.getUser();
 
+            RankingEntity currentEntity = this.rankingService.getRunningTask(sysMember, liveId);
+            if (currentEntity != null) {
+                return R.error("已经添加好了该直播间");
+            }
+
+            // 创建刷热度任务
             RankingEntity rankingEntity = this.rankingService.addNewTask(sysMember,
                     taocode,
-                    liveRoomEntity,
+                    liveId, accountName,
                     targetScore,
-                    doubleBuy,
-                    startTime);
+                    hasFollow,
+                    hasStay,
+                    hasBuy,
+                    hasDoubleBuy,
+                    startTime,
+                    comment);
 
             if (rankingEntity == null) {
-                return R.error();
+                return R.error("创建刷热度任务失败");
             }
 
             return R.ok().put("task_id", rankingEntity.getId());
@@ -210,49 +246,7 @@ public class RankingController extends AbstractController {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return R.error("添加助力任务失败");
-    }
-
-    @SysLog("添加新热度任务")
-    @PostMapping("/add_task2")
-    public R addTask2(@RequestBody AddRankingTaskParam2 param) {
-        try {
-            String taocode = param.getTaocode();
-            String liveId = param.getLiveRoom().getLiveId();
-            String accountId = param.getLiveRoom().getAccountId();
-            String scopeId = param.getLiveRoom().getScopeId();
-            String subScopeId = param.getLiveRoom().getSubScopeId();
-
-            int targetScore = param.getTargetScore();
-            boolean doubleBuy = param.isDoubleBuy();
-            Date startTime = param.getStartTime();
-
-            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
-
-            liveRoomEntity.setLiveId(liveId);
-            liveRoomEntity.setAccountId(accountId);
-            liveRoomEntity.getHierarchyData().setScopeId(scopeId);
-            liveRoomEntity.getHierarchyData().setSubScopeId(subScopeId);
-
-            SysMember sysMember = this.getUser();
-
-            RankingEntity rankingEntity = this.rankingService.addNewTask(sysMember,
-                    taocode,
-                    liveRoomEntity,
-                    targetScore,
-                    doubleBuy,
-                    startTime);
-
-            if (rankingEntity == null) {
-                return R.error();
-            }
-
-            return R.ok().put("task_id", rankingEntity.getId());
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return R.error("添加助力任务失败");
+        return R.error("创建刷热度任务失败");
     }
 
     //@SysLog("获取当天的任务")
@@ -260,10 +254,23 @@ public class RankingController extends AbstractController {
     public R todays(@RequestBody TodayRankingParam param) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String date = sdf.format(param.getCurrentDate());
-            List<RankingEntity> rankingEntities = this.rankingService.getTodaysTask(date);
 
-            return R.ok().put("ranking", rankingEntities);
+            // 前一天没有结束的也要返回
+            Date today = param.getCurrentDate();
+            Date yesterday = CommonUtils.addDays(today, -1);
+            List<RankingEntity> yesterdayEntities = this.rankingService.getTodaysTask(sdf.format(yesterday));
+            List<RankingEntity> todayEntities = this.rankingService.getTodaysTask(sdf.format(today));
+
+            for (int idx = yesterdayEntities.size() - 1; idx >= 0; idx--) {
+                RankingEntity rankingEntity = yesterdayEntities.get(idx);
+                if (rankingEntity.getState() != RankingEntityState.Running.getState()) {
+                    yesterdayEntities.remove(idx);
+                }
+            }
+
+            yesterdayEntities.addAll(todayEntities);
+
+            return R.ok().put("ranking", yesterdayEntities);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -312,7 +319,7 @@ public class RankingController extends AbstractController {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return R.error();
+        return R.error("开始任务失败");
     }
 
     @SysLog("停止任务")
@@ -328,14 +335,43 @@ public class RankingController extends AbstractController {
                 return R.error("找不到任务");
             }
 
-            this.rankingService.stopTask(rankingEntity);
+            if (this.rankingService.stopTask(rankingEntity) == false) {
+                rankingEntity.setEndTime(new Date());
+                rankingEntity.setUpdatedTime(new Date());
+                rankingEntity.setState(RankingEntityState.Stopped.getState());
+                this.rankingService.updateById(rankingEntity);
+            }
 
             return R.ok();
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return R.error();
+        return R.error("找不到任务");
+    }
+
+    @SysLog("删除任务")
+    @PostMapping("/delete_task")
+    public R deleteTask(@RequestBody Map<String, Object> param) {
+        try {
+            int taskId = (int) param.get("task_id");
+
+            RankingEntity rankingEntity = this.rankingService.getOne(Wrappers.<RankingEntity>lambdaQuery()
+                    .eq(RankingEntity::getId, taskId));
+
+            if (rankingEntity == null) {
+                return R.error("找不到任务");
+            }
+
+            boolean success = this.rankingService.deleteTask(rankingEntity);
+
+            return success ? R.ok() : R.error("删除任务失败");
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("删除任务失败");
     }
 
     @PostMapping("/logs")

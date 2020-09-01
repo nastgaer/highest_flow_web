@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.common.utils.PageUtils;
 import highest.flow.taobaolive.sys.entity.SysMember;
+import highest.flow.taobaolive.taobao.defines.RankingScore;
 import highest.flow.taobaolive.taobao.entity.LiveRoomEntity;
 import highest.flow.taobaolive.taobao.entity.RankingEntity;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
@@ -15,16 +16,39 @@ import java.util.List;
 @Service
 public interface RankingService extends IService<RankingEntity> {
 
+    int getRankingUnitScore(RankingScore rankingScore);
+
     PageUtils queryPage(SysMember sysMember, PageParam pageParam);
 
     List<RankingEntity> getTodaysTask(String today);
 
+    RankingEntity getRunningTask(SysMember sysMember, String liveId);
+
+    /**
+     * 创建新任务
+     * @param sysMember
+     * @param taocode
+     * @param liveId
+     * @param accountname
+     * @param targetScore
+     * @param hasFollow
+     * @param hasStay
+     * @param hasBuy
+     * @param hasDoubleBuy
+     * @param startTime null：立即开始，
+     * @param comment
+     * @return
+     */
     RankingEntity addNewTask(SysMember sysMember,
                              String taocode,
-                             LiveRoomEntity liveRoomEntity,
+                             String liveId, String accountname,
                              int targetScore,
-                             boolean doubleBuy,
-                             Date startTime);
+                             boolean hasFollow,
+                             boolean hasStay,
+                             boolean hasBuy,
+                             boolean hasDoubleBuy,
+                             Date startTime,
+                             String comment);
 
     /**
      * 开始刷
@@ -41,11 +65,18 @@ public interface RankingService extends IService<RankingEntity> {
     boolean stopTask(RankingEntity rankingEntity);
 
     /**
-     * 删除任务
+     * 删除任务，不能删除执行中的任务
      * @param rankingEntity
      * @return
      */
     boolean deleteTask(RankingEntity rankingEntity);
+
+    /**
+     * 把执行中的任务，标记为发生错误
+     * @param rankingEntity
+     * @return
+     */
+    boolean errorTask(RankingEntity rankingEntity);
 
     /**
      * 返回打助力可行的小号列表
@@ -59,7 +90,7 @@ public interface RankingService extends IService<RankingEntity> {
      * 标记该小号已经打好
      * @param sysMember
      * @param liveId
-     * @param taobaoAccountEntity
+     * @param taobaoAccountEntities
      */
-    List<TaobaoAccountEntity> markAssist(SysMember sysMember, String liveId, List<TaobaoAccountEntity> taobaoAccountEntities);
+    void markAssist(SysMember sysMember, String liveId, List<TaobaoAccountEntity> taobaoAccountEntities);
 }

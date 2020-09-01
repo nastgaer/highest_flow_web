@@ -8,17 +8,18 @@
         <result property="memberId" column="member_id"/>
         <result property="taocode" column="taocode"/>
         <result property="liveId" column="live_id"/>
-        <result property="liveAccountId" column="live_account_id"/>
-        <result property="liveScopeId" column="live_scope_id"/>
-        <result property="liveSubscopeId" column="live_subscope_id"/>
         <result property="roomName" column="room_name"/>
         <result property="startScore" column="start_score"/>
         <result property="endScore" column="end_score"/>
         <result property="targetScore" column="target_score"/>
-        <result property="doubleBuy" column="double_buy"/>
+        <result property="hasFollow" column="has_follow"/>
+        <result property="hasStay" column="has_stay"/>
+        <result property="hasBuy" column="has_buy"/>
+        <result property="hasDoubleBuy" column="double_buy"/>
         <result property="startTime" column="start_time"/>
         <result property="endTime" column="end_time"/>
-        <result property="type" column="type"/>
+        <result property="comment" column="comment"/>
+        <result property="state" column="state"/>
         <result property="msg" column="msg"/>
         <result property="createdTime" column="created_time"/>
         <result property="updatedTime" column="updated_time"/>

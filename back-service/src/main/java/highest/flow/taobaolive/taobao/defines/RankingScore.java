@@ -2,21 +2,18 @@ package highest.flow.taobaolive.taobao.defines;
 
 public enum RankingScore {
 
-    DoubleBuyFollow(2000),
-    DoubleBuyBuy(20),
-    DoubleBuyWatch(30),
+    Follow("RANK_CONF_FOLLOW_SCORE"),
+    Stay("RANK_CONF_STAY_SCORE"),
+    Buy("RANK_CONF_BUY_SCORE"),
+    DoubleBuy("RANK_CONF_DOUBLEBUY_SCORE");
 
-    Follow(20),
-    Watch(30),
-    Buy(0);
+    private String confKey = "";
 
-    private int score = 0;
-
-    RankingScore(int score) {
-        this.score = score;
+    RankingScore(String confKey) {
+        this.confKey = confKey;
     }
 
-    public int getScore() {
-        return this.score;
+    public String getConfKey() {
+        return this.confKey;
     }
 }

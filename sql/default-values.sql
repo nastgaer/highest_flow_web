@@ -14,3 +14,11 @@ INSERT INTO `tbl_member_roles` (`id`, `member_id`, `role_id`, `created_time`) VA
 
 INSERT INTO `tbl_codes` (`id`, `code_type`, `service_type`, `hours`, `code`, `state`, `machine_code`, `member_id`, `service_start_time`, `service_end_time`, `created_time`, `accepted_time`) VALUES
 (NULL, 0, 0, 60, 'testeX5e53Df', 0, '', 0, NULL, NULL, now(), NULL);
+
+INSERT INTO `sys_config` (`id`, `param_key`, `param_value`) VALUES
+(NULL, 'RANK_CONF_FOLLOW_SCORE', '30'),
+(NULL, 'RANK_CONF_STAY_SCORE', '45'),
+(NULL, 'RANK_CONF_FOLLOW_SCORE', '30'),
+(NULL, 'RANK_CONF_STAY_SCORE', '45'),
+(NULL, 'RANK_CONF_BUY_SCORE', '30'),
+(NULL, 'RANK_CONF_DOUBLEBUY_SCORE', '3000');

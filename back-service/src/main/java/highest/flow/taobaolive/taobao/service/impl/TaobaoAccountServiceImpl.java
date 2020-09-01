@@ -35,6 +35,8 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     @Autowired
     private TaobaoAccountLogService taobaoAccountLogService;
 
+    private List<TaobaoAccountEntity> cachedTaobaoAccountEntities = null;
+
     @Override
     public int getNormalCount(SysMember sysMember) {
         if (sysMember == null) {
@@ -188,12 +190,22 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     }
 
     @Override
-    @Cacheable(value = "getActiveAllByMember", key = "#sysMember.id")
+    // @Cacheable(value = "getActiveAll")
+    public List<TaobaoAccountEntity> getActiveAll() {
+        if (cachedTaobaoAccountEntities == null) {
+            cachedTaobaoAccountEntities = this.baseMapper.getActiveAll();
+        }
+        return cachedTaobaoAccountEntities;
+    }
+
+    @Override
     public List<TaobaoAccountEntity> getActiveAllByMember(SysMember sysMember) {
         if (sysMember == null || sysMember.isAdministrator() || sysMember.isNormal()) {
-            return this.baseMapper.getActiveAll();
+            return this.getActiveAll();
         }
 
-        return this.baseMapper.getActiveAllByMember(sysMember.getId());
+        List<TaobaoAccountEntity> taobaoAccountEntities = this.getActiveAll();
+        taobaoAccountEntities.removeIf(acc -> acc.getMemberId() != sysMember.getId());
+        return  taobaoAccountEntities;
     }
 }

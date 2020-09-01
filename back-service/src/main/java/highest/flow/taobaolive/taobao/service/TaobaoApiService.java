@@ -165,6 +165,12 @@ public interface TaobaoApiService {
 
     public R getPlayingLiveRoom(TaobaoAccountEntity taobaoAccountEntity);
 
+    public R getSigninWeb(TaobaoAccountEntity taobaoAccountEntity);
+
+    public R routeToNewPlanWeb(TaobaoAccountEntity taobaoAccountEntity);
+
+    public R checkInStatusWeb(TaobaoAccountEntity taobaoAccountEntity);
+
     /**
      * 获取亲密度初始化
      * @param liveRoomEntity
@@ -172,6 +178,8 @@ public interface TaobaoApiService {
      * @return
      */
     public R getIntimacyDetail(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
+
+    public R taskCompleteWeb(TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 助力：关注任务

@@ -1,5 +1,5 @@
 -- Project Name : 高级引流
--- Date/Time    : 2020/7/31 16:39:54
+-- Date/Time    : 2020/9/2 3:20:01
 -- Author       : KKK
 -- RDBMS Type   : MySQL
 -- Application  : A5:SQL Mk-2
@@ -265,16 +265,17 @@ create table tbl_ranking_task (
   , member_id INT comment '会员ID'
   , taocode VARCHAR(256) comment '淘口令'
   , live_id VARCHAR(32) comment '直播间ID'
-  , live_account_id VARCHAR(32) comment '直播间账号ID'
-  , live_scope_id VARCHAR(128) comment '直播间scope_id'
-  , live_sub_scope_id VARCHAR(128) comment '直播间subscope_id'
   , room_name VARCHAR(32) comment '直播间名称'
   , start_score INT comment '起始助力值'
   , end_score INT comment '最后助力值'
   , target_score INT comment '目标助力值'
-  , double_buy BOOLEAN comment '是否加购'
+  , has_follow BOOLEAN comment '是否包含关注'
+  , has_stay BOOLEAN comment '是否包含停留'
+  , has_buy BOOLEAN comment '是否包含购买'
+  , has_double_buy BOOLEAN comment '是否加购'
   , start_time DATETIME comment '开始时间'
   , end_time DATETIME comment '停止时间'
+  , comment VARCHAR(256) comment '备注'
   , state TINYINT comment '状态:0：未开始，1：执行中，2：停止，3：结束，4：错误'
   , msg VARCHAR(256) comment '错误内容'
   , created_time DATETIME comment '创建时间'

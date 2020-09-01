@@ -68,8 +68,7 @@ public class RankingClientController extends AbstractController {
     @Autowired
     private CryptoService cryptoService;
 
-//    @Autowired
-//    private CacheManager cacheManager;
+
 
     @PostMapping("/reg")
     public R reg(@RequestBody BaseParam param) {
@@ -397,13 +396,17 @@ public class RankingClientController extends AbstractController {
             Map<String, Object> map = (Map<String, Object>) objectMapper.readValue(plain, Map.class);
 
             String liveId = (String) map.get("live_id");
-            boolean doubleBuy = (boolean) map.get("double_buy");
+            boolean hasFollow = (boolean) map.get("has_follow");
+            boolean hasStay = (boolean) map.get("has_stay");
+            boolean hasBuy = (boolean) map.get("has_buy");
+            boolean hasDoubleBuy = (boolean) map.get("has_double_buy");
 
             List<TaobaoAccountEntity> taobaoAccountEntities = this.rankingService.availableAccounts(sysMember, liveId);
 
-            int unitScore = doubleBuy ?
-                    (RankingScore.DoubleBuyFollow.getScore() + RankingScore.DoubleBuyBuy.getScore() + RankingScore.DoubleBuyWatch.getScore()) :
-                    (RankingScore.Follow.getScore() + RankingScore.Buy.getScore() + RankingScore.Watch.getScore());
+            int unitScore = hasDoubleBuy ? this.rankingService.getRankingUnitScore(RankingScore.DoubleBuy) :
+                    (hasBuy ? this.rankingService.getRankingUnitScore(RankingScore.Buy) : 0);
+            unitScore += hasFollow ? this.rankingService.getRankingUnitScore(RankingScore.Follow) : 0;
+            unitScore += hasStay ? this.rankingService.getRankingUnitScore(RankingScore.Stay) : 0;
 
             int count = taobaoAccountEntities == null || taobaoAccountEntities.size() < 1 ? 0 : taobaoAccountEntities.size();
 
@@ -428,30 +431,27 @@ public class RankingClientController extends AbstractController {
             AddRankingTaskParam2 param = (AddRankingTaskParam2) objectMapper.readValue(plain, AddRankingTaskParam2.class);
 
             String taocode = param.getTaocode();
-            String roomName = param.getLiveRoom().getRoomName();
-            String liveId = param.getLiveRoom().getLiveId();
-            String accountId = param.getLiveRoom().getAccountId();
-            String scopeId = param.getLiveRoom().getScopeId();
-            String subScopeId = param.getLiveRoom().getSubScopeId();
-
+            String liveId = param.getLiveId();
+            String roomName = param.getRoomName();
             int targetScore = param.getTargetScore();
-            boolean doubleBuy = param.isDoubleBuy();
+            boolean hasFollow = param.isHasFollow();
+            boolean hasStay = param.isHasStay();
+            boolean hasBuy = param.isHasBuy();
+            boolean hasDoubleBuy = param.isHasDoubleBuy();
             Date startTime = param.getStartTime();
+            String comment = param.getComment();
 
             LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
 
-            liveRoomEntity.setAccountName(roomName);
             liveRoomEntity.setLiveId(liveId);
-            liveRoomEntity.setAccountId(accountId);
-            liveRoomEntity.getHierarchyData().setScopeId(scopeId);
-            liveRoomEntity.getHierarchyData().setSubScopeId(subScopeId);
+            liveRoomEntity.setAccountName(roomName);
 
             RankingEntity rankingEntity = this.rankingService.addNewTask(sysMember,
                     taocode,
-                    liveRoomEntity,
+                    liveId, roomName,
                     targetScore,
-                    doubleBuy,
-                    startTime);
+                    hasFollow, hasStay, hasBuy, hasDoubleBuy,
+                    startTime, comment);
 
             if (rankingEntity == null) {
                 return R.error("找不到任务");

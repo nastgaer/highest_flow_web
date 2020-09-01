@@ -8,11 +8,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @TableName("tbl_ranking_task")
-public class RankingEntity {
+public class RankingEntity implements Serializable {
 
     @TableId(type = IdType.AUTO)
     private int id;
@@ -22,12 +23,6 @@ public class RankingEntity {
     private String taocode;
 
     private String liveId;
-
-    private String liveAccountId;
-
-    private String liveScopeId;
-
-    private String liveSubScopeId;
 
     /**
      * 直播间名称
@@ -50,9 +45,12 @@ public class RankingEntity {
     private int targetScore;
 
     /**
-     * 是否加购
+     * 是否包含关注、停留、购买、加购
      */
-    private boolean doubleBuy;
+    private boolean hasFollow;
+    private boolean hasStay;
+    private boolean hasBuy;
+    private boolean hasDoubleBuy;
 
     /**
      * 开始时间
@@ -67,6 +65,8 @@ public class RankingEntity {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTime;
+
+    private String comment;
 
     /**
      * RankingEntityState, 任务执行状态

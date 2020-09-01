@@ -48,5 +48,7 @@ public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
 
     TaobaoAccountEntity getActiveOne(SysMember sysMember);
 
+    List<TaobaoAccountEntity> getActiveAll();
+
     List<TaobaoAccountEntity> getActiveAllByMember(SysMember sysMember);
 }

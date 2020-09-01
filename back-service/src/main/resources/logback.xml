@@ -69,16 +69,16 @@
         </rollingPolicy>
     </appender>
     <!-- root레벨 설정 -->
-    <root level="${LOG_LEVEL}">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="Error"/>
-    </root>
-    <!--<root level="INFO">-->
+    <!--<root level="${LOG_LEVEL}">-->
         <!--<appender-ref ref="CONSOLE"/>-->
         <!--<appender-ref ref="FILE"/>-->
         <!--<appender-ref ref="Error"/>-->
     <!--</root>-->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="Error"/>
+    </root>
 
     <!--&lt;!&ndash; 특정패키지 로깅레벨 설정 &ndash;&gt;-->
     <!--<logger name="org.apache.ibatis" level="DEBUG" additivity="false">-->

@@ -22,7 +22,7 @@ public class ScheduleJobEntity implements Serializable {
     /**
      * spring bean名称
      */
-    @NotBlank(message = "bean名称不能为空")
+    // @NotBlank(message = "bean名称不能为空")
     private String beanName;
 
     /**
@@ -33,7 +33,7 @@ public class ScheduleJobEntity implements Serializable {
     /**
      * cron表达式
      */
-    @NotBlank(message = "cron表达式不能为空")
+    // @NotBlank(message = "cron表达式不能为空")
     private String cronExpression;
 
     /**
