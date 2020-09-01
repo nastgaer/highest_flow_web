@@ -11,7 +11,7 @@
     <groupId>highest.flow</groupId>
     <artifactId>taobaolive</artifactId>
     <version>1.0.1</version>
-    
+
     <packaging>jar</packaging>
     <name>back-service</name>
     <description>淘宝直播高级引流后台</description>
@@ -27,7 +27,16 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>

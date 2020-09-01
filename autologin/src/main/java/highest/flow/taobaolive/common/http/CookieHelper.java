@@ -7,7 +7,6 @@ import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.impl.cookie.BrowserCompatSpec;
 import org.apache.http.message.BasicHeader;
 import org.springframework.format.datetime.DateFormatter;
-import org.springframework.web.util.WebUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
