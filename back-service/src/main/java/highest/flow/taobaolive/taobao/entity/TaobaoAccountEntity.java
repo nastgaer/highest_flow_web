@@ -32,7 +32,19 @@ public class TaobaoAccountEntity implements Serializable {
     @TableId(type = IdType.AUTO)
     private int id;
 
+    /**
+     * 所属的会员ID， 0：说明公司内部用，其他的注册小号的会员ID
+     */
     private int memberId;
+
+    /**
+     * 所属的会员名
+     */
+    @TableField(exist = false)
+    private String memberName;
+
+    @TableField(exist = false)
+    private int memberLevel;
 
     private String nick;
 

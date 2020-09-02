@@ -43,7 +43,7 @@ public interface RankingService extends IService<RankingEntity> {
      */
     RankingEntity addNewTask(SysMember sysMember,
                              String taocode,
-                             String liveId, String accountname,
+                             String liveId, String accountId, String accountname,
                              int targetScore,
                              boolean hasFollow,
                              boolean hasStay,

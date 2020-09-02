@@ -193,6 +193,7 @@ public class RankingController extends AbstractController {
         try {
             String taocode = param.getTaocode();
             String liveId = param.getLiveId();
+            String accountId = param.getAccountId();
             String accountName = param.getAccountName();
             int targetScore = param.getTargetScore();
             boolean hasFollow = param.isHasFollow();
@@ -237,7 +238,7 @@ public class RankingController extends AbstractController {
             // 创建刷热度任务
             RankingEntity rankingEntity = this.rankingService.addNewTask(sysMember,
                     taocode,
-                    liveId, accountName,
+                    liveId, accountId, accountName,
                     targetScore,
                     hasFollow,
                     hasStay,

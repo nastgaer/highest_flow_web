@@ -15,6 +15,9 @@ public class AddRankingTaskParam2 {
     @JsonProperty("live_id")
     private String liveId;
 
+    @JsonProperty("account_id")
+    private String accountId;
+
     @JsonProperty("room_name")
     private String roomName;
 

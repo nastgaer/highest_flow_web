@@ -143,7 +143,7 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
     @Override
     public RankingEntity addNewTask(SysMember sysMember,
                                     String taocode,
-                                    String liveId, String accountName,
+                                    String liveId, String accountId, String accountName,
                                     int targetScore,
                                     boolean hasFollow, boolean hasStay, boolean hasBuy,
                                     boolean hasDoubleBuy, Date startTime, String comment) {
@@ -152,6 +152,7 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
             rankingEntity.setMemberId(sysMember.getId());
             rankingEntity.setTaocode(taocode);
             rankingEntity.setLiveId(liveId);
+            rankingEntity.setAccountId(accountId);
             rankingEntity.setRoomName(accountName);
             rankingEntity.setStartScore(0);
             rankingEntity.setEndScore(0);

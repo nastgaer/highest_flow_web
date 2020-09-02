@@ -21,6 +21,11 @@ public class AddRankingTaskParam {
     private String liveId;
 
     /**
+     * 直播间账号ID
+     */
+    private String accountId;
+
+    /**
      * 直播间名称
      */
     private String accountName;

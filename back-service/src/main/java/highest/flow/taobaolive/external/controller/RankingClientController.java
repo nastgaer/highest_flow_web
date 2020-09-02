@@ -68,8 +68,6 @@ public class RankingClientController extends AbstractController {
     @Autowired
     private CryptoService cryptoService;
 
-
-
     @PostMapping("/reg")
     public R reg(@RequestBody BaseParam param) {
         try {
@@ -432,6 +430,7 @@ public class RankingClientController extends AbstractController {
 
             String taocode = param.getTaocode();
             String liveId = param.getLiveId();
+            String accountId = param.getAccountId();
             String roomName = param.getRoomName();
             int targetScore = param.getTargetScore();
             boolean hasFollow = param.isHasFollow();
@@ -448,7 +447,7 @@ public class RankingClientController extends AbstractController {
 
             RankingEntity rankingEntity = this.rankingService.addNewTask(sysMember,
                     taocode,
-                    liveId, roomName,
+                    liveId, accountId, roomName,
                     targetScore,
                     hasFollow, hasStay, hasBuy, hasDoubleBuy,
                     startTime, comment);

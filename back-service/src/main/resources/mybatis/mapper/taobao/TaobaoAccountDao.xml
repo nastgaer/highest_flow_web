@@ -6,6 +6,8 @@
     <resultMap id="accountMap" type="highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity">
         <result property="id" column="id"/>
         <result property="memberId" column="member_id"/>
+        <result property="memberName" column="member_name" />
+        <result property="memberLevel" column="member_level" />
         <result property="nick" column="nick"/>
         <result property="sid" column="sid"/>
         <result property="uid" column="uid"/>
@@ -19,6 +21,19 @@
         <result property="createdTime" column="created_time"/>
         <result property="updatedTime" column="updated_time"/>
     </resultMap>
+
+    <select id="queryAccounts" resultMap="accountMap">
+        select acc.*, member.member_name, member.level as member_level from tbl_accounts acc
+          left join tbl_members member on acc.member_id = member.id
+          where
+            <if test="member_id > 0">
+                acc.member_id = #{member_id} and
+            </if>
+            <if test="keyword != null and keyword.length() > 0">
+                ((acc.nick is not null and acc.nick like "%"#{keyword}"%") or (member.member_name is not null and member.member_name like "%"#{keyword}"%")) and
+            </if>
+            1
+    </select>
 
     <select id="getNormalCount" resultType="int">
         select count(*) from tbl_accounts where state = 0;

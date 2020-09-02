@@ -24,6 +24,8 @@ public class RankingEntity implements Serializable {
 
     private String liveId;
 
+    private String accountId;
+
     /**
      * 直播间名称
      */

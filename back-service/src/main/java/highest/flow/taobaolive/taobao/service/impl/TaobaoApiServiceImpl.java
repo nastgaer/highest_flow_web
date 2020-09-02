@@ -468,7 +468,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String subUrl = "mtop.mediaplatform.video.livedetail.itemlist.withpaginationv5";
             String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?";
 
-            XHeader xHeader = new XHeader(new Date());
+            XHeader xHeader = new XHeader(taobaoAccountEntity);
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
@@ -500,7 +500,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             List<ProductEntity> productEntities = new ArrayList<>();
             List<Map<String, Object>> itemList = (List<Map<String, Object>>) mapData.get("itemListv1");
             for (Map<String, Object> mapItem : itemList) {
-                Map<String, Object> goodObj = (Map<String, Object>) map.get("itemListv1");
+                Map<String, Object> goodObj = (Map<String, Object>) mapItem.get("itemListv1");
 
                 String itemId = HFStringUtils.valueOf(goodObj.get("itemId"));
                 String itemName = HFStringUtils.valueOf(goodObj.get("itemName"));
@@ -628,7 +628,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             List<ProductEntity> productEntities = new ArrayList<>();
             List<Map<String, Object>> itemList = (List<Map<String, Object>>) mapData.get("itemListv1");
             for (Map<String, Object> mapItem : itemList) {
-                Map<String, Object> goodObj = (Map<String, Object>) map.get("itemListv1");
+                Map<String, Object> goodObj = (Map<String, Object>) mapItem.get("liveItemDO");
 
                 String itemId = HFStringUtils.valueOf(goodObj.get("itemId"));
                 String itemName = HFStringUtils.valueOf(goodObj.get("itemName"));
@@ -745,7 +745,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String subUrl = "mtop.mediaplatform.livedetail.entry";
             String url = "https://acs.m.taobao.com/gw/" + subUrl + "/2.0/?data=" + URLEncoder.encode(jsonText);
 
-            XHeader xHeader = new XHeader(new Date());
+            XHeader xHeader = new XHeader(taobaoAccountEntity);
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("2.0");
             xHeader.setData(jsonText);
@@ -925,7 +925,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String subUrl = "mtop.mediaplatform.livedetail.messinfo";
             String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
 
-            XHeader xHeader = new XHeader(new Date());
+            XHeader xHeader = new XHeader(taobaoAccountEntity);
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
@@ -953,7 +953,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
             Map<String, Object> mapActivity = (Map<String, Object>) mapData.get("activity");
-            Map<String, Object> mapBizData = (Map<String, Object>) mapData.get("bizData");
+            Map<String, Object> mapBizData = (Map<String, Object>) mapActivity.get("bizData");
 
             if (mapBizData.containsKey("rankNum") && mapBizData.containsKey("score")) {
                 liveRoomEntity.setHasRankingListEntry(true);
@@ -1294,12 +1294,12 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Map<String, Object> jsonParams = new HashMap<>();
             jsonParams.put("liveId", liveRoomEntity.getLiveId());
-            jsonParams.put("accountId", liveRoomEntity.getAccountId());
+            jsonParams.put("anchorId", liveRoomEntity.getAccountId());
 
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
             H5Header h5Header = new H5Header(taobaoAccountEntity);
-            String subUrl = "mtop.mediaplatform.hierarchy.detail";
+            String subUrl = "mtop.taobao.iliad.task.hierarchy.detail";
 
             Map<String, Object> urlParams = new HashMap<>();
             urlParams.put("appKey", h5Header.getAppKey());
@@ -1414,7 +1414,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String subUrl = "mtop.taobao.iliad.task.action";
             String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
 
-            XHeader xHeader = new XHeader(new Date());
+            XHeader xHeader = new XHeader(taobaoAccountEntity);
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
@@ -1539,7 +1539,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String subUrl = "mtop.taobao.iliad.task.action";
             String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
 
-            XHeader xHeader = new XHeader(new Date());
+            XHeader xHeader = new XHeader(taobaoAccountEntity);
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
@@ -1665,7 +1665,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String subUrl = "mtop.taobao.iliad.task.action";
             String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
 
-            XHeader xHeader = new XHeader(new Date());
+            XHeader xHeader = new XHeader(taobaoAccountEntity);
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);

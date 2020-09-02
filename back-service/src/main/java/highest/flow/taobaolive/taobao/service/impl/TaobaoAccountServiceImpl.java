@@ -3,6 +3,7 @@ package highest.flow.taobaolive.taobao.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
@@ -90,7 +91,7 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
             taobaoAccountEntity.setCreatedTime(created);
             taobaoAccountEntity.setUpdatedTime(updated);
 
-            TaobaoAccountEntity selected = this.getOne(Wrappers.<TaobaoAccountEntity>lambdaQuery().eq(TaobaoAccountEntity::getUid, uid));
+            TaobaoAccountEntity selected = this.getInfoByUid(uid);
             if (selected != null) {
                 taobaoAccountEntity.setId(selected.getId());
                 this.updateById(taobaoAccountEntity);
@@ -137,16 +138,12 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
         Map<String, Object> params = new HashMap<>();
         params.put(Query.PAGE, pageNo);
         params.put(Query.LIMIT, pageSize);
+        params.put(Query.ORDER_FIELD, "id");
+        params.put(Query.ORDER, "ASC");
 
         QueryWrapper<TaobaoAccountEntity> queryWrapper = new QueryWrapper<>();
-        if (memberId > 0) {
-            queryWrapper.like("member_id", memberId);
-        }
-        if (!HFStringUtils.isNullOrEmpty(keyword)) {
-            queryWrapper.like("nick", keyword);
-        }
 
-        IPage<TaobaoAccountEntity> page = this.page(new Query<TaobaoAccountEntity>().getPage(params), queryWrapper);
+        IPage<TaobaoAccountEntity> page = this.baseMapper.queryAccounts(new Query<TaobaoAccountEntity>().getPage(params), memberId, keyword);
         return new PageUtils<TaobaoAccountEntity>(page);
     }
 
