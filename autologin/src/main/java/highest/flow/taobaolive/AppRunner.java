@@ -8,7 +8,10 @@ import highest.flow.taobaolive.job.utils.ScheduleUtils;
 import highest.flow.taobaolive.task.AutoLoginTask;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -18,11 +21,16 @@ import java.util.List;
 @Component
 public class AppRunner implements CommandLineRunner {
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     @Autowired
     private Scheduler scheduler;
 
     @Autowired
     private ScheduleJobService schedulerJobService;
+
+    @Value("${autologin.init-start:false}")
+    private boolean initStart;
 
     @Override
     public void run(String... args) throws Exception {
@@ -51,15 +59,18 @@ public class AppRunner implements CommandLineRunner {
 
                 schedulerJobService.saveOrUpdate(scheduleJobEntity);
                 ScheduleUtils.createScheduleJob(scheduler, scheduleJobEntity);
-
-                scheduler.start();
             }
+
+            scheduler.start();
 
         } catch (SchedulerException e) {
             e.printStackTrace();
         }
 
-//        AutoLoginTask autoLoginTask = (AutoLoginTask) SpringContextUtils.getBean("autoLoginTask");
-//        autoLoginTask.run(null);
+        if (initStart) {
+            logger.info("已设置前期延期任务");
+            AutoLoginTask autoLoginTask = (AutoLoginTask) SpringContextUtils.getBean("autoLoginTask");
+            autoLoginTask.run(null);
+        }
     }
 }

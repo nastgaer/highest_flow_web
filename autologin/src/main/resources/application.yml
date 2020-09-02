@@ -65,5 +65,5 @@ secure:
 license:
   key: 1234!@#$
 
-ranking:
-  simulate: true
+autologin:
+  init-start: false

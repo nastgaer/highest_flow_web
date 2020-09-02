@@ -75,7 +75,8 @@ sign:
   suffix: yinliu
   method: md5
   #http://119.45.148.200:9999/xdata
-  url: http://localhost:9999/xdata
+  #http://localhost:9999/xdata
+  url: http://119.45.148.200:9999/xdata
 
 secure:
   key: 1234!@#$
