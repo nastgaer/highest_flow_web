@@ -373,6 +373,11 @@ public class RankingController extends AbstractController {
                 return R.error("找不到任务");
             }
 
+            SysMember sysMember = this.getUser();
+            if (!sysMember.isAdministrator()) {
+                return R.error("只有管理员能删除");
+            }
+
             boolean success = this.rankingService.deleteTask(rankingEntity);
 
             return success ? R.ok() : R.error("删除任务失败");
