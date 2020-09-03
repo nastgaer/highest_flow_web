@@ -28,14 +28,9 @@ public class ScheduleJobServiceImpl extends ServiceImpl<ScheduleJobDao, Schedule
 
         List<ScheduleJobEntity> scheduleJobList = this.list();
         for (ScheduleJobEntity scheduleJob : scheduleJobList) {
-            String beanName = scheduleJob.getBeanName();
-            if (beanName.compareTo("autoLoginTask") == 0) {
-                continue;
-            }
-
-            CronTrigger cronTrigger = ScheduleUtils.getCronTrigger(scheduler, scheduleJob.getId());
-
             try {
+                CronTrigger cronTrigger = ScheduleUtils.getCronTrigger(scheduler, scheduleJob.getId());
+
                 // 如果不存在，则创建
                 if (cronTrigger == null) {
                     ScheduleUtils.createScheduleJob(scheduler, scheduleJob);

@@ -63,7 +63,7 @@
 
     <select id="getActivesByMember" resultMap="accountMap">
         select * from tbl_accounts where state = 0
-            where
+            and
                 <if test="member_id > 0">
                     member_id = #{member_id} and
                 </if>
