@@ -91,7 +91,7 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
             queryWrapper.like("room_name", keyword);
         }
         if (memberId > 0) {
-            queryWrapper.like("member_id", memberId);
+            queryWrapper.eq("member_id", memberId);
         }
 
         IPage<RankingEntity> page = this.page(new Query<RankingEntity>().getPage(params), queryWrapper);

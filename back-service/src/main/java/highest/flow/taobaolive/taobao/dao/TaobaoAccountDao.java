@@ -13,13 +13,11 @@ public interface TaobaoAccountDao extends BaseMapper<TaobaoAccountEntity> {
 
     IPage<TaobaoAccountEntity> queryAccounts(IPage<TaobaoAccountEntity> page, @Param("member_id") int memberId, @Param("keyword") String keyword);
 
-    int getNormalCount();
+    int getNormalCount(@Param("member_id") int memberId, @Param("keyword") String keyword);
 
-    int getExpiredCount();
+    int getExpiredCount(@Param("member_id") int memberId, @Param("keyword") String keyword);
 
-    TaobaoAccountEntity getActiveOne();
-
-    TaobaoAccountEntity getActiveOneByMember(@Param("member_id") int memberId);
+    List<TaobaoAccountEntity> getActivesByMember(@Param("member_id") int memberId, @Param("count") int count);
 
     List<TaobaoAccountEntity> getActiveAll();
 

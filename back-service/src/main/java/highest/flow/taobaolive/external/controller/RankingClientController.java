@@ -331,12 +331,17 @@ public class RankingClientController extends AbstractController {
 
             String taocode = (String) map.get("taocode");
 
-            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(sysMember);
-            if (taobaoAccountEntity == null) {
-                return R.error("找不到活跃的用户");
+            List<TaobaoAccountEntity> activeAccounts = this.taobaoAccountService.getActivesByMember(null, Config.MAX_RETRY_ACCOUNTS);
+            R r = R.error();
+            for (int retry = 0; activeAccounts != null && retry < activeAccounts.size(); retry++) {
+                r = this.taobaoApiService.getLiveInfo(taocode, activeAccounts.get(retry));
+                if (r.getCode() == ErrorCodes.SUCCESS)
+                    break;
             }
 
-            R r = taobaoApiService.getLiveInfo(taocode, taobaoAccountEntity);
+            if (activeAccounts == null) {
+                return R.error("找不到活跃的用户");
+            }
             return r;
 
         } catch (Exception ex) {
@@ -358,22 +363,14 @@ public class RankingClientController extends AbstractController {
             liveRoomEntity.setLiveId(liveId);
             liveRoomEntity.setAccountId(accountId);
 
-            PageParam pageParam = new PageParam();
-            pageParam.setPageNo(1);
-            pageParam.setPageSize(20);
-
-            PageUtils pageUtils = this.taobaoAccountService.queryPage(null, pageParam);
-
-            List<TaobaoAccountEntity> taobaoAccountEntities = pageUtils.getList();
-            for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
-                TaobaoAccountEntity taobaoAccountEntity = taobaoAccountEntities.get(retry);
-                this.taobaoApiService.getH5Token(taobaoAccountEntity);
-                R r = this.taobaoApiService.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
-                if (r.getCode() != ErrorCodes.SUCCESS) {
-                    continue;
-                }
-                break;
+            List<TaobaoAccountEntity> activeAccounts = this.taobaoAccountService.getActivesByMember(null, Config.MAX_RETRY_ACCOUNTS);
+            for (int retry = 0; activeAccounts != null && retry < activeAccounts.size(); retry++) {
+                this.taobaoApiService.getH5Token(activeAccounts.get(retry));
+                R r = this.taobaoApiService.getRankingListData(liveRoomEntity, activeAccounts.get(retry));
+                if (r.getCode() == ErrorCodes.SUCCESS)
+                    break;
             }
+
 
             return R.ok()
                     .put("has_ranking_entry", liveRoomEntity.isHasRankingListEntry())

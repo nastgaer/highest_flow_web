@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.api.param.AddRoomParam;
 import highest.flow.taobaolive.api.param.SetLiveRoomStrategyParam;
 import highest.flow.taobaolive.common.annotation.SysLog;
+import highest.flow.taobaolive.common.config.Config;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.utils.*;
 import highest.flow.taobaolive.sys.controller.AbstractController;
@@ -120,11 +121,13 @@ public class LiveController extends AbstractController {
             liveRoomEntity.setLiveColumnId((int) r.get("column_id"));
             liveRoomEntity.setLiveLocation((String) r.get("location"));
 
-            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(null);
-
-            if (taobaoAccountEntity != null) {
+            List<TaobaoAccountEntity> activeAccounts = this.taobaoAccountService.getActivesByMember(null, Config.MAX_RETRY_ACCOUNTS);
+            for (int retry = 0; activeAccounts != null && retry < activeAccounts.size(); retry++) {
+                TaobaoAccountEntity taobaoAccountEntity = activeAccounts.get(retry);
                 this.taobaoApiService.getH5Token(taobaoAccountEntity);
-                this.taobaoApiService.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+                r = this.taobaoApiService.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+                if (r.getCode() == ErrorCodes.SUCCESS)
+                    break;
             }
 
             return R.ok().put("live_room", liveRoomEntity);
@@ -145,11 +148,13 @@ public class LiveController extends AbstractController {
             liveRoomEntity.setLiveId(liveId);
             liveRoomEntity.setAccountId(accountId);
 
-            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(null);
-
-            if (taobaoAccountEntity != null) {
+            List<TaobaoAccountEntity> activeAccounts = this.taobaoAccountService.getActivesByMember(null, Config.MAX_RETRY_ACCOUNTS);
+            for (int retry = 0; activeAccounts != null && retry < activeAccounts.size(); retry++) {
+                TaobaoAccountEntity taobaoAccountEntity = activeAccounts.get(retry);
                 this.taobaoApiService.getH5Token(taobaoAccountEntity);
-                this.taobaoApiService.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+                R r = this.taobaoApiService.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+                if (r.getCode() == ErrorCodes.SUCCESS)
+                    break;
             }
 
             return R.ok().put("live_room", liveRoomEntity);

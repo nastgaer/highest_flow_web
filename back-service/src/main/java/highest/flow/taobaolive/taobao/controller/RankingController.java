@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import highest.flow.taobaolive.api.param.*;
 import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
+import highest.flow.taobaolive.common.config.Config;
 import highest.flow.taobaolive.common.http.HttpHelper;
 import highest.flow.taobaolive.common.http.Request;
 import highest.flow.taobaolive.common.http.ResponseType;
@@ -128,11 +129,12 @@ public class RankingController extends AbstractController {
             liveRoomEntity.setAccountId(accountId);
             liveRoomEntity.setAccountName(accountName);
 
-            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(null);
-
-            if (taobaoAccountEntity != null) {
-                this.taobaoLiveApiService.getH5Token(taobaoAccountEntity);
-                this.taobaoLiveApiService.getRankingListData(liveRoomEntity, taobaoAccountEntity);
+            List<TaobaoAccountEntity> activeAccounts = this.taobaoAccountService.getActivesByMember(null, Config.MAX_RETRY_ACCOUNTS);
+            for (int retry = 0; activeAccounts != null && retry < activeAccounts.size(); retry++) {
+                this.taobaoLiveApiService.getH5Token(activeAccounts.get(retry));
+                R r = this.taobaoLiveApiService.getRankingListData(liveRoomEntity, activeAccounts.get(retry));
+                if (r.getCode() == ErrorCodes.SUCCESS)
+                    break;
             }
 
             // 可用热度值
@@ -206,22 +208,6 @@ public class RankingController extends AbstractController {
             if (startTime != null && startTime.getTime() < new Date().getTime()) {
                 return R.error("请正确输入开始时间");
             }
-
-//            // 任意选择正常用户
-//            TaobaoAccountEntity taobaoAccountEntity = this.taobaoAccountService.getActiveOne(getUser());
-//            if (taobaoAccountEntity == null) {
-//                return R.error("找不到活跃的用户");
-//            }
-//
-//            logger.debug("找到活跃用户：" + taobaoAccountEntity.getNick());
-//
-//            // 获取直播间信息
-//            R r = taobaoLiveApiService.getLiveInfo(liveId, taobaoAccountEntity);
-//            if (r.getCode() != ErrorCodes.SUCCESS) {
-//                return r;
-//            }
-//
-//            LiveRoomEntity liveRoomEntity = (LiveRoomEntity) r.get("live_room");
 
             SysMember sysMember = this.getUser();
 

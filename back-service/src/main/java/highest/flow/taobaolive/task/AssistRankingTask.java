@@ -99,12 +99,14 @@ public class AssistRankingTask implements ITask {
             liveRoomEntity.setAccountName(rankingEntity.getRoomName());
 
             // 获取开始当前的赛道状态
-            activeAccountEntity = this.taobaoAccountService.getActiveOne(null);
-            if (activeAccountEntity == null) {
-                throw new RRException("没有正常小号");
+            List<TaobaoAccountEntity> activeAccounts = this.taobaoAccountService.getActivesByMember(null, Config.MAX_RETRY_ACCOUNTS);
+            for (int retry = 0; activeAccounts != null && retry < activeAccounts.size(); retry++) {
+                activeAccountEntity = activeAccounts.get(retry);
+                this.taobaoLiveApiService.getH5Token(activeAccountEntity);
+                R r = this.taobaoLiveApiService.getRankingListData(liveRoomEntity, activeAccountEntity);
+                if (r.getCode() == ErrorCodes.SUCCESS)
+                    break;
             }
-            this.taobaoLiveApiService.getH5Token(activeAccountEntity);
-            this.taobaoLiveApiService.getRankingListData(liveRoomEntity, activeAccountEntity);
 
             if (!liveRoomEntity.isHasHourRankingListEntry()) {
                 throw new RRException("该直播间没有赛道");

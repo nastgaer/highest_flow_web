@@ -36,19 +36,38 @@
     </select>
 
     <select id="getNormalCount" resultType="int">
-        select count(*) from tbl_accounts where state = 0;
+        select count(*) from tbl_accounts acc
+            left join tbl_members member on acc.member_id = member.id
+            where
+                <if test="member_id > 0">
+                    acc.member_id = #{member_id} and
+                </if>
+                <if test="keyword != null and keyword.length() > 0">
+                    ((acc.nick is not null and acc.nick like "%"#{keyword}"%") or (member.member_name is not null and member.member_name like "%"#{keyword}"%")) and
+                </if>
+                state = 0;
     </select>
 
     <select id="getExpiredCount" resultType="int">
-        select count(*) from tbl_accounts where state != 0;
+        select count(*) from tbl_accounts acc
+            left join tbl_members member on acc.member_id = member.id
+            where
+                <if test="member_id > 0">
+                    acc.member_id = #{member_id} and
+                </if>
+                <if test="keyword != null and keyword.length() > 0">
+                    ((acc.nick is not null and acc.nick like "%"#{keyword}"%") or (member.member_name is not null and member.member_name like "%"#{keyword}"%")) and
+                </if>
+                state != 0;
     </select>
 
-    <select id="getActiveOne" resultMap="accountMap">
-        select * from tbl_accounts where state = 0 limit 1;
-    </select>
-
-    <select id="getActiveOneByMember" resultMap="accountMap">
-        select * from tbl_accounts where state = 0 and member_id=#{member_id} limit 1;
+    <select id="getActivesByMember" resultMap="accountMap">
+        select * from tbl_accounts where state = 0
+            where
+                <if test="member_id > 0">
+                    member_id = #{member_id} and
+                </if>
+                1 limit #{count}
     </select>
 
     <select id="getActiveAll" resultMap="accountMap">

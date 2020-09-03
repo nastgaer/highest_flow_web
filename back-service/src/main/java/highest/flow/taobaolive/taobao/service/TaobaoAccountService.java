@@ -32,9 +32,9 @@ public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
 
     TaobaoAccountEntity getInfoByUid(String uid);
 
-    int getNormalCount(SysMember sysMember);
+    int getNormalCount(SysMember sysMember, PageParam pageParam);
 
-    int getExpiredCount(SysMember sysMember);
+    int getExpiredCount(SysMember sysMember, PageParam pageParam);
 
     PageUtils queryPage(SysMember sysMember, PageParam pageParam);
 
@@ -46,7 +46,7 @@ public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
      */
     PageUtils simpleQueryPage(SysMember sysMember, PageParam pageParam);
 
-    TaobaoAccountEntity getActiveOne(SysMember sysMember);
+    List<TaobaoAccountEntity> getActivesByMember(SysMember sysMember, int count);
 
     List<TaobaoAccountEntity> getActiveAll();
 

@@ -13,6 +13,8 @@ public class Config {
 
     public static final int MAX_RETRY = 10;
 
+    public static final int MAX_RETRY_ACCOUNTS = 10;
+
     public static final String ADMINISTRATOR = "administrator";
 
 

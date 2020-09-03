@@ -39,27 +39,21 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     private List<TaobaoAccountEntity> cachedTaobaoAccountEntities = null;
 
     @Override
-    public int getNormalCount(SysMember sysMember) {
-        if (sysMember == null) {
-            return this.baseMapper.selectCount(Wrappers.<TaobaoAccountEntity>lambdaQuery()
-                    .eq(TaobaoAccountEntity::getState, 0));
-        } else {
-            return this.baseMapper.selectCount(Wrappers.<TaobaoAccountEntity>lambdaQuery()
-                    .eq(TaobaoAccountEntity::getState, 0)
-                    .eq(TaobaoAccountEntity::getMemberId, sysMember.getId()));
-        }
+    public int getNormalCount(SysMember sysMember, PageParam pageParam) {
+        int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
+
+        String keyword = pageParam.getKeyword();
+
+        return this.baseMapper.getNormalCount(memberId, keyword);
     }
 
     @Override
-    public int getExpiredCount(SysMember sysMember) {
-        if (sysMember == null) {
-            return this.baseMapper.selectCount(Wrappers.<TaobaoAccountEntity>lambdaQuery()
-                    .ne(TaobaoAccountEntity::getState, 0));
-        } else {
-            return this.baseMapper.selectCount(Wrappers.<TaobaoAccountEntity>lambdaQuery()
-                    .eq(TaobaoAccountEntity::getMemberId, sysMember.getId())
-                    .ne(TaobaoAccountEntity::getState, 0));
-        }
+    public int getExpiredCount(SysMember sysMember, PageParam pageParam) {
+        int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
+
+        String keyword = pageParam.getKeyword();
+
+        return this.baseMapper.getExpiredCount(memberId, keyword);
     }
 
     @Override
@@ -173,17 +167,10 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     }
 
     @Override
-    public TaobaoAccountEntity getActiveOne(SysMember sysMember) {
-        if (sysMember == null || sysMember.isAdministrator() || sysMember.isNormal()) {
-            return this.baseMapper.getActiveOne();
-//            return this.getOne(Wrappers.<TaobaoAccountEntity>lambdaQuery()
-//                    .eq(TaobaoAccountEntity::getType, TaobaoAccountState.Normal.getType()));
-        }
+    public List<TaobaoAccountEntity> getActivesByMember(SysMember sysMember, int count) {
+        int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
 
-        return this.baseMapper.getActiveOneByMember(sysMember.getId());
-//        return this.getOne(Wrappers.<TaobaoAccountEntity>lambdaQuery()
-//                .eq(TaobaoAccountEntity::getType, TaobaoAccountState.Normal.getType())
-//                .eq(TaobaoAccountEntity::getMemberId, sysMember.getId()));
+        return this.baseMapper.getActivesByMember(memberId, count);
     }
 
     @Override

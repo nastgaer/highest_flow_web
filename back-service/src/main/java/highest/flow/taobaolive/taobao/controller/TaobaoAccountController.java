@@ -66,10 +66,8 @@ public class TaobaoAccountController extends AbstractController {
             SysMember sysMember = this.getUser();
             PageUtils pageUtils = this.taobaoAccountService.queryPage(sysMember, pageParam);
 
-            int normalCount = taobaoAccountService.getNormalCount(
-                    sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? null : sysMember);
-            int expiredCount = taobaoAccountService.getExpiredCount(
-                    sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? null : sysMember);
+            int normalCount = taobaoAccountService.getNormalCount(sysMember, pageParam);
+            int expiredCount = taobaoAccountService.getExpiredCount(sysMember, pageParam);
 
             return R.ok()
                     .put("users", pageUtils.getList())
