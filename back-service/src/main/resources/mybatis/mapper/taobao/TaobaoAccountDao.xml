@@ -45,7 +45,7 @@
                 <if test="keyword != null and keyword.length() > 0">
                     ((acc.nick is not null and acc.nick like "%"#{keyword}"%") or (member.member_name is not null and member.member_name like "%"#{keyword}"%")) and
                 </if>
-                state = 0;
+                acc.state = 0;
     </select>
 
     <select id="getExpiredCount" resultType="int">
@@ -58,7 +58,7 @@
                 <if test="keyword != null and keyword.length() > 0">
                     ((acc.nick is not null and acc.nick like "%"#{keyword}"%") or (member.member_name is not null and member.member_name like "%"#{keyword}"%")) and
                 </if>
-                state != 0;
+                acc.state != 0;
     </select>
 
     <select id="getActivesByMember" resultMap="accountMap">

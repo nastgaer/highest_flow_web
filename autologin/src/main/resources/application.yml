@@ -67,3 +67,4 @@ license:
 
 autologin:
   init-start: false
+  thread-count: 30

@@ -54,7 +54,7 @@ public class AutoLoginTask implements ITask {
 
             List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.list();
 
-            for (int idx = 0; idx < threadCount; idx++) {
+            for (int idx = 0; idx < Math.min(threadCount, totalCount); idx++) {
                 int threadIndex = idx;
                 try {
                     Thread thread = new Thread(new AutoLoginRunnable(taobaoAccountEntities, threadIndex, countPerThread));
@@ -83,6 +83,7 @@ public class AutoLoginTask implements ITask {
         private int countPerThread = 0;
 
         public AutoLoginRunnable(List<TaobaoAccountEntity> taobaoAccountEntities, int threadIndex, int countPerThread) {
+            this.taobaoAccountEntities = taobaoAccountEntities;
             this.threadIndex = threadIndex;
             this.countPerThread = countPerThread;
         }
@@ -96,6 +97,8 @@ public class AutoLoginTask implements ITask {
             int activeCount = 0;
             int startIndex = threadIndex * countPerThread;
             int endIndex = Math.min(taobaoAccountEntities.size(), startIndex + countPerThread);
+
+            logger.info("[" + threadIndex + "]重登延期任务开始了, " + startIndex + " ~  " + endIndex);
 
             for (int idx = startIndex; idx < endIndex; idx++) {
                 try {
@@ -171,6 +174,8 @@ public class AutoLoginTask implements ITask {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+
+            logger.info("[" + threadIndex + "]重登延期任务结束了, 正常小号数：" + activeCount);
         }
     }
 }

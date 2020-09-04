@@ -112,9 +112,9 @@ public class SignController {
                 return R.error("无效pv");
             }
 
-            logger.info("<< " + jsonText);
+//            logger.info("<< " + jsonText);
             String respText = minaService.sendMessage(jsonText);
-            logger.info(">> " + (respText == null ? "null" : respText));
+//            logger.info(">> " + (respText == null ? "null" : respText));
 
             if (StringUtils.isNullOrEmpty(respText)) {
                 return R.error("空了");
@@ -122,6 +122,13 @@ public class SignController {
 
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> map = jsonParser.parseMap(respText);
+
+            int code = (int) map.get("ret");
+            String msg = (String) map.get("msg");
+            if (code != 100) {
+                return R.error(msg);
+            }
+
             Map<String, Object> mapData = (Map) map.get("data");
 
             String version = mapData == null || !mapData.containsKey("version") ? "" : String.valueOf(mapData.get("version"));
