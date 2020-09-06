@@ -25,10 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("taobaoAccountService")
 public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAccountEntity> implements TaobaoAccountService {
@@ -42,7 +39,7 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     public int getNormalCount(SysMember sysMember, PageParam pageParam) {
         int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
 
-        String keyword = pageParam.getKeyword();
+        String keyword = pageParam == null ? "" : pageParam.getKeyword();
 
         return this.baseMapper.getNormalCount(memberId, keyword);
     }
@@ -51,7 +48,7 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     public int getExpiredCount(SysMember sysMember, PageParam pageParam) {
         int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
 
-        String keyword = pageParam.getKeyword();
+        String keyword = pageParam == null ? "" : pageParam.getKeyword();
 
         return this.baseMapper.getExpiredCount(memberId, keyword);
     }
@@ -171,6 +168,24 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
         int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
 
         return this.baseMapper.getActivesByMember(memberId, count);
+    }
+
+    public synchronized void cacheAccount(TaobaoAccountEntity cacheAccountEntity) {
+        if (cachedTaobaoAccountEntities == null) {
+            cachedTaobaoAccountEntities = new ArrayList<>();
+        }
+        boolean found = false;
+        for (int idx = 0; idx < cachedTaobaoAccountEntities.size(); idx++) {
+            TaobaoAccountEntity taobaoAccountEntity = cachedTaobaoAccountEntities.get(idx);
+            if (taobaoAccountEntity.getUid().compareTo(cacheAccountEntity.getUid()) == 0) {
+                cachedTaobaoAccountEntities.set(idx, taobaoAccountEntity);
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            cachedTaobaoAccountEntities.add(cacheAccountEntity);
+        }
     }
 
     @Override

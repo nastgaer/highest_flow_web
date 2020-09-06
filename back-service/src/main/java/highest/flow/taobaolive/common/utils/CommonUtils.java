@@ -1,5 +1,8 @@
 package highest.flow.taobaolive.common.utils;
 
+import highest.flow.taobaolive.common.config.Config;
+
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
@@ -65,5 +68,10 @@ public class CommonUtils {
         calendar.setTime(date);
         calendar.add(Calendar.MINUTE, minutes);
         return calendar.getTime();
+    }
+
+    public static String formatDate(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat(Config.DATE_TIME_FORMAT);
+        return sdf.format(date);
     }
 }

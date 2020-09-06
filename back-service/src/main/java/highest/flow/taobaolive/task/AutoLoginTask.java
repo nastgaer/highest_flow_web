@@ -130,6 +130,8 @@ public class AutoLoginTask implements ITask {
                         taobaoAccountLogEntity.setContent(r.getMsg());
                         taobaoAccountLogEntity.setCreatedTime(new Date());
                         taobaoAccountLogService.save(taobaoAccountLogEntity);
+
+                        taobaoAccountService.cacheAccount(taobaoAccountEntity);
                     }
 
                     if (r.getCode() != ErrorCodes.SUCCESS) {
@@ -153,6 +155,8 @@ public class AutoLoginTask implements ITask {
                         taobaoAccountLogEntity.setContent(r.getMsg());
                         taobaoAccountLogEntity.setCreatedTime(new Date());
                         taobaoAccountLogService.save(taobaoAccountLogEntity);
+
+                        taobaoAccountService.cacheAccount(taobaoAccountEntity);
                     }
 
                     if (taobaoAccountEntity.getState() == TaobaoAccountState.Normal.getState()) {

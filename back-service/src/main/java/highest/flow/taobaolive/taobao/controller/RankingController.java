@@ -75,64 +75,81 @@ public class RankingController extends AbstractController {
             boolean hasBuy = (boolean) param.get("has_buy");
             boolean hasDoubleBuy = (boolean) param.get("has_double_buy");
 
-            String url = "http://www.taofake.com/index/tools/gettkljm.html?tkl=" + URLEncoder.encode(taocode);
+//            String url = "http://www.taofake.com/index/tools/gettkljm.html?tkl=" + URLEncoder.encode(taocode);
+//
+//            Response<String> response = HttpHelper.execute(
+//                    new SiteConfig()
+//                            .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+//                            .addHeader("Referer", "http://www.taofake.com/tools/tkljm/")
+//                            .addHeader("X-Requested-With", "XMLHttpRequest"),
+//                    new Request("GET", url, ResponseType.TEXT));
+//
+//            if (response.getStatusCode() != HttpStatus.SC_OK) {
+//                return R.error("解析淘口令失败");
+//            }
+//
+//            String respText = response.getResult();
+//            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+//            Map<String, Object> map = jsonParser.parseMap(respText);
+//            int code = (int) map.get("code");
+//            if (code != 1) {
+//                return R.error("解析淘口令失败");
+//            }
+//
+//            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
+//            String talentUrl = (String) mapData.get("url");
+//            String content = (String) mapData.get("content");
+//
+//            talentUrl = URLDecoder.decode(talentUrl);
+//            String liveId = "";
+//            int pos = talentUrl.indexOf("\"feed_id\":");
+//            if (pos > 0) {
+//                pos += "\"feed_id\":".length();
+//                int nextpos = talentUrl.indexOf("\"", pos + 1);
+//                liveId = talentUrl.substring(pos + 1, nextpos);
+//            }
+//
+//            pos = talentUrl.indexOf("\"account_id\":");
+//            String accountId = "";
+//            if (pos > 0) {
+//                pos += "\"account_id\":".length();
+//                int nextPos = talentUrl.indexOf("\"", pos + 1);
+//                accountId = talentUrl.substring(pos + 1, nextPos);
+//            }
+//
+//            String accountName = content;
+//            pos = content.indexOf("的直播");
+//            if (pos > 0) {
+//                accountName = content.substring(0, pos);
+//            }
+//
+//            // 获取赛道信息
+//            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+//            liveRoomEntity.setLiveId(liveId);
+//            liveRoomEntity.setAccountId(accountId);
+//            liveRoomEntity.setAccountName(accountName);
 
-            Response<String> response = HttpHelper.execute(
-                    new SiteConfig()
-                            .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
-                            .addHeader("Referer", "http://www.taofake.com/tools/tkljm/")
-                            .addHeader("X-Requested-With", "XMLHttpRequest"),
-                    new Request("GET", url, ResponseType.TEXT));
-
-            if (response.getStatusCode() != HttpStatus.SC_OK) {
-                return R.error("解析淘口令失败");
+            int pos = taocode.indexOf("￥");
+            if (pos >= 0) {
+                taocode = taocode.substring(pos + 1);
+            }
+            pos = taocode.indexOf("￥");
+            if (pos >= 0) {
+                taocode = taocode.substring(0, pos);
             }
 
-            String respText = response.getResult();
-            JsonParser jsonParser = JsonParserFactory.getJsonParser();
-            Map<String, Object> map = jsonParser.parseMap(respText);
-            int code = (int) map.get("code");
-            if (code != 1) {
-                return R.error("解析淘口令失败");
+            R r = this.taobaoLiveApiService.getLiveInfo(taocode, null);
+            if (r.getCode() != ErrorCodes.SUCCESS) {
+                return r;
             }
 
-            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            String talentUrl = (String) mapData.get("url");
-            String content = (String) mapData.get("content");
-
-            talentUrl = URLDecoder.decode(talentUrl);
-            String liveId = "";
-            int pos = talentUrl.indexOf("\"feed_id\":");
-            if (pos > 0) {
-                pos += "\"feed_id\":".length();
-                int nextpos = talentUrl.indexOf("\"", pos + 1);
-                liveId = talentUrl.substring(pos + 1, nextpos);
-            }
-
-            pos = talentUrl.indexOf("\"account_id\":");
-            String accountId = "";
-            if (pos > 0) {
-                pos += "\"account_id\":".length();
-                int nextPos = talentUrl.indexOf("\"", pos + 1);
-                accountId = talentUrl.substring(pos + 1, nextPos);
-            }
-
-            String accountName = content;
-            pos = content.indexOf("的直播");
-            if (pos > 0) {
-                accountName = content.substring(0, pos);
-            }
-
-            // 获取赛道信息
-            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
-            liveRoomEntity.setLiveId(liveId);
-            liveRoomEntity.setAccountId(accountId);
-            liveRoomEntity.setAccountName(accountName);
+            LiveRoomEntity liveRoomEntity = (LiveRoomEntity) r.get("live_room");
 
             List<TaobaoAccountEntity> activeAccounts = this.taobaoAccountService.getActivesByMember(null, Config.MAX_RETRY_ACCOUNTS);
+
             for (int retry = 0; activeAccounts != null && retry < activeAccounts.size(); retry++) {
                 this.taobaoLiveApiService.getH5Token(activeAccounts.get(retry));
-                R r = this.taobaoLiveApiService.getRankingListData(liveRoomEntity, activeAccounts.get(retry));
+                r = this.taobaoLiveApiService.getRankingListData(liveRoomEntity, activeAccounts.get(retry));
                 if (r.getCode() == ErrorCodes.SUCCESS)
                     break;
             }
@@ -140,7 +157,7 @@ public class RankingController extends AbstractController {
             // 可用热度值
             SysMember sysMember = this.getUser();
 
-            List<TaobaoAccountEntity> taobaoAccountEntities = this.rankingService.availableAccounts(sysMember, liveId);
+            List<TaobaoAccountEntity> taobaoAccountEntities = this.rankingService.availableAccounts(sysMember, liveRoomEntity.getLiveId());
 
             int unitScore = hasDoubleBuy ? this.rankingService.getRankingUnitScore(RankingScore.DoubleBuy) :
                     (hasBuy ? this.rankingService.getRankingUnitScore(RankingScore.Buy) : 0);

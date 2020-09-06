@@ -17,9 +17,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 @SpringBootApplication
 public class XdataApplication implements ApplicationRunner {
@@ -33,16 +35,16 @@ public class XdataApplication implements ApplicationRunner {
     private String suffix = "yinliu";
     private String encryptKey = "1234!@#$";
 
-    @Value("${count:10000}")
-    private int count;
+    @Value("${threads:1000}")
+    private int threadsCount;
 
-    @Value("${sign.url:\"http://localhost:9999/xdata\"}")
+    @Value("${count:10000}")
+    private int repeatCount;
+
+    @Value("${sign.url:http://localhost:9999/xdata}")
     private String signUrl = "";
 
-    public void testXData() {
-
-        int count = 10000;
-
+    public void testXData(int count) {
         Map<String, String> map = new HashMap<>();
         map.put("utdid", "");
         map.put("uid", "");
@@ -137,6 +139,52 @@ public class XdataApplication implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         System.out.println("URL = " + signUrl);
 
-        testXData();
+//        testXData(repeatCount);
+
+        testHttp(threadsCount, repeatCount);
+    }
+
+    public void testHttp(final int threadsCount, final int repeatCount) {
+        try {
+            ThreadPoolTaskExecutor threadPoolExecutor = new ThreadPoolTaskExecutor();
+            threadPoolExecutor.setCorePoolSize(6000);
+            threadPoolExecutor.setMaxPoolSize(9000);
+            threadPoolExecutor.setQueueCapacity(3000);
+            threadPoolExecutor.setThreadNamePrefix("ranking-");
+            threadPoolExecutor.initialize();
+
+            long startTime = System.currentTimeMillis();
+
+            CountDownLatch countDownLatch = new CountDownLatch(threadsCount);
+
+            for (int thread = 0; thread < threadsCount; thread++) {
+                threadPoolExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+//                            for (int idx = 0; idx < repeatCount; idx++) {
+//                                Response<String> response = HttpHelper.execute(
+//                                        new SiteConfig()
+//                                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+//                                                .addHeader("Content-Type", "application/x-www-form-urlencoded"),
+//                                        new Request("GET", "http://localhost:9999/xdata", ResponseType.TEXT));
+//                            }
+
+                            testXData(repeatCount);
+
+                        } catch (Exception ex) {
+                            countDownLatch.countDown();
+                        }
+                    }
+                });
+            }
+            countDownLatch.await();
+
+            long times = System.currentTimeMillis() - startTime;
+            System.out.println("【线程】总共耗时：" + times + "毫秒");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

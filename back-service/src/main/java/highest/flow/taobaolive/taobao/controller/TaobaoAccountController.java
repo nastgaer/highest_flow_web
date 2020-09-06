@@ -3,6 +3,7 @@ package highest.flow.taobaolive.taobao.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.common.annotation.SysLog;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.http.CookieHelper;
@@ -11,6 +12,7 @@ import highest.flow.taobaolive.api.param.PageParam;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import highest.flow.taobaolive.job.service.ScheduleJobService;
 import highest.flow.taobaolive.job.utils.ScheduleUtils;
+import highest.flow.taobaolive.security.service.CryptoService;
 import highest.flow.taobaolive.sys.controller.AbstractController;
 import highest.flow.taobaolive.sys.defines.MemberLevel;
 import highest.flow.taobaolive.sys.entity.SysMember;
@@ -49,6 +51,9 @@ public class TaobaoAccountController extends AbstractController {
 
     @Autowired
     private TaobaoApiService taobaoApiService;
+
+    @Autowired
+    private CryptoService cryptoService;
 
     @Autowired
     private Scheduler scheduler;
@@ -267,6 +272,74 @@ public class TaobaoAccountController extends AbstractController {
             }
 
             return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+//    @PostMapping("/download2")
+//    public R download2(@RequestBody Map<String, Object> param) {
+//        try {
+//            String encrypt = (String)param.get("encrypt");
+//            String decypt = (String) param.get("decrypt");
+//
+//            String decrypted = cryptoService.decrypt(encrypt);
+//            if (decypt.compareTo(decrypted) == 0) {
+//                return R.ok().put("encrypt", cryptoService.encrypt(decrypted));
+//            }
+//
+//            return R.error();
+//
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//        return R.error();
+//    }
+
+    @PostMapping("/download")
+    public R download(@RequestBody PageParam pageParam) {
+        try {
+            SysMember sysMember = this.getUser();
+            PageUtils pageUtils = this.taobaoAccountService.queryPage(sysMember, pageParam);
+
+            List<TaobaoAccountEntity> taobaoAccountEntities = pageUtils.getList();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<String> encrypted = new ArrayList<>();
+            List<String> signs = new ArrayList<>();
+            for (TaobaoAccountEntity taobaoAccountEntity : taobaoAccountEntities) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("nick", taobaoAccountEntity.getNick());
+                map.put("sid", taobaoAccountEntity.getSid());
+                map.put("uid", taobaoAccountEntity.getUid());
+                map.put("utdid", taobaoAccountEntity.getUtdid());
+                map.put("devid", taobaoAccountEntity.getDevid());
+                map.put("expires", CommonUtils.formatDate(taobaoAccountEntity.getExpires()));
+                map.put("cookie", taobaoAccountEntity.getCookie());
+
+                String jsonText = objectMapper.writeValueAsString(map);
+                String encrypt = cryptoService.encrypt(jsonText);
+                String sign = cryptoService.sign(encrypt);
+                encrypted.add(encrypt);
+                signs.add(sign);
+            }
+
+            String signConcat = "";
+            for (String text : signs) {
+                signConcat += text;
+            }
+
+            String sign = cryptoService.sign(signConcat);
+
+            return R.ok()
+                    .put("users", encrypted)
+                    .put("sign", sign)
+                    .put("total_count", pageUtils.getTotalCount())
+                    .put("total_page", pageUtils.getTotalPage())
+                    .put("page_size", pageUtils.getPageSize())
+                    .put("curr_page", pageUtils.getCurrPage());
 
         } catch (Exception ex) {
             ex.printStackTrace();
