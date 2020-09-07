@@ -10,7 +10,7 @@
     </parent>
     <groupId>highest.flow</groupId>
     <artifactId>back-service</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <packaging>war</packaging>
     <name>back-service</name>
