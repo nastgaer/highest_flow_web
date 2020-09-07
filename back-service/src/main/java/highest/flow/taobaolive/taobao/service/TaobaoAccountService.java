@@ -14,6 +14,41 @@ import java.util.List;
 @Service
 public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
 
+    PageUtils queryPage(SysMember sysMember, PageParam pageParam);
+
+    /**
+     * 返回正常小号数
+     * @param sysMember
+     * @param pageParam
+     * @return
+     */
+    int getNormalCount(SysMember sysMember, PageParam pageParam);
+
+    /**
+     * 返回过期的小号数
+     * @param sysMember
+     * @param pageParam
+     * @return
+     */
+    int getExpiredCount(SysMember sysMember, PageParam pageParam);
+
+    /**
+     * 新注册小号, 如果已经注册的，就更新内容
+     * @param sysMember
+     * @param nick
+     * @param uid
+     * @param sid
+     * @param utdid
+     * @param devid
+     * @param autoLoginToken
+     * @param umidToken
+     * @param cookies
+     * @param expires
+     * @param state
+     * @param created
+     * @param updated
+     * @return
+     */
     TaobaoAccountEntity register(SysMember sysMember,
                                         String nick,
                                         String uid,
@@ -28,29 +63,50 @@ public interface TaobaoAccountService extends IService<TaobaoAccountEntity> {
                                         Date created,
                                         Date updated);
 
-    TaobaoAccountEntity getInfo(String nick);
-
-    TaobaoAccountEntity getInfoByUid(String uid);
-
-    int getNormalCount(SysMember sysMember, PageParam pageParam);
-
-    int getExpiredCount(SysMember sysMember, PageParam pageParam);
-
-    PageUtils queryPage(SysMember sysMember, PageParam pageParam);
-
     /**
-     * 只返回昵称和uid, 状态
-     * @param sysMember
-     * @param pageParam
+     * 根据小号昵称查询小号
+     * @param nick
      * @return
      */
-    PageUtils simpleQueryPage(SysMember sysMember, PageParam pageParam);
+    TaobaoAccountEntity getInfo(String nick);
 
+    /**
+     * 根据uid查询兄啊好
+     * @param uid
+     * @return
+     */
+    TaobaoAccountEntity getInfoByUid(String uid);
+
+    /**
+     * 查询指定会员的小号列表
+     * @param sysMember
+     * @param count
+     * @return
+     */
     List<TaobaoAccountEntity> getActivesByMember(SysMember sysMember, int count);
 
-    void cacheAccount(TaobaoAccountEntity taobaoAccountEntity);
-
+    /**
+     * 返回缓冲的所有正常的小号列表
+     * @return
+     */
     List<TaobaoAccountEntity> getActiveAll();
 
-    List<TaobaoAccountEntity> getActiveAllByMember(SysMember sysMember);
+    /**
+     * 更新缓冲小号
+     * @param taobaoAccountEntity
+     */
+    void cacheAccount(TaobaoAccountEntity taobaoAccountEntity);
+
+    /**
+     * 返回最后缓冲的时间
+     * @return
+     */
+    Date getLastUpdated();
+
+    /**
+     * 把指定时间以后更新的小号全部更新
+     * @param updated
+     * @return 返回更新的小号数
+     */
+    int reloadUpdatedAccounts(Date updated);
 }

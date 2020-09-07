@@ -5,6 +5,7 @@ import highest.flow.taobaolive.job.defines.ScheduleState;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import highest.flow.taobaolive.job.service.ScheduleJobService;
 import highest.flow.taobaolive.job.utils.ScheduleUtils;
+import highest.flow.taobaolive.taobao.provider.TaobaoAccountProvider;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.task.AutoLoginTask;
 import org.quartz.Scheduler;
@@ -30,11 +31,11 @@ public class AppRunner implements CommandLineRunner {
     @Autowired
     private ScheduleJobService schedulerJobService;
 
-    @Autowired
-    private TaobaoAccountService taobaoAccountService;
-
     @Value("${autologin.init-start:false}")
     private boolean initStart;
+
+    @Autowired
+    private TaobaoAccountProvider taobaoAccountProvider;
 
     @Override
     public void run(String... args) throws Exception {
@@ -117,12 +118,6 @@ public class AppRunner implements CommandLineRunner {
     }
 
     private void initializeCache() {
-        try {
-            // 该函数经常用，所以打开第一时间获取掉
-            taobaoAccountService.getActiveAll();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        taobaoAccountProvider.initialize();
     }
 }

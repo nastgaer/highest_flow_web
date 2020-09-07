@@ -353,7 +353,7 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
     public List<TaobaoAccountEntity> availableAccounts(SysMember sysMember, String liveId) {
         try {
             // 采集该会员所属于的所有的小号列表
-            List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.getActiveAllByMember(sysMember);
+            List<TaobaoAccountEntity> taobaoAccountEntities = taobaoAccountService.getActivesByMember(sysMember, -1);
 
             // 查看有没有今天刷过的小号列表
             List<String> uids = cacheManager.getCachedRankingAccounts(sysMember, liveId, new Date());

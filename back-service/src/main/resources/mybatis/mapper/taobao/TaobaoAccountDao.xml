@@ -61,21 +61,20 @@
                 acc.state != 0;
     </select>
 
-    <select id="getActivesByMember" resultMap="accountMap">
-        select * from tbl_accounts where state = 0
-            and
-                <if test="member_id > 0">
-                    member_id = #{member_id} and
-                </if>
-                1 limit #{count}
-    </select>
-
-    <select id="getActiveAll" resultMap="accountMap">
-        select * from tbl_accounts where state = 0;
-    </select>
-
-    <select id="getActiveAllByMember" resultMap="accountMap">
-        select * from tbl_accounts where state = 0 and member_id=#{member_id};
+    <select id="queryAccounts2" resultMap="accountMap">
+        select * from tbl_accounts where 1
+          <if test="member_id > 0">
+              and member_id = #{member_id}
+          </if>
+          <if test="updated != null">
+              and updated_time > #{updated}
+          </if>
+          <if test="state >= 0">
+              and state = #{state}
+          </if>
+          <if test="limit_count > 0">
+              limit #{limit_count}
+          </if>
     </select>
 
 </mapper>

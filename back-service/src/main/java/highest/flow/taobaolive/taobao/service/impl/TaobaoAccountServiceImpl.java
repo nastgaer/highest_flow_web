@@ -36,6 +36,26 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     private List<TaobaoAccountEntity> cachedTaobaoAccountEntities = null;
 
     @Override
+    public PageUtils queryPage(SysMember sysMember, PageParam pageParam) {
+        int pageNo = pageParam.getPageNo();
+        int pageSize = pageParam.getPageSize();
+        String keyword = pageParam.getKeyword();
+
+        int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put(Query.PAGE, pageNo);
+        params.put(Query.LIMIT, pageSize);
+        params.put(Query.ORDER_FIELD, "id");
+        params.put(Query.ORDER, "ASC");
+
+        QueryWrapper<TaobaoAccountEntity> queryWrapper = new QueryWrapper<>();
+
+        IPage<TaobaoAccountEntity> page = this.baseMapper.queryAccounts(new Query<TaobaoAccountEntity>().getPage(params), memberId, keyword);
+        return new PageUtils<TaobaoAccountEntity>(page);
+    }
+
+    @Override
     public int getNormalCount(SysMember sysMember, PageParam pageParam) {
         int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
 
@@ -119,57 +139,13 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     }
 
     @Override
-    public PageUtils queryPage(SysMember sysMember, PageParam pageParam) {
-        int pageNo = pageParam.getPageNo();
-        int pageSize = pageParam.getPageSize();
-        String keyword = pageParam.getKeyword();
-
-        int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
-
-        Map<String, Object> params = new HashMap<>();
-        params.put(Query.PAGE, pageNo);
-        params.put(Query.LIMIT, pageSize);
-        params.put(Query.ORDER_FIELD, "id");
-        params.put(Query.ORDER, "ASC");
-
-        QueryWrapper<TaobaoAccountEntity> queryWrapper = new QueryWrapper<>();
-
-        IPage<TaobaoAccountEntity> page = this.baseMapper.queryAccounts(new Query<TaobaoAccountEntity>().getPage(params), memberId, keyword);
-        return new PageUtils<TaobaoAccountEntity>(page);
-    }
-
-    @Override
-    public PageUtils simpleQueryPage(SysMember sysMember, PageParam pageParam) {
-        // TODO
-        int pageNo = pageParam.getPageNo();
-        int pageSize = pageParam.getPageSize();
-        String keyword = pageParam.getKeyword();
-
-        int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
-
-        Map<String, Object> params = new HashMap<>();
-        params.put(Query.PAGE, pageNo);
-        params.put(Query.LIMIT, pageSize);
-
-        QueryWrapper<TaobaoAccountEntity> queryWrapper = new QueryWrapper<>();
-        if (memberId > 0) {
-            queryWrapper.like("member_id", memberId);
-        }
-        if (!HFStringUtils.isNullOrEmpty(keyword)) {
-            queryWrapper.like("nick", keyword);
-        }
-
-        IPage<TaobaoAccountEntity> page = this.page(new Query<TaobaoAccountEntity>().getPage(params), queryWrapper);
-        return new PageUtils<TaobaoAccountEntity>(page);
-    }
-
-    @Override
     public List<TaobaoAccountEntity> getActivesByMember(SysMember sysMember, int count) {
         int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
 
-        return this.baseMapper.getActivesByMember(memberId, count);
+        return this.baseMapper.queryAccounts2(memberId, null, -1, count);
     }
 
+    @Override
     public synchronized void cacheAccount(TaobaoAccountEntity cacheAccountEntity) {
         if (cachedTaobaoAccountEntities == null) {
             cachedTaobaoAccountEntities = new ArrayList<>();
@@ -189,22 +165,61 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     }
 
     @Override
-    // @Cacheable(value = "getActiveAll")
     public List<TaobaoAccountEntity> getActiveAll() {
         if (cachedTaobaoAccountEntities == null) {
-            cachedTaobaoAccountEntities = this.baseMapper.getActiveAll();
+            cachedTaobaoAccountEntities = this.baseMapper.queryAccounts2(0,
+                    null, TaobaoAccountState.Normal.getState(), -1);
         }
         return cachedTaobaoAccountEntities;
     }
 
     @Override
-    public List<TaobaoAccountEntity> getActiveAllByMember(SysMember sysMember) {
-        if (sysMember == null || sysMember.isAdministrator() || sysMember.isNormal()) {
-            return this.getActiveAll();
+    public Date getLastUpdated() {
+        if (cachedTaobaoAccountEntities == null) {
+            return null;
         }
 
-        List<TaobaoAccountEntity> taobaoAccountEntities = this.getActiveAll();
-        taobaoAccountEntities.removeIf(acc -> acc.getMemberId() != sysMember.getId());
-        return  taobaoAccountEntities;
+        Date updated = null;
+        for (TaobaoAccountEntity taobaoAccountEntity : cachedTaobaoAccountEntities) {
+            if (updated == null) {
+                updated = taobaoAccountEntity.getUpdatedTime();
+            }
+            if (updated.getTime() < taobaoAccountEntity.getUpdatedTime().getTime()) {
+                updated = taobaoAccountEntity.getUpdatedTime();
+            }
+        }
+        return updated;
+    }
+
+    @Override
+    public synchronized int reloadUpdatedAccounts(Date updated) {
+        List<TaobaoAccountEntity> updatedAccounts =
+                this.baseMapper.queryAccounts2(0, updated, -1, -1);
+
+        int updatedCount = 0;
+        for (TaobaoAccountEntity taobaoAccountEntity : updatedAccounts) {
+            // 更新缓冲的小号数据
+            boolean found = false;
+            for (int idx = 0; idx < cachedTaobaoAccountEntities.size(); idx++) {
+                TaobaoAccountEntity cachedAccountEntity = cachedTaobaoAccountEntities.get(idx);
+                if (taobaoAccountEntity.getUid().compareTo(cachedAccountEntity.getUid()) == 0) {
+                    if (taobaoAccountEntity.getState() != TaobaoAccountState.Normal.getState()) {
+                        cachedTaobaoAccountEntities.remove(idx);
+                    } else {
+                        cachedTaobaoAccountEntities.set(idx, taobaoAccountEntity);
+                    }
+                    updatedCount++;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                if (taobaoAccountEntity.getState() == TaobaoAccountState.Normal.getState()) {
+                    cachedTaobaoAccountEntities.add(taobaoAccountEntity);
+                }
+                updatedCount++;
+            }
+        }
+        return updatedCount;
     }
 }
