@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>highest.flow</groupId>
-    <artifactId>taobaolive</artifactId>
+    <artifactId>back-service</artifactId>
     <version>1.0.1</version>
 
     <packaging>war</packaging>
