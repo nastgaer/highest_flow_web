@@ -201,7 +201,10 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
 
     @Override
     public R getLiveInfo(String taocode, TaobaoAccountEntity taobaoAccountEntity) {
-        return null;
+        LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+        liveRoomEntity.setLiveId(CommonUtils.randomNumeric(8));
+        liveRoomEntity.setAccountId(CommonUtils.randomNumeric(12));
+        return R.ok().put("live_room", liveRoomEntity);
     }
 
     @Override

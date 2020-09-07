@@ -327,9 +327,35 @@ public class AssistRankingTask implements ITask {
                 taobaoLiveApiService.checkInStatusWeb(activeAccount);
                 taobaoLiveApiService.getIntimacyDetail(liveRoomEntity, activeAccount);
 
-                // 关注
+                if (rankingEntity.isHasBuy())
+                {
+                    // 购买
+                    List<ProductEntity> productEntities = liveRoomEntity.getProducts();
+                    if (productEntities != null && productEntities.size() > 0) {
+                        String productId = productEntities.get(0).getProductId();
+                        for (int idx = 0; idx < 10; idx++) {
+                            R r = taobaoLiveApiService.taskBuy(liveRoomEntity, activeAccount, productId);
+//                        if (r.getCode() != ErrorCodes.SUCCESS) {
+//                            r = taobaoLiveApiService.taskBuy(liveRoomEntity, activeAccount, productId);
+//                        }
+//                        if (r.getCode() != ErrorCodes.SUCCESS) {
+//                            r = taobaoLiveApiService.taskBuy(liveRoomEntity, activeAccount, productId);
+//                        }
+
+                            if (!isRunning(rankingEntity)) {
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                if (!isRunning(rankingEntity)) {
+                    return;
+                }
+
                 if (rankingEntity.isHasFollow())
                 {
+                    // 关注
                     R r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
 //                    if (r.getCode() != ErrorCodes.SUCCESS) {
 //                        r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
@@ -359,32 +385,6 @@ public class AssistRankingTask implements ITask {
 
                         if (!isRunning(rankingEntity)) {
                             return;
-                        }
-                    }
-                }
-
-                if (!isRunning(rankingEntity)) {
-                    return;
-                }
-
-                if (rankingEntity.isHasBuy())
-                {
-                    // 购买
-                    List<ProductEntity> productEntities = liveRoomEntity.getProducts();
-                    if (productEntities != null && productEntities.size() > 0) {
-                        String productId = productEntities.get(0).getProductId();
-                        for (int idx = 0; idx < 10; idx++) {
-                            R r = taobaoLiveApiService.taskBuy(liveRoomEntity, activeAccount, productId);
-//                        if (r.getCode() != ErrorCodes.SUCCESS) {
-//                            r = taobaoLiveApiService.taskBuy(liveRoomEntity, activeAccount, productId);
-//                        }
-//                        if (r.getCode() != ErrorCodes.SUCCESS) {
-//                            r = taobaoLiveApiService.taskBuy(liveRoomEntity, activeAccount, productId);
-//                        }
-
-                            if (!isRunning(rankingEntity)) {
-                                return;
-                            }
                         }
                     }
                 }
