@@ -15,4 +15,17 @@
         <result property="createdTime" column="created_time"/>
     </resultMap>
 
+    <select id="queryAccountLogs" resultMap="logMap">
+        select log.*, member.member_name, member.level as member_level from tbl_accounts_logs log
+            left join tbl_members member on log.member_id = member.id
+            where
+                <if test="member_id > 0">
+                    log.member_id = #{member_id} and
+                </if>
+                <if test="keyword != null and keyword.length() > 0">
+                    ((log.nick is not null and log.nick like "%"#{keyword}"%") or (member.member_name is not null and member.member_name like "%"#{keyword}"%")) and
+                </if>
+                1
+    </select>
+
 </mapper>

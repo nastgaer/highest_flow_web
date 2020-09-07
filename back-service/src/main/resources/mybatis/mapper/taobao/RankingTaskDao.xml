@@ -27,7 +27,26 @@
     </resultMap>
 
     <select id="queryTodaysTask" resultMap="rankingTaskMap">
-        select * from tbl_ranking_task where start_time is null or DATE_FORMAT(start_time, "%Y-%m-%d") like #{today};
+        select task.*, member.member_name, member.level as member_level from tbl_ranking_task task
+            left join tbl_members member on task.member_id = member.id
+            where
+                <if test="member_id > 0">
+                    task.member_id = #{member_id} and
+                </if>
+                (task.start_time is null or DATE_FORMAT(task.start_time, "%Y-%m-%d") like #{today})
+    </select>
+
+    <select id="queryTasks" resultMap="rankingTaskMap">
+        select task.*, member.member_name, member.level as member_level from tbl_ranking_task task
+          left join tbl_members member on task.member_id = member.id
+          where
+            <if test="member_id > 0">
+                task.member_id = #{member_id} and
+            </if>
+            <if test="keyword != null and keyword.length() > 0">
+                ((task.room_name is not null and task.room_name like "%"#{keyword}"%") or (member.member_name is not null and member.member_name like "%"#{keyword}"%")) and
+            </if>
+            1
     </select>
 
 </mapper>

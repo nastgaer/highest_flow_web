@@ -40,16 +40,10 @@ public class TaobaoAccountLogServiceImpl extends ServiceImpl<TaobaoAccountLogDao
         Map<String, Object> params = new HashMap<>();
         params.put(Query.PAGE, pageNo);
         params.put(Query.LIMIT, pageSize);
+        params.put(Query.ORDER_FIELD, "id");
+        params.put(Query.ORDER, "ASC");
 
-        QueryWrapper<TaobaoAccountLogEntity> queryWrapper = new QueryWrapper<>();
-        if (!HFStringUtils.isNullOrEmpty(keyword)) {
-            queryWrapper.like("nick", keyword);
-        }
-        if (memberId > 0) {
-            queryWrapper.like("member_id", memberId);
-        }
-
-        IPage<TaobaoAccountLogEntity> page = this.page(new Query<TaobaoAccountLogEntity>().getPage(params), queryWrapper);
+        IPage<TaobaoAccountLogEntity> page = this.baseMapper.queryAccountLogs(new Query<TaobaoAccountLogEntity>().getPage(params), memberId, keyword);
         return new PageUtils<TaobaoAccountLogEntity>(page);
     }
 }

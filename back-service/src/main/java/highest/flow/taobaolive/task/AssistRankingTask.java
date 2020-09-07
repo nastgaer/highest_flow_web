@@ -270,6 +270,8 @@ public class AssistRankingTask implements ITask {
                 rankingEntity.setUpdatedTime(new Date());
                 rankingService.updateById(rankingEntity);
             }
+            // 设置定时任务状态为停止
+            rankingService.stopTask(rankingEntity);
 
             logger.info("打助力结束");
         }

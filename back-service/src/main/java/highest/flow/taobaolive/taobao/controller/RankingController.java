@@ -266,13 +266,15 @@ public class RankingController extends AbstractController {
     @PostMapping("/todays")
     public R todays(@RequestBody TodayRankingParam param) {
         try {
+            SysMember sysMember = this.getUser();
+
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
             // 前一天没有结束的也要返回
             Date today = param.getCurrentDate();
             Date yesterday = CommonUtils.addDays(today, -1);
-            List<RankingEntity> yesterdayEntities = this.rankingService.getTodaysTask(sdf.format(yesterday));
-            List<RankingEntity> todayEntities = this.rankingService.getTodaysTask(sdf.format(today));
+            List<RankingEntity> yesterdayEntities = this.rankingService.getTodaysTask(sysMember, sdf.format(yesterday));
+            List<RankingEntity> todayEntities = this.rankingService.getTodaysTask(sysMember, sdf.format(today));
 
             for (int idx = yesterdayEntities.size() - 1; idx >= 0; idx--) {
                 RankingEntity rankingEntity = yesterdayEntities.get(idx);

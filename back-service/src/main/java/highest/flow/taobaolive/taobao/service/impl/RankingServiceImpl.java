@@ -85,22 +85,18 @@ public class RankingServiceImpl extends ServiceImpl<RankingTaskDao, RankingEntit
         Map<String, Object> params = new HashMap<>();
         params.put(Query.PAGE, pageNo);
         params.put(Query.LIMIT, pageSize);
+        params.put(Query.ORDER_FIELD, "id");
+        params.put(Query.ORDER, "ASC");
 
-        QueryWrapper<RankingEntity> queryWrapper = new QueryWrapper<>();
-        if (!HFStringUtils.isNullOrEmpty(keyword)) {
-            queryWrapper.like("room_name", keyword);
-        }
-        if (memberId > 0) {
-            queryWrapper.eq("member_id", memberId);
-        }
-
-        IPage<RankingEntity> page = this.page(new Query<RankingEntity>().getPage(params), queryWrapper);
+        IPage<RankingEntity> page = this.baseMapper.queryTasks(new Query<RankingEntity>().getPage(params), memberId, keyword);
         return new PageUtils<RankingEntity>(page);
     }
 
     @Override
-    public List<RankingEntity> getTodaysTask(String today) {
-        return this.baseMapper.queryTodaysTask(today);
+    public List<RankingEntity> getTodaysTask(SysMember sysMember, String today) {
+        int memberId = sysMember == null || sysMember.isAdministrator() ? 0 : sysMember.getId();
+
+        return this.baseMapper.queryTodaysTask(memberId, today);
     }
 
     @Override

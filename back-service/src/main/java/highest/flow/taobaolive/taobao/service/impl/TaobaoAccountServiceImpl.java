@@ -49,8 +49,6 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
         params.put(Query.ORDER_FIELD, "id");
         params.put(Query.ORDER, "ASC");
 
-        QueryWrapper<TaobaoAccountEntity> queryWrapper = new QueryWrapper<>();
-
         IPage<TaobaoAccountEntity> page = this.baseMapper.queryAccounts(new Query<TaobaoAccountEntity>().getPage(params), memberId, keyword);
         return new PageUtils<TaobaoAccountEntity>(page);
     }

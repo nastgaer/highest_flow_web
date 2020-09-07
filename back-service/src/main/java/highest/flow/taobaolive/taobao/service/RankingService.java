@@ -20,7 +20,7 @@ public interface RankingService extends IService<RankingEntity> {
 
     PageUtils queryPage(SysMember sysMember, PageParam pageParam);
 
-    List<RankingEntity> getTodaysTask(String today);
+    List<RankingEntity> getTodaysTask(SysMember sysMember, String today);
 
     List<RankingEntity> getRunningTasks(SysMember sysMember);
 
