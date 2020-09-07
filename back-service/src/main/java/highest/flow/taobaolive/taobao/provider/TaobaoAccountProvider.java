@@ -45,7 +45,7 @@ public class TaobaoAccountProvider {
                         logger.info("已经更新" + count + "个小号, 正常小号数：" + taobaoAccountService.getActiveAll().size());
                     }
 
-                    Thread.sleep(60 * 1000);
+                    Thread.sleep(5*60 * 1000);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
