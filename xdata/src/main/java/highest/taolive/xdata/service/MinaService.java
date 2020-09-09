@@ -39,6 +39,25 @@ public class MinaService {
 
     private static Random random = new Random();
 
+    private static Runnable monitor = new Runnable() {
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    if (sessiones == null || sessiones.size() == 0) {
+                        logger.info("暂无设备");
+                    } else {
+                        logger.info("正常设备数：" + sessiones.size());
+                    }
+                    Thread.sleep(60 * 1000);
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+    };
+
     public static String sendMessage(String message) {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("ret", 100);
@@ -104,6 +123,8 @@ public class MinaService {
             e.printStackTrace();
         }
         logger.info("启动服务");
+
+        new Thread(monitor).start();
     }
 
     public static void stop() {
