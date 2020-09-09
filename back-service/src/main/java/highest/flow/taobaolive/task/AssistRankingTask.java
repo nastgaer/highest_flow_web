@@ -329,6 +329,23 @@ public class AssistRankingTask implements ITask {
                 taobaoLiveApiService.checkInStatusWeb(activeAccount);
                 taobaoLiveApiService.getIntimacyDetail(liveRoomEntity, activeAccount);
 
+                if (rankingEntity.isHasFollow())
+                {
+                    // 关注
+                    R r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
+//                    if (r.getCode() != ErrorCodes.SUCCESS) {
+//                        r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
+//                    }
+//                    if (r.getCode() != ErrorCodes.SUCCESS) {
+//                        r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
+//                    }
+                    taobaoLiveApiService.taskCompleteWeb(activeAccount);
+                }
+
+                if (!isRunning(rankingEntity)) {
+                    return;
+                }
+
                 if (rankingEntity.isHasBuy())
                 {
                     // 购买
@@ -349,23 +366,6 @@ public class AssistRankingTask implements ITask {
                             }
                         }
                     }
-                }
-
-                if (!isRunning(rankingEntity)) {
-                    return;
-                }
-
-                if (rankingEntity.isHasFollow())
-                {
-                    // 关注
-                    R r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
-//                    if (r.getCode() != ErrorCodes.SUCCESS) {
-//                        r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
-//                    }
-//                    if (r.getCode() != ErrorCodes.SUCCESS) {
-//                        r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
-//                    }
-                    taobaoLiveApiService.taskCompleteWeb(activeAccount);
                 }
 
                 if (!isRunning(rankingEntity)) {

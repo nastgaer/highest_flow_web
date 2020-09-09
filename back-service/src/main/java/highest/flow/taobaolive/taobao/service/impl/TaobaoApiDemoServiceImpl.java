@@ -10,6 +10,7 @@ import highest.flow.taobaolive.common.http.cookie.DefaultCookieStorePool;
 import highest.flow.taobaolive.common.http.httpclient.response.Response;
 import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
+import highest.flow.taobaolive.common.utils.NumberUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.taobao.defines.RankingScore;
 import highest.flow.taobaolive.taobao.entity.*;
@@ -23,6 +24,7 @@ import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
 
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.util.Date;
@@ -127,7 +129,132 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
 
     @Override
     public R parseTaoCode(String taocode) {
-        return null;
+        try {
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("passwordContent", taocode);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            String subUrl = "mtop.taobao.sharepassword.querypassword";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
+
+            XHeader xHeader = new XHeader(new Date());
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer("1.0");
+            xHeader.setData(jsonText);
+            xHeader.setXsign(signService.xsign(xHeader));
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
+            String creatorId = HFStringUtils.valueOf(mapData.get("taopwdOwnerId"));
+            String talentLiveUrl = HFStringUtils.valueOf(mapData.get("url"));
+            String liveId = "";
+            String liveUrl = URLDecoder.decode(talentLiveUrl);
+            String[] words = liveUrl.split("[::?&/]");
+            for (String word : words) {
+                if (word.startsWith("id=")) {
+                    liveId = word.substring("id=".length());
+                    break;
+                }
+            }
+            String accountId = "";
+            int pos = liveUrl.indexOf("\"account_id\":");
+            if (pos >= 0) {
+                pos += "\"account_id\":".length();
+                int nextpos = liveUrl.indexOf("\"", pos + 1);
+                accountId = liveUrl.substring(pos + 1, nextpos - 1);
+            }
+            String content = HFStringUtils.valueOf(mapData.get("content"));
+            String accountName = content;
+            pos = content.indexOf("的直播");
+            if (pos >= 0) {
+                accountName = content.substring(0, pos);
+            }
+
+            return R.ok()
+                    .put("creator_id", creatorId)
+                    .put("talent_live_url", talentLiveUrl)
+                    .put("live_id", liveId)
+                    .put("account_id", accountId)
+                    .put("account_name", accountName);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
+    public R getAnchorInfo(String creatorId) {
+        try {
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("broadcasterId", creatorId);
+            jsonParams.put("start", 0);
+            jsonParams.put("limit", 10);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            String subUrl = "mtop.mediaplatform.anchor.info";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
+
+            XHeader xHeader = new XHeader(new Date());
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer("1.0");
+            xHeader.setData(jsonText);
+            xHeader.setXsign(signService.xsign(xHeader));
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
+            Map<String, Object> mapLiveVideo = (Map<String, Object>) mapData.get("liveVideo");
+            String liveId = mapLiveVideo == null ? "" : (String)mapLiveVideo.get("liveId");
+
+            return R.ok()
+                    .put("live_id", liveId);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
     }
 
     @Override
@@ -137,7 +264,86 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
 
     @Override
     public R getLivePreGet(String liveId) {
-        return null;
+        try {
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("feedId", liveId);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            String subUrl = "mtop.mediaplatform.live.pre.get";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/2.0/?data=" + URLEncoder.encode(jsonText);
+
+            XHeader xHeader = new XHeader(new Date());
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer("2.0");
+            xHeader.setData(jsonText);
+            xHeader.setXsign(signService.xsign(xHeader));
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error("解析直播间信息失败");
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
+            Map<String, Object> mapBroadCaster = (Map<String, Object>) mapData.get("broadCaster");
+            String accountId = HFStringUtils.valueOf(mapBroadCaster.get("accountId"));
+            String accountName = HFStringUtils.valueOf(mapBroadCaster.get("accountName"));
+            int fansNum = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBroadCaster.get("fansNum"))));
+
+            String topic = HFStringUtils.valueOf(mapData.get("topic"));
+            int viewCount = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("viewCount"))));
+            int praiseCount = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("praiseCount"))));
+            int onlineCount = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("joinCount"))));
+
+            long startTimestamp = NumberUtils.valueOf(NumberUtils.parseLong(HFStringUtils.valueOf(mapData.get("startTime"))));
+            Date startTime = CommonUtils.timestampToDate(startTimestamp);
+            String coverImg = HFStringUtils.valueOf(mapData.get("coverImg"));
+            String coverImg169 = HFStringUtils.valueOf(mapData.get("coverImg169"));
+            String title = HFStringUtils.valueOf(mapData.get("title"));
+            String intro = HFStringUtils.valueOf(mapData.get("descInfo"));
+            int channelId = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("liveChannelId"))));
+            int columnId = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("liveColumnId"))));
+            String location = HFStringUtils.valueOf(mapData.get("location"));
+            int roomStatus = NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapData.get("roomStatus"))));
+
+            return R.ok()
+                    .put("account_id", accountId)
+                    .put("account_name", accountName)
+                    .put("fans_num", fansNum)
+                    .put("topic", topic)
+                    .put("view_count", viewCount)
+                    .put("praise_count", praiseCount)
+                    .put("online_count", onlineCount)
+                    .put("start_time", startTime)
+                    .put("cover_img", coverImg)
+                    .put("cover_img169", coverImg169)
+                    .put("title", title)
+                    .put("intro", intro)
+                    .put("channel_id", channelId)
+                    .put("column_id", columnId)
+                    .put("location", location)
+                    .put("room_status", roomStatus);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
     }
 
     @Override
@@ -201,10 +407,60 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
 
     @Override
     public R getLiveInfo(String taocode, TaobaoAccountEntity taobaoAccountEntity) {
-        LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
-        liveRoomEntity.setLiveId(CommonUtils.randomNumeric(8));
-        liveRoomEntity.setAccountId(CommonUtils.randomNumeric(12));
-        return R.ok().put("live_room", liveRoomEntity);
+        try {
+            R r = this.parseTaoCode(taocode);
+            if (r.getCode() != ErrorCodes.SUCCESS) {
+                return r;
+            }
+
+            String liveId = (String) r.get("live_id");
+            String creatorId = (String) r.get("creator_id");
+            String talentLiveUrl = (String) r.get("talent_live_url");
+            if (HFStringUtils.isNullOrEmpty(liveId)) {
+                r = this.getAnchorInfo(creatorId);
+                if (r.getCode() != ErrorCodes.SUCCESS) {
+                    return r;
+                }
+                liveId = (String) r.get("live_id");
+            }
+
+            if (HFStringUtils.isNullOrEmpty(liveId)) {
+                return R.error("没有直播内容");
+            }
+
+            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+            liveRoomEntity.setLiveId(liveId);
+            liveRoomEntity.setCreatorId(creatorId);
+            liveRoomEntity.setTalentLiveUrl(talentLiveUrl);
+
+            r = this.getLivePreGet(liveId);
+            if (r.getCode() != ErrorCodes.SUCCESS) {
+                return r;
+            }
+
+            liveRoomEntity.setAccountId((String) r.get("account_id"));
+            liveRoomEntity.setAccountName((String) r.get("account_name"));
+            liveRoomEntity.setFansNum((int) r.get("fans_num"));
+            liveRoomEntity.setTopic((String) r.get("topic"));
+            liveRoomEntity.setViewCount((int) r.get("view_count"));
+            liveRoomEntity.setPraiseCount((int) r.get("praise_count"));
+            liveRoomEntity.setOnlineCount((int) r.get("online_count"));
+            liveRoomEntity.setLiveCoverImg((String) r.get("cover_img"));
+            liveRoomEntity.setLiveCoverImg169((String) r.get("cover_img169"));
+            liveRoomEntity.setLiveTitle((String) r.get("title"));
+            liveRoomEntity.setLiveIntro((String) r.get("intro"));
+            liveRoomEntity.setLiveChannelId((int) r.get("channel_id"));
+            liveRoomEntity.setLiveColumnId((int) r.get("column_id"));
+            liveRoomEntity.setLiveLocation((String) r.get("location"));
+
+            this.getRankingListData(liveRoomEntity, taobaoAccountEntity);
+
+            return R.ok().put("live_room", liveRoomEntity);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
     }
 
     @Override

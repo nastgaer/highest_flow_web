@@ -77,6 +77,13 @@ public interface TaobaoApiService {
     public R parseTaoCode(String taocode);
 
     /**
+     * 根据主播用户ID获取直播中的直播间ID
+     * @param creatorId
+     * @return
+     */
+    public R getAnchorInfo(String creatorId);
+
+    /**
      * 获取直播间详细信息
      * @param liveId
      * @return

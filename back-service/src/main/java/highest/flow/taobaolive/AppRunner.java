@@ -95,7 +95,7 @@ public class AppRunner implements CommandLineRunner {
                 scheduleJobEntity.setBeanName("autoLoginTask");
                 scheduleJobEntity.setParams(null);
                 // EVERY 4 hours begining at 0:00
-                scheduleJobEntity.setCronExpression("0 5 0/8 ? * * *");
+                scheduleJobEntity.setCronExpression("0 30 0/8 ? * * *");
                 scheduleJobEntity.setCreatedTime(new Date());
                 scheduleJobEntity.setState(ScheduleState.NORMAL.getValue());
                 scheduleJobEntity.setRemark("延期任务");

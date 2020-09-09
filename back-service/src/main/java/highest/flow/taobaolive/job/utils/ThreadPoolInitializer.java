@@ -35,6 +35,7 @@ public class ThreadPoolInitializer {
         threadPoolExecutor.setCorePoolSize(corePoolSize);
         threadPoolExecutor.setMaxPoolSize(maxPoolSize);
         threadPoolExecutor.setQueueCapacity(queueCapacity);
+        threadPoolExecutor.setKeepAliveSeconds(3);
         threadPoolExecutor.setRejectedExecutionHandler(new RejectedExecutionHandlerImpl());
         threadPoolExecutor.setThreadNamePrefix("ranking-");
         return threadPoolExecutor;

@@ -8,7 +8,6 @@ import highest.flow.taolive.xdata.http.SiteConfig;
 import highest.flow.taolive.xdata.http.httpclient.response.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -16,18 +15,18 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 @SpringBootApplication
-public class XdataApplication implements ApplicationRunner {
+public class TestXsignApplication implements ApplicationRunner {
 
     public static void main(String[] args) {
-        SpringApplication.run(XdataApplication.class, args);
+        SpringApplication.run(TestXsignApplication.class, args);
     }
 
     private String method = "md5";
@@ -43,6 +42,10 @@ public class XdataApplication implements ApplicationRunner {
 
     @Value("${sign.url:http://localhost:9999/xdata}")
     private String signUrl = "";
+
+    @Value("${sign.mode:xposed")
+    private String signMode = "";
+
 
     public void testXData(int count) {
         Map<String, String> map = new HashMap<>();
@@ -84,49 +87,86 @@ public class XdataApplication implements ApplicationRunner {
 
     private String callXsign(Map<String, String> map) {
         try {
-            CryptoHelper cryptoHelper = new CryptoHelper(method, prefix, suffix, encryptKey);
+            if (signMode.toLowerCase().compareTo("xposed") == 0) {
+                CryptoHelper cryptoHelper = new CryptoHelper(method, prefix, suffix, encryptKey);
 
-            String url = signUrl;
+                String url = signUrl;
 
-            String jsonText = JSON.toJSONString(map);
-            String encoded = cryptoHelper.encrypt(jsonText);
+                String jsonText = JSON.toJSONString(map);
+                String encoded = cryptoHelper.encrypt(jsonText);
 
-            Map<String, String> postParams = new HashMap<>();
-            postParams.put("data", encoded);
-            postParams.put("sign", cryptoHelper.sign(encoded));
+                Map<String, String> postParams = new HashMap<>();
+                postParams.put("data", encoded);
+                postParams.put("sign", cryptoHelper.sign(encoded));
 
-            Response<String> response = HttpHelper.execute(
-                    new SiteConfig()
-                            .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
-                            .addHeader("Content-Type", "application/x-www-form-urlencoded"),
-                    new Request("POST", url, ResponseType.TEXT)
-                            .setParameters(postParams));
-            if (response.getStatusCode() != HttpStatus.SC_OK) {
-                return null;
-            }
+                Response<String> response = HttpHelper.execute(
+                        new SiteConfig()
+                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+                                .addHeader("Content-Type", "application/x-www-form-urlencoded"),
+                        new Request("POST", url, ResponseType.TEXT)
+                                .setParameters(postParams));
+                if (response.getStatusCode() != HttpStatus.SC_OK) {
+                    return null;
+                }
 
-            String respText = response.getResult();
+                String respText = response.getResult();
 
-            if (respText == null) {
-                return null;
-            }
+                if (respText == null) {
+                    return null;
+                }
 
-            JsonParser jsonParser = JsonParserFactory.getJsonParser();
-            Map<String, Object> mapResp = jsonParser.parseMap(respText);
+                JsonParser jsonParser = JsonParserFactory.getJsonParser();
+                Map<String, Object> mapResp = jsonParser.parseMap(respText);
 
-            Map<String, Object> mapData = (Map) mapResp.get("data");
+                Map<String, Object> mapData = (Map) mapResp.get("data");
 
-            String version = mapData == null || !mapData.containsKey("version") ? "" : String.valueOf(mapData.get("version"));
-            String xsign = mapData == null || !mapData.containsKey("xsign") ? "" : String.valueOf(mapData.get("xsign"));
-            String wua = mapData == null || !mapData.containsKey("wua") ? "" : String.valueOf(mapData.get("wua"));
-            String sgext = mapData == null || !mapData.containsKey("x-sgext") ? "" : String.valueOf(mapData.get("x-sgext"));
-            String miniWua = mapData == null || !mapData.containsKey("x-mini-wua") ? "" : String.valueOf(mapData.get("x-mini-wua"));
-            String umt = mapData == null || !mapData.containsKey("x-umt") ? "" : String.valueOf(mapData.get("x-umt"));
+                String version = mapData == null || !mapData.containsKey("version") ? "" : String.valueOf(mapData.get("version"));
+                String xsign = mapData == null || !mapData.containsKey("xsign") ? "" : String.valueOf(mapData.get("xsign"));
+                String wua = mapData == null || !mapData.containsKey("wua") ? "" : String.valueOf(mapData.get("wua"));
+                String sgext = mapData == null || !mapData.containsKey("x-sgext") ? "" : String.valueOf(mapData.get("x-sgext"));
+                String miniWua = mapData == null || !mapData.containsKey("x-mini-wua") ? "" : String.valueOf(mapData.get("x-mini-wua"));
+                String umt = mapData == null || !mapData.containsKey("x-umt") ? "" : String.valueOf(mapData.get("x-umt"));
 
-            xsign = StringUtils.strip(xsign, "\"\r\n");
+                xsign = StringUtils.strip(xsign, "\"\r\n");
 
-            if (xsign.startsWith("ab2")) {
-                return xsign;
+                if (xsign.startsWith("ab2")) {
+                    return xsign;
+                }
+
+            } else if (signMode.toLowerCase().compareTo("frida") == 0) {
+                String url = signUrl + "&";
+
+                for (String key : map.keySet()) {
+                    url += key + "=" + URLEncoder.encode(map.get(key)) + "&";
+                }
+
+                Response<String> response = HttpHelper.execute(
+                        new SiteConfig()
+                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+                                .addHeader("Content-Type", "application/x-www-form-urlencoded"),
+                        new Request("GET", url, ResponseType.TEXT));
+                if (response.getStatusCode() != HttpStatus.SC_OK) {
+                    return null;
+                }
+
+                String respText = response.getResult();
+
+                if (respText == null) {
+                    return null;
+                }
+
+                JsonParser jsonParser = JsonParserFactory.getJsonParser();
+                Map<String, Object> mapResp = jsonParser.parseMap(respText);
+
+                Map<String, Object> mapData = (Map) mapResp.get("data");
+
+                String xsign = mapData == null || !mapData.containsKey("x-sign") ? "" : String.valueOf(mapData.get("x-sign"));
+
+                xsign = StringUtils.strip(xsign, "\"\r\n");
+
+                if (xsign.startsWith("ab2")) {
+                    return xsign;
+                }
             }
 
         } catch (Exception ex) {

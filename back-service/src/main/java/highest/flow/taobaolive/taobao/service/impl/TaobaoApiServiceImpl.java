@@ -170,6 +170,59 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
+    public R getAnchorInfo(String creatorId) {
+        try {
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("broadcasterId", creatorId);
+            jsonParams.put("start", 0);
+            jsonParams.put("limit", 10);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            String subUrl = "mtop.mediaplatform.anchor.info";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
+
+            XHeader xHeader = new XHeader(new Date());
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer("1.0");
+            xHeader.setData(jsonText);
+            xHeader.setXsign(signService.xsign(xHeader));
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
+            Map<String, Object> mapLiveVideo = (Map<String, Object>) mapData.get("liveVideo");
+            String liveId = mapLiveVideo == null ? "" : (String)mapLiveVideo.get("liveId");
+
+            return R.ok()
+                    .put("live_id", liveId);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
     public R getLiveDetail(String liveId, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -990,12 +1043,26 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                 return r;
             }
 
-            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
-            liveRoomEntity.setLiveId((String) r.get("live_id"));
-            liveRoomEntity.setCreatorId((String) r.get("creator_id"));
-            liveRoomEntity.setTalentLiveUrl((String) r.get("talent_live_url"));
-
             String liveId = (String) r.get("live_id");
+            String creatorId = (String) r.get("creator_id");
+            String talentLiveUrl = (String) r.get("talent_live_url");
+            if (HFStringUtils.isNullOrEmpty(liveId)) {
+                r = this.getAnchorInfo(creatorId);
+                if (r.getCode() != ErrorCodes.SUCCESS) {
+                    return r;
+                }
+                liveId = (String) r.get("live_id");
+            }
+
+            if (HFStringUtils.isNullOrEmpty(liveId)) {
+                return R.error("没有直播内容");
+            }
+
+            LiveRoomEntity liveRoomEntity = new LiveRoomEntity();
+            liveRoomEntity.setLiveId(liveId);
+            liveRoomEntity.setCreatorId(creatorId);
+            liveRoomEntity.setTalentLiveUrl(talentLiveUrl);
+
             r = this.getLivePreGet(liveId);
             if (r.getCode() != ErrorCodes.SUCCESS) {
                 return r;
@@ -1018,7 +1085,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             if (taobaoAccountEntity != null) {
                 this.getH5Token(taobaoAccountEntity);
-                this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+                this.getRankingListData(liveRoomEntity, taobaoAccountEntity);
             }
 
             return R.ok().put("live_room", liveRoomEntity);
