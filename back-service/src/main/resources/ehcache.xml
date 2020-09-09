@@ -21,8 +21,8 @@
         </expiry>
 
         <resources>
-            <heap unit="entries">1000</heap>
-            <offheap unit="MB">100</offheap>
+            <heap unit="entries">10000</heap>
+            <offheap unit="MB">1000</offheap>
         </resources>
     </cache>
 

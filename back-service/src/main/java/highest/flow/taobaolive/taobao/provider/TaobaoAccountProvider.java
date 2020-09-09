@@ -4,6 +4,7 @@ import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -17,6 +18,9 @@ public class TaobaoAccountProvider {
     private TaobaoAccountService taobaoAccountService;
 
     private Thread autoUpdate = null;
+
+    @Value("${autologin.slave.auto-update:300}")
+    private int autoUpdatePeriod;
 
     public void initialize() {
         try {
@@ -45,7 +49,7 @@ public class TaobaoAccountProvider {
                         logger.info("已经更新" + count + "个小号, 正常小号数：" + taobaoAccountService.getActiveAll().size());
                     }
 
-                    Thread.sleep(5*60 * 1000);
+                    Thread.sleep(autoUpdatePeriod * 1000);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

@@ -31,7 +31,7 @@ public class AppRunner implements CommandLineRunner {
     @Autowired
     private ScheduleJobService schedulerJobService;
 
-    @Value("${autologin.init-start:false}")
+    @Value("${autologin.master.init-start:false}")
     private boolean initStart;
 
     @Autowired
@@ -64,7 +64,7 @@ public class AppRunner implements CommandLineRunner {
                 ScheduleJobEntity scheduleJobEntity = new ScheduleJobEntity();
                 scheduleJobEntity.setBeanName("memberServiceTask");
                 scheduleJobEntity.setParams(null);
-                scheduleJobEntity.setCronExpression("0 0 0 ? * * *");
+                scheduleJobEntity.setCronExpression("0 30 2 ? * * *");
                 scheduleJobEntity.setCreatedTime(new Date());
                 scheduleJobEntity.setState(ScheduleState.NORMAL.getValue());
                 scheduleJobEntity.setRemark("会员服务任务");

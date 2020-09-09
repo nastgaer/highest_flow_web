@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -156,11 +157,37 @@ public class SignController {
         return R.error("xsign验证失败");
     }
 
-    @PostMapping("/xdata2")
-    public R xsign2(@RequestParam(name = "data") String data, @RequestParam(name = "sign") String sign) {
+    @GetMapping("/xdata2")
+    public R xsign2(@RequestParam(name = "utdid") String utdid,
+                    @RequestParam(name = "uid") String uid,
+                    @RequestParam(name = "appkey") String appkey,
+                    @RequestParam(name = "sid") String sid,
+                    @RequestParam(name = "ttid") String ttid,
+                    @RequestParam(name = "pv") String pv,
+                    @RequestParam(name = "devid") String devid,
+                    @RequestParam(name = "location1") String location1,
+                    @RequestParam(name = "location2") String location2,
+                    @RequestParam(name = "features") String features,
+                    @RequestParam(name = "subUrl") String subUrl,
+                    @RequestParam(name = "urlVer") String urlVer,
+                    @RequestParam(name = "timestamp") long timestamp,
+                    @RequestParam(name = "data") String data) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            XHeader xHeader = objectMapper.readValue(data, XHeader.class);
+            XHeader xHeader = new XHeader();
+            xHeader.setUtdid(utdid);
+            xHeader.setUid(uid);
+            xHeader.setAppkey(appkey);
+            xHeader.setSid(sid);
+            xHeader.setTtid(ttid);
+            xHeader.setPv(pv);
+            xHeader.setDevid(devid);
+            xHeader.setLocation1(location1);
+            xHeader.setLocation2(location2);
+            xHeader.setFeatures(features);
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer(urlVer);
+            xHeader.setTimestamp(timestamp);
+            xHeader.setData(data);
 
             // Convert XHeader to MTopSignParam
             MTopSignParam mTopSignParam = new MTopSignParam();
@@ -187,6 +214,7 @@ public class SignController {
                 return R.error(ErrorCodes.INVALID_PARAMETER, "不合法参数");
             }
 
+            ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(mTopSignParam);
 
 //            logger.info("<< " + jsonText);

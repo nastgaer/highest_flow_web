@@ -262,10 +262,6 @@ public class AssistRankingTask implements ITask {
 
         } finally {
             if (rankingEntity != null) {
-                if (liveRoomEntity != null && activeAccountEntity != null) {
-                    updateScore(rankingEntity, liveRoomEntity, activeAccountEntity);
-                }
-
                 rankingEntity.setEndTime(new Date());
                 rankingEntity.setUpdatedTime(new Date());
                 rankingService.updateById(rankingEntity);

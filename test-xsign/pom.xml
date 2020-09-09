@@ -12,7 +12,7 @@
     <artifactId>test-xsign</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
-    <name>xdata</name>
+    <name>test-xsign</name>
     <description>测试代码</description>
 
     <properties>

@@ -35,14 +35,22 @@ public class AutoLoginTask implements ITask {
     @Autowired
     private TaobaoAccountLogService taobaoAccountLogService;
 
-    @Value("${autologin.thread-count:10}")
+    @Value("${autologin.master.thread-count:30}")
     private int threadCount;
+
+    @Value("${autologin.situation:master")
+    private String situation;
 
     private CountDownLatch countDownLatch = null;
 
     @Override
     public void run(ScheduleJobEntity scheduleJobEntity) {
         String params = scheduleJobEntity == null ? "" : scheduleJobEntity.getParams();
+
+        // 只有master能自动延期
+        if (situation.toLowerCase().compareTo("master") != 0) {
+            return;
+        }
 
         try {
             int totalCount = this.taobaoAccountService.count();

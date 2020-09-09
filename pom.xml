@@ -10,8 +10,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>back-service</module>
-        <module>autologin</module>
+		<module>back-service</module>
+        <module>test-xsign</module>
         <module>xdata</module>
     </modules>
 

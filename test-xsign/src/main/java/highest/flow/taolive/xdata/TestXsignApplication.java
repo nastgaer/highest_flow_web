@@ -43,12 +43,12 @@ public class TestXsignApplication implements ApplicationRunner {
     @Value("${sign.url:http://localhost:9999/xdata}")
     private String signUrl = "";
 
-    @Value("${sign.mode:xposed")
+    @Value("${sign.mode:xposed}")
     private String signMode = "";
 
 
     public void testXData(int count) {
-        Map<String, String> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         map.put("utdid", "");
         map.put("uid", "");
         map.put("appkey", "25443018");
@@ -61,7 +61,7 @@ public class TestXsignApplication implements ApplicationRunner {
         map.put("features", "27");
         map.put("subUrl", "mtop.taobao.sharepassword.querypassword");
         map.put("urlVer", "1.0");
-        map.put("timestamp", "1599203806");
+        map.put("timestamp", 1599203806);
         map.put("data", "{\"passwordContent\":\"￥YIJNcWAbEW3￥\"}");
 
         long startTime = System.currentTimeMillis();
@@ -85,7 +85,7 @@ public class TestXsignApplication implements ApplicationRunner {
         System.out.println("总共耗时：" + times + "毫秒");
     }
 
-    private String callXsign(Map<String, String> map) {
+    private String callXsign(Map<String, Object> map) {
         try {
             if (signMode.toLowerCase().compareTo("xposed") == 0) {
                 CryptoHelper cryptoHelper = new CryptoHelper(method, prefix, suffix, encryptKey);
@@ -133,11 +133,51 @@ public class TestXsignApplication implements ApplicationRunner {
                     return xsign;
                 }
 
-            } else if (signMode.toLowerCase().compareTo("frida") == 0) {
-                String url = signUrl + "&";
+            } else if (signMode.toLowerCase().compareTo("xposed2") == 0) {
+                String url = signUrl + "?";
 
                 for (String key : map.keySet()) {
-                    url += key + "=" + URLEncoder.encode(map.get(key)) + "&";
+                    url += key + "=" + URLEncoder.encode(String.valueOf(map.get(key))) + "&";
+                }
+
+                Response<String> response = HttpHelper.execute(
+                        new SiteConfig()
+                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+                                .addHeader("Content-Type", "application/x-www-form-urlencoded"),
+                        new Request("GET", url, ResponseType.TEXT));
+                if (response.getStatusCode() != HttpStatus.SC_OK) {
+                    return null;
+                }
+
+                String respText = response.getResult();
+
+                if (respText == null) {
+                    return null;
+                }
+
+                JsonParser jsonParser = JsonParserFactory.getJsonParser();
+                Map<String, Object> mapResp = jsonParser.parseMap(respText);
+
+                Map<String, Object> mapData = (Map) mapResp.get("data");
+
+                String version = mapData == null || !mapData.containsKey("version") ? "" : String.valueOf(mapData.get("version"));
+                String xsign = mapData == null || !mapData.containsKey("xsign") ? "" : String.valueOf(mapData.get("xsign"));
+                String wua = mapData == null || !mapData.containsKey("wua") ? "" : String.valueOf(mapData.get("wua"));
+                String sgext = mapData == null || !mapData.containsKey("x-sgext") ? "" : String.valueOf(mapData.get("x-sgext"));
+                String miniWua = mapData == null || !mapData.containsKey("x-mini-wua") ? "" : String.valueOf(mapData.get("x-mini-wua"));
+                String umt = mapData == null || !mapData.containsKey("x-umt") ? "" : String.valueOf(mapData.get("x-umt"));
+
+                xsign = StringUtils.strip(xsign, "\"\r\n");
+
+                if (xsign.startsWith("ab2")) {
+                    return xsign;
+                }
+
+            } else if (signMode.toLowerCase().compareTo("frida") == 0) {
+                String url = signUrl + "?";
+
+                for (String key : map.keySet()) {
+                    url += key + "=" + URLEncoder.encode(String.valueOf(map.get(key))) + "&";
                 }
 
                 Response<String> response = HttpHelper.execute(

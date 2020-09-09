@@ -71,8 +71,13 @@ ranking:
   max-sync-count: 20
 
 autologin:
-  init-start: false
-  thread-count: 30
+  master:
+    init-start: true
+    thread-count: 30
+  slave:
+    # 自动更新数据库的实时更新状态（单位：秒）
+    auto-update: 300
+  situation: master
 
 sign:
   prefix: gaoji
