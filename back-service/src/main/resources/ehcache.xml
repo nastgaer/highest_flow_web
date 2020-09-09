@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns='http://www.ehcache.org/v3'>
 
-    <!--<cache alias="getActiveAll">-->
-        <!--<value-type>java.util.List</value-type>-->
-        <!--<expiry>-->
-            <!--<none/>-->
-        <!--</expiry>-->
-
-        <!--<resources>-->
-            <!--<heap unit="entries">1000</heap>-->
-            <!--<offheap unit="MB">100</offheap>-->
-        <!--</resources>-->
-    <!--</cache>-->
+    <persistence directory="./cache" />
 
     <cache alias="assistRankUids">
         <key-type>java.lang.String</key-type>
@@ -21,8 +11,9 @@
         </expiry>
 
         <resources>
-            <heap unit="entries">10000</heap>
-            <offheap unit="MB">1000</offheap>
+            <heap unit="entries">3000</heap>
+            <offheap unit="MB">100</offheap>
+            <disk persistent="true" unit="MB">500</disk>
         </resources>
     </cache>
 
