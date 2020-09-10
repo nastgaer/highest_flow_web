@@ -46,6 +46,66 @@ public class TestXsignApplication implements ApplicationRunner {
     @Value("${sign.mode:xposed}")
     private String signMode = "";
 
+    public void newTest(int count) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("utdid", "");
+        map.put("uid", "");
+        map.put("appkey", "21646297");
+        map.put("sid", "");
+        map.put("ttid", "600000@taobao_android_7.6.0");
+        map.put("pv", "6.2");
+        map.put("devid", "");
+        map.put("location1", "");
+        map.put("location2", "");
+        map.put("features", "27");
+        map.put("subUrl", "mtop.taobao.sharepassword.querypassword");
+        map.put("urlVer", "1.0");
+        map.put("timestamp", 1599203806);
+        map.put("data", "{\"passwordContent\":\"￥YIJNcWAbEW3￥\"}");
+
+        long startTime = System.currentTimeMillis();
+
+        System.out.println("TOTAL：" + count);
+        int success = 0;
+        for (int idx = 0; idx < count; idx++) {
+
+            String url = "http://42.194.144.67:8080/sign?input=";
+
+            for (String key : map.keySet()) {
+                url += key + "=" + URLEncoder.encode(String.valueOf(map.get(key))) + "&";
+            }
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+                            .addHeader("Content-Type", "application/x-www-form-urlencoded"),
+                    new Request("GET", url, ResponseType.TEXT));
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                break;
+            }
+
+            String respText = response.getResult();
+
+            if (respText == null) {
+                break;
+            }
+
+            System.out.println(respText);
+
+            if (StringUtils.isNotBlank(respText)) {
+                System.out.println("第" + (idx + 1) + " 成功");
+                success++;
+            } else {
+                System.out.println("第" + (idx + 1) + " 失败");
+            }
+        }
+
+        System.out.println("TOTAL: " + count + ", SUCCESS: " + success);
+
+        long times = System.currentTimeMillis() - startTime;
+        System.out.println("总共耗时：" + times + "毫秒");
+    }
+
 
     public void testXData(int count) {
         Map<String, Object> map = new HashMap<>();
@@ -219,9 +279,11 @@ public class TestXsignApplication implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         System.out.println("URL = " + signUrl);
 
+        //newTest();
+
 //        testXData(repeatCount);
 
-        testHttp(threadsCount, repeatCount);
+//        testHttp(threadsCount, repeatCount);
     }
 
     public void testHttp(final int threadsCount, final int repeatCount) {

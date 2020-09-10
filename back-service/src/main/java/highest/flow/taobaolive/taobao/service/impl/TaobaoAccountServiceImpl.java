@@ -140,7 +140,23 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     public List<TaobaoAccountEntity> getActivesByMember(SysMember sysMember, int count) {
         int memberId = sysMember == null || sysMember.isAdministrator() || sysMember.isNormal() ? 0 : sysMember.getId();
 
-        return this.baseMapper.queryAccounts2(memberId, null, -1, count);
+        List<TaobaoAccountEntity> activeAlls = this.getActiveAll();
+        List<TaobaoAccountEntity> myActives = new ArrayList<>();
+
+        for (int idx = 0; idx < activeAlls.size(); idx++) {
+            TaobaoAccountEntity taobaoAccountEntity = activeAlls.get(idx);
+            if (memberId > 0) {
+                if (taobaoAccountEntity.getMemberId() != memberId) {
+                    continue;
+                }
+            }
+            myActives.add(taobaoAccountEntity);
+            if (count > 0 && myActives.size() >= count) {
+                break;
+            }
+        }
+
+        return myActives;
     }
 
     @Override

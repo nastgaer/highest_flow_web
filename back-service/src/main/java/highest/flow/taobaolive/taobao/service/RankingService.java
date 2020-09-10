@@ -92,7 +92,7 @@ public interface RankingService extends IService<RankingEntity> {
      * 标记该小号已经打好
      * @param sysMember
      * @param liveId
-     * @param taobaoAccountEntities
+     * @param taobaoAccountEntities: 新标记的小号
      */
     void markAssist(SysMember sysMember, String liveId, List<TaobaoAccountEntity> taobaoAccountEntities);
 }

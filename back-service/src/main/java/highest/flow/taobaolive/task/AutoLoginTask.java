@@ -38,17 +38,19 @@ public class AutoLoginTask implements ITask {
     @Value("${autologin.master.thread-count:30}")
     private int threadCount;
 
-    @Value("${autologin.situation:master")
+    @Value("${autologin.situation:master}")
     private String situation;
 
     private CountDownLatch countDownLatch = null;
 
     @Override
+
     public void run(ScheduleJobEntity scheduleJobEntity) {
         String params = scheduleJobEntity == null ? "" : scheduleJobEntity.getParams();
 
         // 只有master能自动延期
-        if (situation.toLowerCase().compareTo("master") != 0) {
+        if (situation.trim().toLowerCase().compareTo("master") != 0) {
+            logger.info("不允许执行重新延期任务，" + situation);
             return;
         }
 

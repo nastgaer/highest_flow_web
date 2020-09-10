@@ -1,32 +1,28 @@
 package highest.flow.taobaolive.task;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import highest.flow.taobaolive.common.config.Config;
 import highest.flow.taobaolive.common.defines.ErrorCodes;
 import highest.flow.taobaolive.common.exception.RRException;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.job.defines.ScheduleState;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
-import highest.flow.taobaolive.job.utils.ScheduleUtils;
 import highest.flow.taobaolive.sys.entity.SysMember;
 import highest.flow.taobaolive.sys.service.MemberService;
 import highest.flow.taobaolive.taobao.defines.RankingEntityState;
 import highest.flow.taobaolive.taobao.defines.RankingScore;
-import highest.flow.taobaolive.taobao.defines.TaobaoAccountState;
 import highest.flow.taobaolive.taobao.entity.LiveRoomEntity;
 import highest.flow.taobaolive.taobao.entity.ProductEntity;
 import highest.flow.taobaolive.taobao.entity.RankingEntity;
 import highest.flow.taobaolive.taobao.entity.TaobaoAccountEntity;
-import highest.flow.taobaolive.taobao.provider.TaobaoApiProvider;
 import highest.flow.taobaolive.taobao.service.RankingService;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -34,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
@@ -166,6 +163,8 @@ public class AssistRankingTask implements ITask {
             int leftScore = rankingEntity.getTargetScore();
             int startIndex = 0, endScore = 0;
 
+            ConcurrentLinkedQueue<TaobaoAccountEntity> concurrentLinkedQueue = new ConcurrentLinkedQueue<>();
+
             // 直到达到目标
             while (leftScore > 0 && this.isRunning(rankingEntity)) {
                 int totalCount = leftScore / unitScore + 1;
@@ -184,7 +183,7 @@ public class AssistRankingTask implements ITask {
                     try {
                         TaobaoAccountEntity taobaoAccountEntity = taobaoAccountEntities.get(idx);
                         rankingExecutor.execute(
-                                new AssistRunnable(rankingEntity, liveRoomEntity, taobaoAccountEntity)
+                                new AssistRunnable(rankingEntity, liveRoomEntity, taobaoAccountEntity, concurrentLinkedQueue)
                         );
                         assistCount++;
                     } catch (Exception ex) {
@@ -226,8 +225,8 @@ public class AssistRankingTask implements ITask {
             logger.info("正在保存当前的状态, TaskID=" + taskId);
             // 标记已刷的小号为已读
             List<TaobaoAccountEntity> markedAccounts = new ArrayList<>();
-            for (int idx1 = 0; idx1 < startIndex; idx1++) {
-                markedAccounts.add(taobaoAccountEntities.get(idx1));
+            for (TaobaoAccountEntity taobaoAccountEntity : concurrentLinkedQueue) {
+                markedAccounts.add(taobaoAccountEntity);
             }
             if (markedAccounts.size() > 0) {
                 rankingService.markAssist(sysMember, liveRoomEntity.getLiveId(), markedAccounts);
@@ -298,11 +297,13 @@ public class AssistRankingTask implements ITask {
         private RankingEntity rankingEntity;
         private LiveRoomEntity liveRoomEntity;
         private TaobaoAccountEntity taobaoAccountEntity;
+        private ConcurrentLinkedQueue<TaobaoAccountEntity> rankedAccounts;
 
-        public AssistRunnable(RankingEntity rankingEntity, LiveRoomEntity liveRoomEntity, TaobaoAccountEntity activeAccount) {
+        public AssistRunnable(RankingEntity rankingEntity, LiveRoomEntity liveRoomEntity, TaobaoAccountEntity activeAccount, ConcurrentLinkedQueue<TaobaoAccountEntity> rankedAccounts) {
             this.rankingEntity = rankingEntity;
             this.liveRoomEntity = liveRoomEntity;
             this.taobaoAccountEntity = activeAccount;
+            this.rankedAccounts = rankedAccounts;
         }
 
         @Override
@@ -390,6 +391,8 @@ public class AssistRankingTask implements ITask {
             } catch (Exception ex) {
                 ex.printStackTrace();
             } finally {
+                this.rankedAccounts.add(activeAccount);
+
                 countDownLatch.countDown();
             }
         }
