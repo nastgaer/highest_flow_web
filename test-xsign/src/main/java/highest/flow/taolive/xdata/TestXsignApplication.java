@@ -162,7 +162,7 @@ public class TestXsignApplication implements ApplicationRunner {
                 Response<String> response = HttpHelper.execute(
                         new SiteConfig()
                                 .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
-                                .addHeader("Content-Type", "application/x-www-form-urlencoded"),
+                                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
                         new Request("POST", url, ResponseType.TEXT)
                                 .setParameters(postParams));
                 if (response.getStatusCode() != HttpStatus.SC_OK) {
@@ -203,7 +203,7 @@ public class TestXsignApplication implements ApplicationRunner {
                 Response<String> response = HttpHelper.execute(
                         new SiteConfig()
                                 .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
-                                .addHeader("Content-Type", "application/x-www-form-urlencoded"),
+                                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
                         new Request("GET", url, ResponseType.TEXT));
                 if (response.getStatusCode() != HttpStatus.SC_OK) {
                     return null;
@@ -243,7 +243,7 @@ public class TestXsignApplication implements ApplicationRunner {
                 Response<String> response = HttpHelper.execute(
                         new SiteConfig()
                                 .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
-                                .addHeader("Content-Type", "application/x-www-form-urlencoded"),
+                                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
                         new Request("GET", url, ResponseType.TEXT));
                 if (response.getStatusCode() != HttpStatus.SC_OK) {
                     return null;
@@ -281,9 +281,7 @@ public class TestXsignApplication implements ApplicationRunner {
 
         //newTest();
 
-//        testXData(repeatCount);
-
-//        testHttp(threadsCount, repeatCount);
+        testHttp(threadsCount, repeatCount);
     }
 
     public void testHttp(final int threadsCount, final int repeatCount) {

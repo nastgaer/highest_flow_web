@@ -74,14 +74,14 @@ public class RankingTests {
     @Test
     void addLicenseCode() {
         try {
-            int count = 10;
+            int count = 30;
             for (int idx = 0; idx < count; idx++) {
                 String code1 = "lic" + CommonUtils.randomAlphabetic(8);
 
                 LicenseCode licenseCode = new LicenseCode();
                 licenseCode.setCodeType(LicenseCodeType.License.getType());
                 licenseCode.setServiceType(MemberServiceType.Ranking.getServiceType());
-                licenseCode.setHours(24 * 30);
+                licenseCode.setHours(24 * 90);
                 licenseCode.setCode(code1);
                 licenseCode.setState(LicenseCodeState.Created.getState());
                 licenseCode.setCreatedTime(new Date());
