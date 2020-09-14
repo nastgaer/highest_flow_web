@@ -80,9 +80,10 @@ public class MinaService {
                 if (readFuture.getException() != null) {
                     throw new RuntimeException(readFuture.getException().getMessage());
                 }
-                String resultMsg = readFuture.getMessage().toString();
-                result.put("msg", "签名成功");
-                result.put("data", JSON.parseObject(resultMsg));
+                return readFuture.getMessage().toString();
+//                String resultMsg = readFuture.getMessage().toString();
+//                result.put("msg", "签名成功");
+//                result.put("data", JSON.parseObject(resultMsg));
             } else {
                 result.put("msg", "签名数据发送失败");
                 result.put("data", null);

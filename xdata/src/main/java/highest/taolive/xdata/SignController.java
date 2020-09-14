@@ -76,7 +76,11 @@ public class SignController {
                     return R.error(ErrorCodes.INVALID_PARAMETER, "不合法参数");
                 }
 
-                jsonText = objectMapper.writeValueAsString(mTopSignParam);
+                Packet packet = new Packet();
+                packet.setProtocol("xsign6.2");
+                packet.setObj(mTopSignParam);
+
+                jsonText = objectMapper.writeValueAsString(packet);
 
             } else if (pv.compareTo("6.3") == 0) {
                 UnifiedSignParam unifiedSignParam = new UnifiedSignParam();
@@ -107,7 +111,11 @@ public class SignController {
                     return R.error(ErrorCodes.INVALID_PARAMETER, "不合法参数");
                 }
 
-                jsonText = objectMapper.writeValueAsString(unifiedSignParam);
+                Packet packet = new Packet();
+                packet.setProtocol("xsign6.3");
+                packet.setObj(unifiedSignParam);
+
+                jsonText = objectMapper.writeValueAsString(packet);
 
             } else {
                 return R.error("无效pv");
@@ -272,8 +280,6 @@ public class SignController {
         return true;
     }
 
-
-
     /**
      * 检查参数
      * @param unifiedSignParam
@@ -300,5 +306,101 @@ public class SignController {
         }
 
         return true;
+    }
+
+    @GetMapping("/mini-wua")
+    public R miniwua() {
+        try {
+            Packet packet = new Packet();
+            packet.setProtocol("mini-wua");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(packet);
+
+            String respText = minaService.sendMessage(jsonText);
+
+            if (StringUtils.isNullOrEmpty(respText)) {
+                return R.error("空了");
+            }
+
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            int code = (int) map.get("ret");
+            String msg = (String) map.get("msg");
+            if (code != 100) {
+                return R.error(msg);
+            }
+
+            Map<String, Object> mapData = (Map) map.get("data");
+            String miniWua = mapData == null ? "" : (String) mapData.get("mini-wua");
+
+            if (StringUtils.isNullOrEmpty(miniWua)) {
+                return R.error("mini-wua计算失败");
+            }
+
+            return R.ok("成功")
+                    .put("mini-wua", miniWua);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("mini-wua验证失败");
+    }
+
+    /**
+     * 生成com.taobao.accs.net.SpdyConnection.buildAuthUrl的网址的时候需要计算app-sign
+     * @param appkey
+     * @param utdid
+     * @return
+     */
+    @GetMapping("/app-sign")
+    public R appSign(@RequestParam("appkey") String appkey,
+                     @RequestParam("utdid") String utdid) {
+        try {
+            if (!appkey.equalsIgnoreCase("25443018")) {
+                return R.error(ErrorCodes.INVALID_PARAMETER, "不合法参数");
+            }
+
+            Map<String, String> mapParam = new HashMap<>();
+            mapParam.put("appkey", appkey);
+            mapParam.put("utdid", utdid);
+
+            Packet packet = new Packet();
+            packet.setProtocol("app-sign");
+            packet.setObj(mapParam);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(packet);
+
+            String respText = minaService.sendMessage(jsonText);
+
+            if (StringUtils.isNullOrEmpty(respText)) {
+                return R.error("空了");
+            }
+
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            int code = (int) map.get("ret");
+            String msg = (String) map.get("msg");
+            if (code != 100) {
+                return R.error(msg);
+            }
+
+            Map<String, Object> mapData = (Map) map.get("data");
+            String appSign = mapData == null ? "" : (String) mapData.get("app-sign");
+
+            if (StringUtils.isNullOrEmpty(appSign)) {
+                return R.error("app-sign计算失败");
+            }
+
+            return R.ok("成功")
+                    .put("app-sign", appSign);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("mini-wua验证失败");
     }
 }

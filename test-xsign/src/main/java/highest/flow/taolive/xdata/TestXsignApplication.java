@@ -281,7 +281,7 @@ public class TestXsignApplication implements ApplicationRunner {
 
         //newTest();
 
-        testHttp(threadsCount, repeatCount);
+        //testHttp(threadsCount, repeatCount);
     }
 
     public void testHttp(final int threadsCount, final int repeatCount) {
