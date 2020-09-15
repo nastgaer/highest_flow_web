@@ -6,6 +6,8 @@ import highest.flow.taolive.xdata.http.Request;
 import highest.flow.taolive.xdata.http.ResponseType;
 import highest.flow.taolive.xdata.http.SiteConfig;
 import highest.flow.taolive.xdata.http.httpclient.response.Response;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,8 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @SpringBootApplication
 public class TestXsignApplication implements ApplicationRunner {
@@ -45,6 +49,10 @@ public class TestXsignApplication implements ApplicationRunner {
 
     @Value("${sign.mode:xposed}")
     private String signMode = "";
+
+    private OkHttpClient client = null;
+
+    private AtomicInteger success = new AtomicInteger(0), fail = new AtomicInteger(0);
 
     public void newTest(int count) {
         Map<String, Object> map = new HashMap<>();
@@ -127,19 +135,19 @@ public class TestXsignApplication implements ApplicationRunner {
         long startTime = System.currentTimeMillis();
 
         System.out.println("TOTAL：" + count);
-        int success = 0;
         for (int idx = 0; idx < count; idx++) {
 
             String result = callXsign(map);
             if (StringUtils.isNotBlank(result)) {
                 System.out.println("第" + (idx + 1) + " 成功");
-                success++;
+                success.incrementAndGet();
             } else {
-                System.out.println("第" + (idx + 1) + " 失败");
+                System.out.println("第" + (idx + 1) + " 失败: " + result);
+                fail.addAndGet(1);
             }
         }
 
-        System.out.println("TOTAL: " + count + ", SUCCESS: " + success);
+        System.out.println("TOTAL: " + count + ", SUCCESS: " + success + ", FAIL: " + fail);
 
         long times = System.currentTimeMillis() - startTime;
         System.out.println("总共耗时：" + times + "毫秒");
@@ -251,6 +259,15 @@ public class TestXsignApplication implements ApplicationRunner {
 
                 String respText = response.getResult();
 
+//                okhttp3.Request request = new okhttp3.Request.Builder()
+//                        .url(url)
+//                        .build();
+//
+//                Call call = client.newCall(request);
+//                okhttp3.Response response = call.execute();
+//
+//                String respText = response.body().string();
+
                 if (respText == null) {
                     return null;
                 }
@@ -281,7 +298,7 @@ public class TestXsignApplication implements ApplicationRunner {
 
         //newTest();
 
-        //testHttp(threadsCount, repeatCount);
+        testHttp(threadsCount, repeatCount);
     }
 
     public void testHttp(final int threadsCount, final int repeatCount) {
@@ -292,6 +309,10 @@ public class TestXsignApplication implements ApplicationRunner {
             threadPoolExecutor.setQueueCapacity(3000);
             threadPoolExecutor.setThreadNamePrefix("ranking-");
             threadPoolExecutor.initialize();
+
+//            OkHttpClient.Builder builder = new OkHttpClient.Builder()
+//                    .readTimeout(30000, TimeUnit.MILLISECONDS);
+//            client = builder.build();
 
             long startTime = System.currentTimeMillis();
 
@@ -312,7 +333,7 @@ public class TestXsignApplication implements ApplicationRunner {
 
                             testXData(repeatCount);
 
-                        } catch (Exception ex) {
+                        } finally {
                             countDownLatch.countDown();
                         }
                     }
@@ -321,7 +342,7 @@ public class TestXsignApplication implements ApplicationRunner {
             countDownLatch.await();
 
             long times = System.currentTimeMillis() - startTime;
-            System.out.println("【线程】总共耗时：" + times + "毫秒");
+            System.out.println("【线程】总共耗时：" + times + "毫秒, SUCCESS: " + success + ", FAIL: " + fail);
 
         } catch (Exception ex) {
             ex.printStackTrace();

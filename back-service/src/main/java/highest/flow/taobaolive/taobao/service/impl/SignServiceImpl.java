@@ -33,8 +33,15 @@ public class SignServiceImpl implements SignService {
     @Value("${sign.url}")
     private String signUrl;
 
-    @Override
-    public String xsign(XHeader xHeader) {
+    @Value("${sign.method:mina}")
+    private String signMethod;
+
+    /**
+     * communicate using mina tcp between backservice and xdata service
+     * @param xHeader
+     * @return
+     */
+    private String xsignOnMina(final XHeader xHeader) {
         try {
             Map<String, String> map = new HashMap<>();
             map.put("utdid", xHeader.getUtdid());
@@ -101,6 +108,86 @@ public class SignServiceImpl implements SignService {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * communicate using http(nginx) between backservice and xsign module
+     * @param xHeader
+     * @return
+     */
+    private String xsignOnHttp(final XHeader xHeader) {
+        try {
+            Map<String, String> map = new HashMap<>();
+            map.put("utdid", xHeader.getUtdid());
+            map.put("uid", xHeader.getUid());
+            map.put("appkey", xHeader.getAppkey());
+            map.put("sid", xHeader.getSid());
+            map.put("ttid", xHeader.getTtid());
+            map.put("pv", xHeader.getPv());
+            map.put("devid", xHeader.getDevid());
+            map.put("location1", xHeader.getLocation1());
+            map.put("location2", xHeader.getLocation2());
+            map.put("features", xHeader.getFeatures());
+            map.put("subUrl", xHeader.getSubUrl());
+            map.put("urlVer", xHeader.getUrlVer());
+            map.put("timestamp", String.valueOf(xHeader.getShortTimestamp()));
+            map.put("data", xHeader.getData());
+
+            String url = signUrl + "?";
+
+            for (String key : map.keySet()) {
+                url += key + "=" + URLEncoder.encode(map.get(key)) + "&";
+            }
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+                            .addHeader("Content-Type", "application/json"),
+                    new Request("GET", url, ResponseType.TEXT));
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return null;
+            }
+
+            String respText = response.getResult();
+
+            if (respText == null) {
+                return null;
+            }
+
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> mapResp = jsonParser.parseMap(respText);
+
+            Map<String, Object> mapData = (Map) mapResp.get("data");
+
+            String version = mapData == null || !mapData.containsKey("version") ? "" : String.valueOf(mapData.get("version"));
+            String xsign = mapData == null || !mapData.containsKey("xsign") ? "" : String.valueOf(mapData.get("xsign"));
+            String wua = mapData == null || !mapData.containsKey("wua") ? "" : String.valueOf(mapData.get("wua"));
+            String sgext = mapData == null || !mapData.containsKey("x-sgext") ? "" : String.valueOf(mapData.get("x-sgext"));
+            String miniWua = mapData == null || !mapData.containsKey("x-mini-wua") ? "" : String.valueOf(mapData.get("x-mini-wua"));
+            String umt = mapData == null || !mapData.containsKey("x-umt") ? "" : String.valueOf(mapData.get("x-umt"));
+
+            xsign = StringUtils.strip(xsign, "\"\r\n");
+
+            if (xsign.startsWith("ab2")) {
+                return xsign;
+            }
+            return null;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public String xsign(XHeader xHeader) {
+        if (signMethod.equalsIgnoreCase("http")) {
+            return xsignOnHttp(xHeader);
+        } else if (signMethod.equalsIgnoreCase("mina")) {
+            return xsignOnMina(xHeader);
+        } else {
+            return null;
+        }
     }
 
     @Override
