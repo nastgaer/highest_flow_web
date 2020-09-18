@@ -29,6 +29,9 @@ public class ScheduleJobServiceImpl extends ServiceImpl<ScheduleJobDao, Schedule
         List<ScheduleJobEntity> scheduleJobList = this.list();
         for (ScheduleJobEntity scheduleJob : scheduleJobList) {
             try {
+                if (scheduleJob.getState() != ScheduleState.NORMAL.getValue()) {
+                    continue;
+                }
                 CronTrigger cronTrigger = ScheduleUtils.getCronTrigger(scheduler, scheduleJob.getId());
 
                 // 如果不存在，则创建

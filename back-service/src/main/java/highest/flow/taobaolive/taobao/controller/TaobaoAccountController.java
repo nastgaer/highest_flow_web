@@ -316,6 +316,8 @@ public class TaobaoAccountController extends AbstractController {
                 map.put("uid", taobaoAccountEntity.getUid());
                 map.put("utdid", taobaoAccountEntity.getUtdid());
                 map.put("devid", taobaoAccountEntity.getDevid());
+                map.put("auto_login_token", taobaoAccountEntity.getAutoLoginToken());
+                map.put("umid_token", taobaoAccountEntity.getUmidToken());
                 map.put("expires", CommonUtils.formatDate(taobaoAccountEntity.getExpires()));
                 map.put("cookie", taobaoAccountEntity.getCookie());
 
