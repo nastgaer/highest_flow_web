@@ -1,6 +1,7 @@
 package highest.flow.taobaolive.task;
 
 import highest.flow.taobaolive.common.defines.ErrorCodes;
+import highest.flow.taobaolive.common.utils.HFStringUtils;
 import highest.flow.taobaolive.common.utils.R;
 import highest.flow.taobaolive.job.entity.ScheduleJobEntity;
 import highest.flow.taobaolive.taobao.defines.TaobaoAccountLogKind;
@@ -120,6 +121,23 @@ public class AutoLoginTask implements ITask {
                     if (r.getCode() == ErrorCodes.FAIL_SYS_SESSION_EXPIRED) {
 
                     } else {
+                        if (HFStringUtils.isNullOrEmpty(taobaoAccountEntity.getUmidToken())) {
+                            r = taobaoApiService.getUmtidToken();
+                            if (r.getCode() == ErrorCodes.SUCCESS) {
+                                taobaoAccountEntity.setUmidToken((String) r.get("umtid"));
+                            }
+                        }
+
+                        if (HFStringUtils.isNullOrEmpty(taobaoAccountEntity.getDevid())) {
+                            r = taobaoApiService.getH5Token(taobaoAccountEntity);
+                            if (r.getCode() == ErrorCodes.SUCCESS) {
+                                r = taobaoApiService.getNewDeviceId(taobaoAccountEntity);
+                                if (r.getCode() == ErrorCodes.SUCCESS) {
+                                    taobaoAccountEntity.setDevid((String) r.get("device_id"));
+                                }
+                            }
+                        }
+
                         // 正常
                         logger.info("[" + taobaoAccountEntity.getNick() + "] 用户开始延期");
                         r = taobaoApiService.postpone(taobaoAccountEntity);
@@ -145,6 +163,23 @@ public class AutoLoginTask implements ITask {
                     }
 
                     if (r.getCode() != ErrorCodes.SUCCESS) {
+                        if (HFStringUtils.isNullOrEmpty(taobaoAccountEntity.getUmidToken())) {
+                            r = taobaoApiService.getUmtidToken();
+                            if (r.getCode() == ErrorCodes.SUCCESS) {
+                                taobaoAccountEntity.setUmidToken((String) r.get("umtid"));
+                            }
+                        }
+
+                        if (HFStringUtils.isNullOrEmpty(taobaoAccountEntity.getDevid())) {
+                            r = taobaoApiService.getH5Token(taobaoAccountEntity);
+                            if (r.getCode() == ErrorCodes.SUCCESS) {
+                                r = taobaoApiService.getNewDeviceId(taobaoAccountEntity);
+                                if (r.getCode() == ErrorCodes.SUCCESS) {
+                                    taobaoAccountEntity.setDevid((String) r.get("device_id"));
+                                }
+                            }
+                        }
+
                         logger.info("[" + taobaoAccountEntity.getNick() + "] 用户开始重登");
                         r = taobaoApiService.autoLogin(taobaoAccountEntity);
 
