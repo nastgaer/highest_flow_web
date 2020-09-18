@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -402,5 +405,94 @@ public class SignController {
             ex.printStackTrace();
         }
         return R.error("mini-wua验证失败");
+    }
+
+    @GetMapping("/navigate")
+    public R navigate(@RequestParam("url") String url,
+                      @RequestParam("stay") int stayTime) {
+        try {
+            Map<String, Object> mapParam = new HashMap<>();
+            mapParam.put("url", url);
+            mapParam.put("stayTime", stayTime);
+
+            Packet packet = new Packet();
+            packet.setProtocol("navigate");
+            packet.setObj(mapParam);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(packet);
+
+            String respText = minaService.sendMessage(jsonText);
+
+            if (StringUtils.isNullOrEmpty(respText)) {
+                return R.error("空了");
+            }
+
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            int code = (int) map.get("ret");
+            String msg = (String) map.get("msg");
+            if (code != 100) {
+                return R.error(msg);
+            }
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("跳转失败");
+    }
+
+    @PostMapping("/set-account")
+    public R navigate(@RequestParam("utdid") String utdid,
+                      @RequestParam("uid") String uid,
+                      @RequestParam("sid") String sid,
+                      @RequestParam("deviceId") String deviceId,
+                      @RequestParam("umidToken") String umidToken,
+                      @RequestParam(name = "cookies[]") String[] cookies) {
+        try {
+            List<String> cookieList = new ArrayList<>();
+            for (String cookie : cookies) {
+                cookieList.add(cookie);
+            }
+
+            Map<String, Object> mapParam = new HashMap<>();
+            mapParam.put("utdid", utdid);
+            mapParam.put("uid", uid);
+            mapParam.put("sid", sid);
+            mapParam.put("deviceId", deviceId);
+            mapParam.put("umidToken", umidToken);
+            mapParam.put("cookies", cookieList);
+
+            Packet packet = new Packet();
+            packet.setProtocol("set-account");
+            packet.setObj(mapParam);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(packet);
+
+            String respText = minaService.sendMessage(jsonText);
+
+            if (StringUtils.isNullOrEmpty(respText)) {
+                return R.error("空了");
+            }
+
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            int code = (int) map.get("ret");
+            String msg = (String) map.get("msg");
+            if (code != 100) {
+                return R.error(msg);
+            }
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("跳转失败");
     }
 }

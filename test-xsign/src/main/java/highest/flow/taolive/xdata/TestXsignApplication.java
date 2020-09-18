@@ -6,8 +6,7 @@ import highest.flow.taolive.xdata.http.Request;
 import highest.flow.taolive.xdata.http.ResponseType;
 import highest.flow.taolive.xdata.http.SiteConfig;
 import highest.flow.taolive.xdata.http.httpclient.response.Response;
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
+import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Value;
@@ -163,21 +162,42 @@ public class TestXsignApplication implements ApplicationRunner {
                 String jsonText = JSON.toJSONString(map);
                 String encoded = cryptoHelper.encrypt(jsonText);
 
-                Map<String, String> postParams = new HashMap<>();
-                postParams.put("data", encoded);
-                postParams.put("sign", cryptoHelper.sign(encoded));
+//                Map<String, String> postParams = new HashMap<>();
+//                postParams.put("data", encoded);
+//                postParams.put("sign", cryptoHelper.sign(encoded));
 
-                Response<String> response = HttpHelper.execute(
-                        new SiteConfig()
-                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
-                                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
-                        new Request("POST", url, ResponseType.TEXT)
-                                .setParameters(postParams));
-                if (response.getStatusCode() != HttpStatus.SC_OK) {
-                    return null;
-                }
+//                Response<String> response = HttpHelper.execute(
+//                        new SiteConfig()
+//                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+//                                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
+//                        new Request("POST", url, ResponseType.TEXT)
+//                                .setParameters(postParams));
+//                if (response.getStatusCode() != HttpStatus.SC_OK) {
+//                    return null;
+//                }
+//
+//                String respText = response.getResult();
 
-                String respText = response.getResult();
+//                RequestBody requestBody = new MultipartBody.Builder()
+//                        .setType(MultipartBody.FORM)
+//                        .addFormDataPart("data", encoded)
+//                        .addFormDataPart("sign", cryptoHelper.sign(encoded))
+//                        .build();
+
+                RequestBody requestBody = new FormBody.Builder()
+                        .add("data", encoded)
+                        .add("sign", cryptoHelper.sign(encoded))
+                        .build();
+
+                okhttp3.Request request = new okhttp3.Request.Builder()
+                        .url(url)
+                        .post(requestBody)
+                        .build();
+
+                Call call = client.newCall(request);
+                okhttp3.Response response = call.execute();
+
+                String respText = response.body().string();
 
                 if (respText == null) {
                     return null;
@@ -208,16 +228,25 @@ public class TestXsignApplication implements ApplicationRunner {
                     url += key + "=" + URLEncoder.encode(String.valueOf(map.get(key))) + "&";
                 }
 
-                Response<String> response = HttpHelper.execute(
-                        new SiteConfig()
-                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
-                                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
-                        new Request("GET", url, ResponseType.TEXT));
-                if (response.getStatusCode() != HttpStatus.SC_OK) {
-                    return null;
-                }
+//                Response<String> response = HttpHelper.execute(
+//                        new SiteConfig()
+//                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+//                                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
+//                        new Request("GET", url, ResponseType.TEXT));
+//                if (response.getStatusCode() != HttpStatus.SC_OK) {
+//                    return null;
+//                }
+//
+//                String respText = response.getResult();
 
-                String respText = response.getResult();
+                okhttp3.Request request = new okhttp3.Request.Builder()
+                        .url(url)
+                        .build();
+
+                Call call = client.newCall(request);
+                okhttp3.Response response = call.execute();
+
+                String respText = response.body().string();
 
                 if (respText == null) {
                     return null;
@@ -248,25 +277,25 @@ public class TestXsignApplication implements ApplicationRunner {
                     url += key + "=" + URLEncoder.encode(String.valueOf(map.get(key))) + "&";
                 }
 
-                Response<String> response = HttpHelper.execute(
-                        new SiteConfig()
-                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
-                                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
-                        new Request("GET", url, ResponseType.TEXT));
-                if (response.getStatusCode() != HttpStatus.SC_OK) {
-                    return null;
-                }
-
-                String respText = response.getResult();
-
-//                okhttp3.Request request = new okhttp3.Request.Builder()
-//                        .url(url)
-//                        .build();
+//                Response<String> response = HttpHelper.execute(
+//                        new SiteConfig()
+//                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+//                                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
+//                        new Request("GET", url, ResponseType.TEXT));
+//                if (response.getStatusCode() != HttpStatus.SC_OK) {
+//                    return null;
+//                }
 //
-//                Call call = client.newCall(request);
-//                okhttp3.Response response = call.execute();
-//
-//                String respText = response.body().string();
+//                String respText = response.getResult();
+
+                okhttp3.Request request = new okhttp3.Request.Builder()
+                        .url(url)
+                        .build();
+
+                Call call = client.newCall(request);
+                okhttp3.Response response = call.execute();
+
+                String respText = response.body().string();
 
                 if (respText == null) {
                     return null;
@@ -310,9 +339,10 @@ public class TestXsignApplication implements ApplicationRunner {
             threadPoolExecutor.setThreadNamePrefix("ranking-");
             threadPoolExecutor.initialize();
 
-//            OkHttpClient.Builder builder = new OkHttpClient.Builder()
-//                    .readTimeout(30000, TimeUnit.MILLISECONDS);
-//            client = builder.build();
+            OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                    .connectTimeout(45000, TimeUnit.SECONDS)
+                    .readTimeout(45000, TimeUnit.SECONDS);
+            client = builder.build();
 
             long startTime = System.currentTimeMillis();
 
