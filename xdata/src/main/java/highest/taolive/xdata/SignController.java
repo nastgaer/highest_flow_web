@@ -449,6 +449,7 @@ public class SignController {
     public R navigate(@RequestParam("utdid") String utdid,
                       @RequestParam("uid") String uid,
                       @RequestParam("sid") String sid,
+                      @RequestParam("nick") String nick,
                       @RequestParam("deviceId") String deviceId,
                       @RequestParam("umidToken") String umidToken,
                       @RequestParam(name = "cookies[]") String[] cookies) {
@@ -462,6 +463,7 @@ public class SignController {
             mapParam.put("utdid", utdid);
             mapParam.put("uid", uid);
             mapParam.put("sid", sid);
+            mapParam.put("nick", nick);
             mapParam.put("deviceId", deviceId);
             mapParam.put("umidToken", umidToken);
             mapParam.put("cookies", cookieList);
