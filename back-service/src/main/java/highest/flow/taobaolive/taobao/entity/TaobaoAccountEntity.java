@@ -110,14 +110,19 @@ public class TaobaoAccountEntity implements Serializable {
         // String to CookieStore
         this.cookieStore.clear();
 
-        JsonParser jsonParser = JsonParserFactory.getJsonParser();
-        List<Object> texts = jsonParser.parseList(cookieHeaders);
-        for (Object obj : texts) {
-            String cookieHeader = (String) obj;
-            Cookie cookie = CookieHelper.parseString(cookieHeader);
-            if (cookie != null) {
-                this.cookieStore.addCookie(cookie);
+        try {
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            List<Object> texts = jsonParser.parseList(cookieHeaders);
+            for (Object obj : texts) {
+                String cookieHeader = (String) obj;
+                Cookie cookie = CookieHelper.parseString(cookieHeader);
+                if (cookie != null) {
+                    this.cookieStore.addCookie(cookie);
+                }
             }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
