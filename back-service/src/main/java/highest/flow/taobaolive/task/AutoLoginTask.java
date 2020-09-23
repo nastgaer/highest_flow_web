@@ -115,6 +115,10 @@ public class AutoLoginTask implements ITask {
                 try {
                     TaobaoAccountEntity taobaoAccountEntity = taobaoAccountEntities.get(idx);
 
+                    if (HFStringUtils.isNullOrEmpty(taobaoAccountEntity.getCookie())) {
+                        continue;
+                    }
+
                     logger.info("[" + taobaoAccountEntity.getNick() + "] 用户开始延期+重登");
 
                     R r = taobaoApiService.getUserSimple(taobaoAccountEntity);
