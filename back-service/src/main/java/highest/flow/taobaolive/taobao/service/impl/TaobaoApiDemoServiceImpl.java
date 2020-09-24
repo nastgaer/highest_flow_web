@@ -644,6 +644,16 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
     }
 
     @Override
+    public R intimacyTracker(TaobaoAccountEntity taobaoAccountEntity) {
+        return R.ok();
+    }
+
+    @Override
+    public R intimacyTracker2(TaobaoAccountEntity taobaoAccountEntity) {
+        return R.ok();
+    }
+
+    @Override
     public R createLiveRoomWeb(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccountEntity taobaoAccountEntity) {
         return null;
     }
