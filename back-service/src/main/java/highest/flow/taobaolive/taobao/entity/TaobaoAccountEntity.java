@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import highest.flow.taobaolive.common.http.CookieHelper;
+import highest.flow.taobaolive.common.utils.HFStringUtils;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -111,13 +112,15 @@ public class TaobaoAccountEntity implements Serializable {
         this.cookieStore.clear();
 
         try {
-            JsonParser jsonParser = JsonParserFactory.getJsonParser();
-            List<Object> texts = jsonParser.parseList(cookieHeaders);
-            for (Object obj : texts) {
-                String cookieHeader = (String) obj;
-                Cookie cookie = CookieHelper.parseString(cookieHeader);
-                if (cookie != null) {
-                    this.cookieStore.addCookie(cookie);
+            if (!HFStringUtils.isNullOrEmpty(cookieHeaders)) {
+                JsonParser jsonParser = JsonParserFactory.getJsonParser();
+                List<Object> texts = jsonParser.parseList(cookieHeaders);
+                for (Object obj : texts) {
+                    String cookieHeader = (String) obj;
+                    Cookie cookie = CookieHelper.parseString(cookieHeader);
+                    if (cookie != null) {
+                        this.cookieStore.addCookie(cookie);
+                    }
                 }
             }
 

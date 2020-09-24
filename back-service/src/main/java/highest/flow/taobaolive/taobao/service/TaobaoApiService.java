@@ -241,6 +241,15 @@ public interface TaobaoApiService {
     public R taskBuyWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity, String productId);
 
     /**
+     * 助力：传送用户的打开热度榜板块的行为
+     * @param taobaoAccountEntity
+     * @return
+     */
+    public R intimacyTracker(TaobaoAccountEntity taobaoAccountEntity);
+
+    public R intimacyTracker2(TaobaoAccountEntity taobaoAccountEntity);
+
+    /**
      * 发布预告（Web)
      * @param taobaoAccountEntity
      * @param preLiveRoomSpec

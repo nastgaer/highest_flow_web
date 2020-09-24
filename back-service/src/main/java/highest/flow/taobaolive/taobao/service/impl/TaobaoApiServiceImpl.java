@@ -1834,6 +1834,56 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
+    public R intimacyTracker(TaobaoAccountEntity taobaoAccountEntity) {
+        try {
+            String url = "https://gm.mmstat.com/jstracker.3?type=__taobao__live__&__origin_url__=live-intimacy-rank&url=%E6%8B%89%E8%B5%B7%E4%BA%B2%E5%AF%86%E5%BA%A6%E9%9D%A2%E6%9D%BF%E6%88%90%E5%8A%9F%E7%8E%87&msg=%E6%88%90%E5%8A%9F%E6%8B%89%E8%B5%B7";
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("SM-J120F(Android/5.1.1) AliApp(TAOBAOLIVEAPP/1.8.4) Weex/0.26.4.9 480x800")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeader("f-refer", "weex"),
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
+    public R intimacyTracker2(TaobaoAccountEntity taobaoAccountEntity) {
+        try {
+            String url = "https://gm.mmstat.com/jstracker.3?type=__pv__&__origin_url__=live-intimacy-rank&url=%E6%8B%89%E8%B5%B7%E4%BA%B2%E5%AF%86%E5%BA%A6%E9%9D%A2%E6%9D%BF%E6%88%90%E5%8A%9F%E7%8E%87&msg=%E6%88%90%E5%8A%9F%E6%8B%89%E8%B5%B7";
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("SM-J120F(Android/5.1.1) AliApp(TAOBAOLIVEAPP/1.8.4) Weex/0.26.4.9 480x800")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeader("f-refer", "weex"),
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
     public R createLiveRoomWeb(PreLiveRoomSpec preLiveRoomSpec, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             String url = "https://liveplatform.taobao.com/live/action.do?api=publish_pre_live&_tb_token_=" + taobaoAccountEntity.getToken() + "&_input_charset=utf-8";
