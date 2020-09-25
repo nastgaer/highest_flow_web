@@ -1843,6 +1843,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setUserAgent("SM-J120F(Android/5.1.1) AliApp(TAOBAOLIVEAPP/1.8.4) Weex/0.26.4.9 480x800")
+                            .setAccept("*/*")
+                            .addHeader("X-Requested-With", "com.taobao.live")
                             .addHeader("f-refer", "weex"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));

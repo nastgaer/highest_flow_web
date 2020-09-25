@@ -335,12 +335,27 @@ public class AssistRankingTask implements ITask {
                     }
                 }
                 if (expired || !found) {
-                    taobaoLiveApiService.logTrackerJavascript(activeAccount);
+                    for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
+                        R r = taobaoLiveApiService.logTrackerJavascript(activeAccount);
+                        if (r.getCode() == ErrorCodes.SUCCESS) {
+                            break;
+                        }
+                    }
                 }
 
                 // 传送用户的打开热度榜的行为
-                taobaoLiveApiService.intimacyTracker(activeAccount);
-                taobaoLiveApiService.getIntimacyDetail(liveRoomEntity, activeAccount);
+                for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
+                    R r = taobaoLiveApiService.intimacyTracker(activeAccount);
+                    if (r.getCode() == ErrorCodes.SUCCESS) {
+                        break;
+                    }
+                }
+                for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
+                    R r = taobaoLiveApiService.getIntimacyDetail(liveRoomEntity, activeAccount);
+                    if (r.getCode() == ErrorCodes.SUCCESS) {
+                        break;
+                    }
+                }
 
                 if (rankingEntity.isHasFollow())
                 {
@@ -352,7 +367,13 @@ public class AssistRankingTask implements ITask {
                     if (r.getCode() != ErrorCodes.SUCCESS) {
                         r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
                     }
-                    taobaoLiveApiService.taskCompleteWeb(activeAccount);
+                    for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
+                        r = taobaoLiveApiService.taskCompleteWeb(activeAccount);
+                        if (r.getCode() == ErrorCodes.SUCCESS) {
+                            break;
+                        }
+                    }
+
                 }
 
                 if (!isRunning(rankingEntity)) {
