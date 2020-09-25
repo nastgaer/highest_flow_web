@@ -6,10 +6,13 @@ import highest.flow.taobaolive.common.http.Request;
 import highest.flow.taobaolive.common.http.ResponseType;
 import highest.flow.taobaolive.common.http.SiteConfig;
 import highest.flow.taobaolive.common.http.httpclient.response.Response;
+import highest.flow.taobaolive.common.utils.CommonUtils;
+import highest.flow.taobaolive.common.utils.DateUtils;
 import org.apache.http.entity.StringEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,4 +94,32 @@ public class SystemTests extends BaseTests {
             ex.printStackTrace();
         }
     }
+
+    @Test
+    void parseDate() {
+        String dateStr1 = "Mon, 23 Sep 30 11:35:21 GMT";
+        Date date1 = DateUtils.parseDateStr(dateStr1);
+        if (date1 == null) {
+            System.out.println("parse as null");
+        } else {
+            System.out.println(CommonUtils.formatDate(date1));
+        }
+
+        String dateStr2 = "Fri, 25 Sep 2020 09:41:42 GMT";
+        Date date2 = DateUtils.parseDateStr(dateStr2);
+        if (date2 == null) {
+            System.out.println("parse as null");
+        } else {
+            System.out.println(CommonUtils.formatDate(date2));
+        }
+
+        String dateStr3 = "2021-09-25 16:50:49";
+        Date date3 = DateUtils.parseDateStr(dateStr3);
+        if (date3 == null) {
+            System.out.println("parse as null");
+        } else {
+            System.out.println(CommonUtils.formatDate(date3));
+        }
+    }
+
 }

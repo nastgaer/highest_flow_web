@@ -247,7 +247,12 @@ public interface TaobaoApiService {
      */
     public R intimacyTracker(TaobaoAccountEntity taobaoAccountEntity);
 
-    public R intimacyTracker2(TaobaoAccountEntity taobaoAccountEntity);
+    /**
+     * 获取用户行为的cna参数
+     * @param taobaoAccountEntity
+     * @return
+     */
+    public R logTrackerJavascript(TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 发布预告（Web)

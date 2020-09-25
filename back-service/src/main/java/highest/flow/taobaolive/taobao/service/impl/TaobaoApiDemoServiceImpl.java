@@ -649,7 +649,7 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R intimacyTracker2(TaobaoAccountEntity taobaoAccountEntity) {
+    public R logTrackerJavascript(TaobaoAccountEntity taobaoAccountEntity) {
         return R.ok();
     }
 

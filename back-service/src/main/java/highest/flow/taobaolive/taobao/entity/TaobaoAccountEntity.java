@@ -156,11 +156,14 @@ public class TaobaoAccountEntity implements Serializable {
         for (Cookie cookie : oldCookies) {
             Cookie newCookie = cookie;
             for (Cookie cookie1 : newCookies) {
-                if (newCookie.getName().compareToIgnoreCase(cookie1.getName()) == 0) {
+                if (newCookie.getName().compareToIgnoreCase(cookie1.getName()) == 0 &&
+                        newCookie.getDomain().compareToIgnoreCase(cookie1.getDomain()) == 0 &&
+                        //(cookie1.getDomain().toLowerCase().equalsIgnoreCase("taobao.com") ? ".taobao.com" : cookie1.getDomain()).compareToIgnoreCase(newCookie.getDomain()) == 0 &&
+                        newCookie.getPath().compareToIgnoreCase(cookie1.getPath()) == 0) {
                     newCookie = cookie1;
-                    if (newCookie.getDomain().toLowerCase().compareTo("taobao.com") == 0) {
-                        ((BasicClientCookie) newCookie).setDomain(".taobao.com");
-                    }
+//                    if (newCookie.getDomain().toLowerCase().compareTo("taobao.com") == 0) {
+//                        ((BasicClientCookie) newCookie).setDomain(".taobao.com");
+//                    }
                     break;
                 }
             }
@@ -170,15 +173,18 @@ public class TaobaoAccountEntity implements Serializable {
         for (Cookie cookie1 : newCookies) {
             Cookie newCookie = cookie1;
             for (Cookie cookie : oldCookies) {
-                if (newCookie.getName().compareToIgnoreCase(cookie.getName()) == 0) {
+                if (newCookie.getName().compareToIgnoreCase(cookie.getName()) == 0 &&
+                        newCookie.getDomain().compareToIgnoreCase(cookie.getDomain()) == 0 &&
+                        // (cookie1.getDomain().toLowerCase().equalsIgnoreCase("taobao.com") ? ".taobao.com" : cookie1.getDomain()).compareToIgnoreCase(cookie.getDomain()) == 0 &&
+                        newCookie.getPath().compareToIgnoreCase(cookie.getPath()) == 0) {
                     newCookie = null;
                     break;
                 }
             }
             if (newCookie != null) {
-                if (newCookie.getDomain().toLowerCase().compareTo("taobao.com") == 0) {
-                    ((BasicClientCookie) newCookie).setDomain(".taobao.com");
-                }
+//                if (newCookie.getDomain().toLowerCase().compareTo("taobao.com") == 0) {
+//                    ((BasicClientCookie) newCookie).setDomain(".taobao.com");
+//                }
                 newCookieStore.addCookie(newCookie);
             }
         }

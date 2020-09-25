@@ -146,6 +146,9 @@ public class RankingController extends AbstractController {
             LiveRoomEntity liveRoomEntity = (LiveRoomEntity) r.get("live_room");
 
             List<TaobaoAccountEntity> activeAccounts = this.taobaoAccountService.getActivesByMember(null, Config.MAX_RETRY_ACCOUNTS);
+            if (activeAccounts.size() < 1) {
+                return R.error("没有正常的小号");
+            }
 
             for (int retry = 0; activeAccounts != null && retry < activeAccounts.size(); retry++) {
                 this.taobaoLiveApiService.getH5Token(activeAccounts.get(retry));
@@ -153,6 +156,11 @@ public class RankingController extends AbstractController {
                 if (r.getCode() == ErrorCodes.SUCCESS)
                     break;
             }
+
+//            if (!liveRoomEntity.isHasHourRankingListEntry()) {
+//                return R.error("没有赛道")
+//                        .put("live_room", liveRoomEntity);
+//            }
 
             // 可用热度值
             SysMember sysMember = this.getUser();

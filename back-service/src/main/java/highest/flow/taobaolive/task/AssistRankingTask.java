@@ -18,6 +18,7 @@ import highest.flow.taobaolive.taobao.service.RankingService;
 import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import highest.flow.taobaolive.taobao.service.TaobaoApiService;
 
+import org.apache.http.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +110,19 @@ public class AssistRankingTask implements ITask {
                 throw new RRException("该直播间没有赛道");
             }
 
+            for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
+                R r = taobaoLiveApiService.getLiveProducts(liveRoomEntity, activeAccountEntity, 10);
+                if (r.getCode() != ErrorCodes.SUCCESS) {
+                    r = taobaoLiveApiService.getLiveProductsWeb(liveRoomEntity, activeAccountEntity, 10);
+                }
+                if (r.getCode() == ErrorCodes.SUCCESS) {
+                    break;
+                }
+            }
+            if (rankingEntity.isHasBuy() && liveRoomEntity.getProducts().size() < 1) {
+                throw new RRException("获取直播间商品信息失败");
+            }
+
             rankingEntity.setStartScore(liveRoomEntity.getHourRankingListData().getRankingScore());
             rankingEntity.setEndScore(liveRoomEntity.getHourRankingListData().getRankingScore());
 
@@ -138,16 +152,6 @@ public class AssistRankingTask implements ITask {
             }
 
             logger.info("获取小号信息, TaskID=" + taskId);
-
-            for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
-                R r = taobaoLiveApiService.getLiveProducts(liveRoomEntity, activeAccountEntity, 10);
-                if (r.getCode() != ErrorCodes.SUCCESS) {
-                    r = taobaoLiveApiService.getLiveProductsWeb(liveRoomEntity, activeAccountEntity, 10);
-                }
-                if (r.getCode() == ErrorCodes.SUCCESS) {
-                    break;
-                }
-            }
 
             rankingEntity.setUpdatedTime(new Date());
             rankingService.updateById(rankingEntity);
@@ -321,12 +325,22 @@ public class AssistRankingTask implements ITask {
 
                 // 初始化
                 taobaoLiveApiService.getH5Token(activeAccount);
-                taobaoLiveApiService.getSigninWeb(activeAccount);
-                taobaoLiveApiService.routeToNewPlanWeb(activeAccount);
-                taobaoLiveApiService.checkInStatusWeb(activeAccount);
-                taobaoLiveApiService.getIntimacyDetail(liveRoomEntity, activeAccount);
+
+                // 获取用户行为记录和任务执行接口之间的绑定参数
+                boolean expired = false, found = false;
+                for (Cookie cookie : activeAccount.getCookieStore().getCookies()) {
+                    if (cookie.getDomain().toLowerCase().indexOf("mmstat.com") >= 0) {
+                        expired |= cookie.isExpired(new Date());
+                        found = true;
+                    }
+                }
+                if (expired || !found) {
+                    taobaoLiveApiService.logTrackerJavascript(activeAccount);
+                }
+
+                // 传送用户的打开热度榜的行为
                 taobaoLiveApiService.intimacyTracker(activeAccount);
-                taobaoLiveApiService.intimacyTracker2(activeAccount);
+                taobaoLiveApiService.getIntimacyDetail(liveRoomEntity, activeAccount);
 
                 if (rankingEntity.isHasFollow())
                 {

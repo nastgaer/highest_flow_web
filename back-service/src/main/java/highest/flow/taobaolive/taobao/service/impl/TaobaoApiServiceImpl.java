@@ -25,6 +25,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -519,7 +520,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
             String subUrl = "mtop.mediaplatform.video.livedetail.itemlist.withpaginationv5";
-            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?";
+            String url = "http://acs.m.taobao.com/gw/" + subUrl + "/1.0/?type=originaljson&data=" + URLEncoder.encode(jsonText);
 
             XHeader xHeader = new XHeader(taobaoAccountEntity);
             xHeader.setSubUrl(subUrl);
@@ -532,7 +533,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
-                    new Request("GET", url, ResponseType.TEXT));
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error("获取直播间商品列表失败");
@@ -553,7 +555,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             List<ProductEntity> productEntities = new ArrayList<>();
             List<Map<String, Object>> itemList = (List<Map<String, Object>>) mapData.get("itemListv1");
             for (Map<String, Object> mapItem : itemList) {
-                Map<String, Object> goodObj = (Map<String, Object>) mapItem.get("itemListv1");
+                Map<String, Object> goodObj = (Map<String, Object>) mapItem.get("liveItemDO");
 
                 String itemId = HFStringUtils.valueOf(goodObj.get("itemId"));
                 String itemName = HFStringUtils.valueOf(goodObj.get("itemName"));
@@ -639,13 +641,14 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
-            H5Header h5Header = new H5Header(taobaoAccountEntity);
+            H5Header h5Header = new H5Header(taobaoAccountEntity, "12574478");
             String subUrl = "mtop.mediaplatform.video.livedetail.itemlist.withpaginationv5";
 
             Map<String, Object> urlParams = new HashMap<>();
+            urlParams.put("jsv", "2.6.0");
             urlParams.put("appKey", h5Header.getAppKey());
             urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
-            urlParams.put("api", subUrl);
+            urlParams.put("api", "mtop.mediaplatform.video.livedetail.itemlist.withpaginationV5");
             urlParams.put("v", "1.0");
             urlParams.put("data", jsonText);
             urlParams.put("sign", signService.h5sign(h5Header, jsonText));
@@ -658,7 +661,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
-                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
+                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
+                            .setAccept("text/html, application/xhtml+xml, */*"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
@@ -759,25 +763,20 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
         try {
             if (HFStringUtils.isNullOrEmpty(liveRoomEntity.getHierarchyData().getScopeId()) ||
                     HFStringUtils.isNullOrEmpty(liveRoomEntity.getHierarchyData().getSubScopeId())) {
-                R r = this.getLiveEntryWeb(liveRoomEntity, taobaoAccountEntity);
-                if (r.getCode() == ErrorCodes.SUCCESS) {
-                    return r;
-                }
-                r =  this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
-                if (r.getCode() == ErrorCodes.SUCCESS) {
-                    return r;
-                }
+                this.getLiveEntryWeb(liveRoomEntity, taobaoAccountEntity);
             }
 
-            R r = this.getLiveEntryWeb(liveRoomEntity, taobaoAccountEntity);
-            if (r.getCode() != ErrorCodes.SUCCESS) {
-                r = this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
-                if (r.getCode() != ErrorCodes.SUCCESS) {
-                    return this.getRankByMtop2(liveRoomEntity, taobaoAccountEntity);
-                }
-            }
+            return this.getRankByMtop2(liveRoomEntity, taobaoAccountEntity);
 
-            return r;
+//            R r = this.getLiveEntryWeb(liveRoomEntity, taobaoAccountEntity);
+//            if (r.getCode() != ErrorCodes.SUCCESS) {
+//                r = this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
+//                if (r.getCode() != ErrorCodes.SUCCESS) {
+//                    return this.getRankByMtop2(liveRoomEntity, taobaoAccountEntity);
+//                }
+//            }
+//
+//            return r;
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -1492,7 +1491,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
-                    new Request("GET", url, ResponseType.TEXT));
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -1617,7 +1617,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
-                    new Request("GET", url, ResponseType.TEXT));
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -1743,7 +1744,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
-                    new Request("GET", url, ResponseType.TEXT));
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -1836,12 +1838,11 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     @Override
     public R intimacyTracker(TaobaoAccountEntity taobaoAccountEntity) {
         try {
-            String url = "https://gm.mmstat.com/jstracker.3?type=__taobao__live__&__origin_url__=live-intimacy-rank&url=%E6%8B%89%E8%B5%B7%E4%BA%B2%E5%AF%86%E5%BA%A6%E9%9D%A2%E6%9D%BF%E6%88%90%E5%8A%9F%E7%8E%87&msg=%E6%88%90%E5%8A%9F%E6%8B%89%E8%B5%B7";
+            String url = "https://gm.mmstat.com/jstracker.3?type=__pv__&__origin_url__=live-intimacy-rank&url=%E6%8B%89%E8%B5%B7%E4%BA%B2%E5%AF%86%E5%BA%A6%E9%9D%A2%E6%9D%BF%E6%88%90%E5%8A%9F%E7%8E%87&msg=%E6%88%90%E5%8A%9F%E6%8B%89%E8%B5%B7";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
                             .setUserAgent("SM-J120F(Android/5.1.1) AliApp(TAOBAOLIVEAPP/1.8.4) Weex/0.26.4.9 480x800")
-                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeader("f-refer", "weex"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -1849,6 +1850,9 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
             }
+
+            List<Cookie> cookies = response.getCookieStore().getCookies();
+            taobaoAccountEntity.mergeCookies(cookies);
 
             return R.ok();
 
@@ -1859,20 +1863,35 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R intimacyTracker2(TaobaoAccountEntity taobaoAccountEntity) {
+    public R logTrackerJavascript(TaobaoAccountEntity taobaoAccountEntity) {
         try {
-            String url = "https://gm.mmstat.com/jstracker.3?type=__pv__&__origin_url__=live-intimacy-rank&url=%E6%8B%89%E8%B5%B7%E4%BA%B2%E5%AF%86%E5%BA%A6%E9%9D%A2%E6%9D%BF%E6%88%90%E5%8A%9F%E7%8E%87&msg=%E6%88%90%E5%8A%9F%E6%8B%89%E8%B5%B7";
+            String url = "https://log.mmstat.com/eg.js";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
-                            .setUserAgent("SM-J120F(Android/5.1.1) AliApp(TAOBAOLIVEAPP/1.8.4) Weex/0.26.4.9 480x800")
-                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
-                            .addHeader("f-refer", "weex"),
+                            .setUserAgent("Mozilla/5.0 (Linux; U; Android 5.1.1; zh-CN; SM-J120F Build/LMY47X) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/69.0.3497.100 UWS/3.22.0.26 Mobile Safari/537.36 AliApp(TAOBAOLIVEAPP/1.8.4) UCBS/2.11.1.1 TTID/10005533@taobaolive_android_1.8.4 WindVane/8.5.0")
+                            .setAccept("*/*")
+                            .addHeader("X-Requested-With", "com.taobao.live")
+                            .addHeader("f-refer", "wv_h5"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
+            }
+
+            List<Cookie> cookies = response.getCookieStore().getCookies();
+            taobaoAccountEntity.mergeCookies(cookies);
+
+            // 把cna的cookie复制给淘宝的cookie
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().compareToIgnoreCase("cna") == 0) {
+                    if (cookie instanceof BasicClientCookie) {
+                        BasicClientCookie cloneCookie = (BasicClientCookie)((BasicClientCookie) cookie).clone();
+                        cloneCookie.setDomain(".taobao.com");
+                        taobaoAccountEntity.getCookieStore().addCookie(cloneCookie);
+                    }
+                }
             }
 
             return R.ok();

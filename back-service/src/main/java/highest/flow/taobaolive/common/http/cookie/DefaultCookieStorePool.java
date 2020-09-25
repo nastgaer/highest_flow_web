@@ -22,15 +22,24 @@ public class DefaultCookieStorePool extends CookieStorePool {
         if (this.cookieStore != null) {
             try {
                 URI uri = new URI(request.getUrl());
+                String host = uri.getHost();
 
                 CookieStore newCookieStore = new BasicCookieStore();
 
                 List<Cookie> cookies = this.cookieStore.getCookies();
                 for (Cookie cookie : cookies) {
+                    Cookie cloneCookie = cookie;
                     if (cookie instanceof BasicClientCookie) {
-                        ((BasicClientCookie)cookie).setDomain(uri.getHost());
+                        BasicClientCookie basicClientCookie = (BasicClientCookie) cookie;
+                        if (host.toLowerCase().indexOf(basicClientCookie.getDomain()) >= 0) {
+                            cloneCookie = (Cookie) basicClientCookie.clone();
+                            ((BasicClientCookie)cloneCookie).setDomain(host);
+
+                        } else {
+                            continue;
+                        }
                     }
-                    newCookieStore.addCookie(cookie);
+                    newCookieStore.addCookie(cloneCookie);
                 }
 
                 return newCookieStore;
