@@ -326,30 +326,6 @@ public class AssistRankingTask implements ITask {
                 // 初始化
                 taobaoLiveApiService.getH5Token(activeAccount);
 
-                // 获取用户行为记录和任务执行接口之间的绑定参数
-                boolean expired = false, found = false;
-                for (Cookie cookie : activeAccount.getCookieStore().getCookies()) {
-                    if (cookie.getDomain().toLowerCase().indexOf("mmstat.com") >= 0) {
-                        expired |= cookie.isExpired(new Date());
-                        found = true;
-                    }
-                }
-                if (expired || !found) {
-                    for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
-                        R r = taobaoLiveApiService.logTrackerJavascript(activeAccount);
-                        if (r.getCode() == ErrorCodes.SUCCESS) {
-                            break;
-                        }
-                    }
-                }
-
-                // 传送用户的打开热度榜的行为
-                for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
-                    R r = taobaoLiveApiService.intimacyTracker(activeAccount);
-                    if (r.getCode() == ErrorCodes.SUCCESS) {
-                        break;
-                    }
-                }
                 for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
                     R r = taobaoLiveApiService.getIntimacyDetail(liveRoomEntity, activeAccount);
                     if (r.getCode() == ErrorCodes.SUCCESS) {
