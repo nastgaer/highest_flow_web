@@ -91,17 +91,23 @@ public class AppRunner implements CommandLineRunner {
                 }
             }
             if (!found) {
-                ScheduleJobEntity scheduleJobEntity = new ScheduleJobEntity();
-                scheduleJobEntity.setBeanName("autoLoginTask");
-                scheduleJobEntity.setParams(null);
-                // EVERY 4 hours begining at 0:00
-                scheduleJobEntity.setCronExpression("0 30 0/8 ? * * *");
-                scheduleJobEntity.setCreatedTime(new Date());
-                scheduleJobEntity.setState(ScheduleState.NORMAL.getValue());
-                scheduleJobEntity.setRemark("延期任务");
+                String [] cronExpressions = new String[] {
+                        "0 30 4 ? * * *",
+                        "0 30 15 ? * * *"
+                };
 
-                schedulerJobService.saveOrUpdate(scheduleJobEntity);
-                ScheduleUtils.createScheduleJob(scheduler, scheduleJobEntity);
+                for (String expr : cronExpressions) {
+                    ScheduleJobEntity scheduleJobEntity = new ScheduleJobEntity();
+                    scheduleJobEntity.setBeanName("autoLoginTask");
+                    scheduleJobEntity.setParams(null);
+                    scheduleJobEntity.setCronExpression(expr);
+                    scheduleJobEntity.setCreatedTime(new Date());
+                    scheduleJobEntity.setState(ScheduleState.NORMAL.getValue());
+                    scheduleJobEntity.setRemark("延期任务");
+
+                    schedulerJobService.saveOrUpdate(scheduleJobEntity);
+                    ScheduleUtils.createScheduleJob(scheduler, scheduleJobEntity);
+                }
             }
 
             scheduler.start();

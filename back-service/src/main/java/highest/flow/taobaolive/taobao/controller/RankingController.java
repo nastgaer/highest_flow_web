@@ -387,7 +387,8 @@ public class RankingController extends AbstractController {
             }
 
             SysMember sysMember = this.getUser();
-            if (!sysMember.isAdministrator()) {
+            // 可以删除预约的任务，却不能删除刷过的任务，刷过的任务只有管理员能删除
+            if (rankingEntity.getState() != RankingEntityState.Waiting.getState() && !sysMember.isAdministrator()) {
                 return R.error("只有管理员能删除");
             }
 

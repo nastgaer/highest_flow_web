@@ -762,21 +762,13 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     public R getRankingListData(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             if (HFStringUtils.isNullOrEmpty(liveRoomEntity.getHierarchyData().getScopeId()) ||
-                    HFStringUtils.isNullOrEmpty(liveRoomEntity.getHierarchyData().getSubScopeId())) {
+                    HFStringUtils.isNullOrEmpty(liveRoomEntity.getHierarchyData().getSubScopeId()) ||
+                    liveRoomEntity.getHierarchyData().getScopeId().compareTo("-1") == 0 ||
+                    liveRoomEntity.getHierarchyData().getSubScopeId().compareTo("-1") == 0) {
                 this.getLiveEntryWeb(liveRoomEntity, taobaoAccountEntity);
             }
 
-            return this.getRankByMtop2(liveRoomEntity, taobaoAccountEntity);
-
-//            R r = this.getLiveEntryWeb(liveRoomEntity, taobaoAccountEntity);
-//            if (r.getCode() != ErrorCodes.SUCCESS) {
-//                r = this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
-//                if (r.getCode() != ErrorCodes.SUCCESS) {
-//                    return this.getRankByMtop2(liveRoomEntity, taobaoAccountEntity);
-//                }
-//            }
-//
-//            return r;
+            return this.getLiveEntry2(liveRoomEntity, taobaoAccountEntity);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -964,22 +956,22 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R getRankByMtop2(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+    public R getLiveEntry2(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
             Map<String, Object> jsonParams = new HashMap<>();
-            jsonParams.put("creatorId", liveRoomEntity.getAccountId());
+            jsonParams.put("accountId", liveRoomEntity.getAccountId());
             jsonParams.put("liveId", liveRoomEntity.getLiveId());
-            jsonParams.put("type", "activity");
+            jsonParams.put("type", "2");
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
-            String subUrl = "mtop.mediaplatform.livedetail.messinfo";
-            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
+            String subUrl = "mtop.mediaplatform.livedetail.entry";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/3.0/?data=" + URLEncoder.encode(jsonText);
 
             XHeader xHeader = new XHeader(taobaoAccountEntity);
             xHeader.setSubUrl(subUrl);
-            xHeader.setUrlVer("1.0");
+            xHeader.setUrlVer("3.0");
             xHeader.setData(jsonText);
             xHeader.setXsign(signService.xsign(xHeader));
 
@@ -1004,25 +996,37 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            Map<String, Object> mapActivity = (Map<String, Object>) mapData.get("activity");
-            Map<String, Object> mapBizData = (Map<String, Object>) mapActivity.get("bizData");
+            // 总榜
+            liveRoomEntity.setHasRankingListEntry(NumberUtils.valueOf(NumberUtils.parseBoolean(HFStringUtils.valueOf(mapData.get("hasRankingListEntry")))));
+            if (!liveRoomEntity.isHasRankingListEntry()) {
+                liveRoomEntity.getRankingListData().setRankingScore(0);
+                liveRoomEntity.getRankingListData().setRankingNum(0);
+                liveRoomEntity.getRankingListData().setRankingName("");
 
-            if (mapBizData.containsKey("rankNum") && mapBizData.containsKey("score")) {
-                liveRoomEntity.setHasRankingListEntry(true);
-                liveRoomEntity.setHasHourRankingListEntry(true);
+            } else {
+                Map<String, Object> mapRankingListData = (Map<String, Object>) mapData.get("rankingListData");
+                Map<String, Object> mapBizData = (Map<String, Object>) mapRankingListData.get("bizData");
 
                 liveRoomEntity.getRankingListData().setRankingScore((int)NumberUtils.valueOf(NumberUtils.parseDouble(HFStringUtils.valueOf(mapBizData.get("score")))).doubleValue());
                 liveRoomEntity.getRankingListData().setRankingNum(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("rankNum")))));
                 liveRoomEntity.getRankingListData().setRankingName(HFStringUtils.valueOf(mapBizData.get("name")));
+            }
+
+            // 小时榜
+            liveRoomEntity.setHasHourRankingListEntry(
+                    mapData.containsKey("hasRankingListEntry") ? NumberUtils.valueOf(NumberUtils.parseBoolean(HFStringUtils.valueOf(mapData.get("hasRankingListEntry")))) : false);
+            if (!liveRoomEntity.isHasHourRankingListEntry()) {
+                liveRoomEntity.getHourRankingListData().setRankingScore(0);
+                liveRoomEntity.getHourRankingListData().setRankingNum(0);
+                liveRoomEntity.getHourRankingListData().setRankingName("");
+
+            } else {
+                Map<String, Object> mapRankingListData = (Map<String, Object>) mapData.get("hourRankingListData");
+                Map<String, Object> mapBizData = (Map<String, Object>) mapRankingListData.get("bizData");
 
                 liveRoomEntity.getHourRankingListData().setRankingScore((int)NumberUtils.valueOf(NumberUtils.parseDouble(HFStringUtils.valueOf(mapBizData.get("score")))).doubleValue());
                 liveRoomEntity.getHourRankingListData().setRankingNum(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("rankNum")))));
                 liveRoomEntity.getHourRankingListData().setRankingName(HFStringUtils.valueOf(mapBizData.get("name")));
-
-            } else {
-                liveRoomEntity.setHasRankingListEntry(false);
-                liveRoomEntity.setHasHourRankingListEntry(false);
-
             }
 
             return R.ok()
@@ -1356,6 +1360,53 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     @Override
     public R getIntimacyDetail(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         try {
+            Map<String, Object> jsonParams = new HashMap<>();
+            jsonParams.put("liveId", liveRoomEntity.getLiveId());
+            jsonParams.put("anchorId", liveRoomEntity.getAccountId());
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(jsonParams);
+
+            String subUrl = "mtop.taobao.iliad.task.hierarchy.detail";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
+
+            XHeader xHeader = new XHeader(taobaoAccountEntity);
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer("1.0");
+            xHeader.setData(jsonText);
+            xHeader.setXsign(signService.xsign(xHeader));
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
+    public R getIntimacyDetailWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+        try {
             ObjectMapper objectMapper = new ObjectMapper();
 
             Map<String, Object> jsonParams = new HashMap<>();
@@ -1386,6 +1437,46 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
+
+            if (response.getStatusCode() != HttpStatus.SC_OK) {
+                return R.error();
+            }
+
+            String respText = response.getResult();
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
+            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
+                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
+            }
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error();
+    }
+
+    @Override
+    public R taskComplete(TaobaoAccountEntity taobaoAccountEntity) {
+        try {
+            String subUrl = "mtop.mediaplatform.lightlive.reportCompleteTask";
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode("{}");
+
+            XHeader xHeader = new XHeader(taobaoAccountEntity);
+            xHeader.setSubUrl(subUrl);
+            xHeader.setUrlVer("1.0");
+            xHeader.setData("{}");
+            xHeader.setXsign(signService.xsign(xHeader));
+
+            Response<String> response = HttpHelper.execute(
+                    new SiteConfig()
+                            .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
+                            .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
+                            .addHeaders(xHeader.getHeaders()),
+                    new Request("GET", url, ResponseType.TEXT));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -1838,7 +1929,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
     @Override
     public R intimacyTracker(TaobaoAccountEntity taobaoAccountEntity) {
         try {
-            String url = "https://gm.mmstat.com/jstracker.3?type=__pv__&__origin_url__=live-intimacy-rank&url=%E6%8B%89%E8%B5%B7%E4%BA%B2%E5%AF%86%E5%BA%A6%E9%9D%A2%E6%9D%BF%E6%88%90%E5%8A%9F%E7%8E%87&msg=%E6%88%90%E5%8A%9F%E6%8B%89%E8%B5%B7";
+            String url = "https://gm.mmstat.com/jstracker.3?type=__pv__&sampling=100&__origin_url__=live-rank&url=%E6%8B%89%E8%B5%B7%E6%8E%92%E8%A1%8C%E6%A6%9C%E9%9D%A2%E6%9D%BF%E6%88%90%E5%8A%9F%E7%8E%87&msg=%E6%88%90%E5%8A%9F%E6%8B%89%E8%B5%B7";
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()

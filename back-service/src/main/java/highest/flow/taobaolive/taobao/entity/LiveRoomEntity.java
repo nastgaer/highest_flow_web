@@ -68,9 +68,9 @@ public class LiveRoomEntity extends BaseLiveRoom {
     @Data
     public class HierarchyData {
 
-        private String scopeId = "";
+        private String scopeId = "-1";
 
-        private String subScopeId = "";
+        private String subScopeId = "-1";
     }
 
     @TableField(exist = false)

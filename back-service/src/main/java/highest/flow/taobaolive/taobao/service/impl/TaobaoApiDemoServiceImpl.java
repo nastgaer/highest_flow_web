@@ -401,7 +401,7 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
     }
 
     @Override
-    public R getRankByMtop2(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+    public R getLiveEntry2(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         return null;
     }
 
@@ -490,6 +490,16 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
 
     @Override
     public R getIntimacyDetail(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+        return null;
+    }
+
+    @Override
+    public R getIntimacyDetailWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
+        return null;
+    }
+
+    @Override
+    public R taskComplete(TaobaoAccountEntity taobaoAccountEntity) {
         return null;
     }
 

@@ -368,12 +368,11 @@ public class AssistRankingTask implements ITask {
                         r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
                     }
                     for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
-                        r = taobaoLiveApiService.taskCompleteWeb(activeAccount);
+                        r = taobaoLiveApiService.taskComplete(activeAccount);
                         if (r.getCode() == ErrorCodes.SUCCESS) {
                             break;
                         }
                     }
-
                 }
 
                 if (!isRunning(rankingEntity)) {

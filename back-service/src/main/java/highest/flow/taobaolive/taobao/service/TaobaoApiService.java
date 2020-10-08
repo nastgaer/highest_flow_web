@@ -151,7 +151,7 @@ public interface TaobaoApiService {
      * @param taobaoAccountEntity
      * @return
      */
-    public R getRankByMtop2(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
+    public R getLiveEntry2(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
      * 解析淘口令获取直播间信息
@@ -185,6 +185,10 @@ public interface TaobaoApiService {
      * @return
      */
     public R getIntimacyDetail(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
+
+    public R getIntimacyDetailWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
+
+    public R taskComplete(TaobaoAccountEntity taobaoAccountEntity);
 
     public R taskCompleteWeb(TaobaoAccountEntity taobaoAccountEntity);
 
