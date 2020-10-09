@@ -86,7 +86,7 @@ sign:
   method: mina
   #http://119.45.148.200:9999/xdata
   #http://localhost:9999/xdata
-  url: http://localhost:8888/xdata
+  url: http://localhost:9999/xdata
 
 secure:
   key: 1234!@#$

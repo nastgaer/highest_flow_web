@@ -60,10 +60,11 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String url = "https://api.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
 
             XHeader xHeader = new XHeader(taobaoAccountEntity);
+            xHeader.setPv("6.2");
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign("ab24260090aaa8c2f96e2358c705f6e9d368f3f08ae4ee8b79"); // signService.xsign(xHeader));
+            xHeader.setXSign("ab24260090aaa8c2f96e2358c705f6e9d368f3f08ae4ee8b79");
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -109,7 +110,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -188,7 +189,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -337,7 +338,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("2.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -526,7 +527,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -765,7 +766,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                     HFStringUtils.isNullOrEmpty(liveRoomEntity.getHierarchyData().getSubScopeId()) ||
                     liveRoomEntity.getHierarchyData().getScopeId().compareTo("-1") == 0 ||
                     liveRoomEntity.getHierarchyData().getSubScopeId().compareTo("-1") == 0) {
-                this.getLiveEntryWeb(liveRoomEntity, taobaoAccountEntity);
+                this.getLiveEntry(liveRoomEntity, taobaoAccountEntity);
             }
 
             return this.getLiveEntry2(liveRoomEntity, taobaoAccountEntity);
@@ -782,18 +783,19 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             Map<String, Object> jsonParams = new HashMap<>();
             jsonParams.put("accountId", liveRoomEntity.getAccountId());
             jsonParams.put("liveId", liveRoomEntity.getLiveId());
+            jsonParams.put("type", "1");
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
             String subUrl = "mtop.mediaplatform.livedetail.entry";
-            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/2.0/?data=" + URLEncoder.encode(jsonText);
+            String url = "https://acs.m.taobao.com/gw/" + subUrl + "/3.0/?data=" + URLEncoder.encode(jsonText);
 
             XHeader xHeader = new XHeader(taobaoAccountEntity);
             xHeader.setSubUrl(subUrl);
-            xHeader.setUrlVer("2.0");
+            xHeader.setUrlVer("3.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -816,132 +818,6 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             }
 
             Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            // 总榜
-            liveRoomEntity.setHasRankingListEntry(NumberUtils.valueOf(NumberUtils.parseBoolean(HFStringUtils.valueOf(mapData.get("hasRankingListEntry")))));
-            if (!liveRoomEntity.isHasRankingListEntry()) {
-                liveRoomEntity.getRankingListData().setRankingScore(0);
-                liveRoomEntity.getRankingListData().setRankingNum(0);
-                liveRoomEntity.getRankingListData().setRankingName("");
-
-            } else {
-                Map<String, Object> mapRankingListData = (Map<String, Object>) mapData.get("rankingListData");
-                Map<String, Object> mapBizData = (Map<String, Object>) mapRankingListData.get("bizData");
-
-                liveRoomEntity.getRankingListData().setRankingScore((int)NumberUtils.valueOf(NumberUtils.parseDouble(HFStringUtils.valueOf(mapBizData.get("score")))).doubleValue());
-                liveRoomEntity.getRankingListData().setRankingNum(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("rankNum")))));
-                liveRoomEntity.getRankingListData().setRankingName(HFStringUtils.valueOf(mapBizData.get("name")));
-            }
-
-            // 小时榜
-            liveRoomEntity.setHasHourRankingListEntry(
-                    mapData.containsKey("hasRankingListEntry") ? NumberUtils.valueOf(NumberUtils.parseBoolean(HFStringUtils.valueOf(mapData.get("hasRankingListEntry")))) : false);
-            if (!liveRoomEntity.isHasHourRankingListEntry()) {
-                liveRoomEntity.getHourRankingListData().setRankingScore(0);
-                liveRoomEntity.getHourRankingListData().setRankingNum(0);
-                liveRoomEntity.getHourRankingListData().setRankingName("");
-
-            } else {
-                Map<String, Object> mapRankingListData = (Map<String, Object>) mapData.get("hourRankingListData");
-                Map<String, Object> mapBizData = (Map<String, Object>) mapRankingListData.get("bizData");
-
-                liveRoomEntity.getHourRankingListData().setRankingScore((int)NumberUtils.valueOf(NumberUtils.parseDouble(HFStringUtils.valueOf(mapBizData.get("score")))).doubleValue());
-                liveRoomEntity.getHourRankingListData().setRankingNum(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("rankNum")))));
-                liveRoomEntity.getHourRankingListData().setRankingName(HFStringUtils.valueOf(mapBizData.get("name")));
-            }
-
-            Map<String, Object> mapHierachyData = (Map<String, Object>) mapData.get("hierarchyData");
-            liveRoomEntity.getHierarchyData().setScopeId(mapHierachyData == null ? "-1" : HFStringUtils.valueOf(mapHierachyData.get("scopeId")));
-            liveRoomEntity.getHierarchyData().setSubScopeId(mapHierachyData == null ? "-1" : HFStringUtils.valueOf(mapHierachyData.get("subScopeId")));
-
-            return R.ok()
-                    .put("live_room", liveRoomEntity);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return R.error();
-    }
-
-    @Override
-    public R getLiveEntryWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
-        try {
-            Map<String, Object> jsonParams = new HashMap<>();
-            jsonParams.put("accountId", liveRoomEntity.getAccountId());
-            jsonParams.put("liveId", liveRoomEntity.getLiveId());
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            String jsonText = objectMapper.writeValueAsString(jsonParams);
-
-            H5Header h5Header = new H5Header(taobaoAccountEntity);
-            String subUrl = "mtop.mediaplatform.livedetail.entry";
-
-            Map<String, Object> urlParams = new HashMap<>();
-            urlParams.put("appKey", h5Header.getAppKey());
-            urlParams.put("t", HFStringUtils.valueOf(h5Header.getLongTimestamp()));
-            urlParams.put("api", subUrl);
-            urlParams.put("v", "2.0");
-            urlParams.put("data", jsonText);
-            urlParams.put("sign", signService.h5sign(h5Header, jsonText));
-
-            String url = "https://h5api.m.taobao.com/h5/" + subUrl + "/2.0/?";
-
-            for (String key : urlParams.keySet()) {
-                url += key + "=" + URLEncoder.encode(HFStringUtils.valueOf(urlParams.get(key))) + "&";
-            }
-
-            Response<String> response = HttpHelper.execute(
-                    new SiteConfig()
-                            .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
-                    new Request("GET", url, ResponseType.TEXT),
-                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
-
-            if (response.getStatusCode() != HttpStatus.SC_OK) {
-                return R.error();
-            }
-
-            String respText = response.getResult();
-            JsonParser jsonParser = JsonParserFactory.getJsonParser();
-            Map<String, Object> map = jsonParser.parseMap(respText);
-
-            TaobaoReturn taobaoReturn = new TaobaoReturn(map);
-            if (taobaoReturn.getErrorCode() != ErrorCodes.SUCCESS) {
-                return R.error(taobaoReturn.getErrorCode(), taobaoReturn.getErrorMsg());
-            }
-
-            Map<String, Object> mapData = (Map<String, Object>) map.get("data");
-            // 总榜
-            liveRoomEntity.setHasRankingListEntry(NumberUtils.valueOf(NumberUtils.parseBoolean(HFStringUtils.valueOf(mapData.get("hasRankingListEntry")))));
-            if (!liveRoomEntity.isHasRankingListEntry()) {
-                liveRoomEntity.getRankingListData().setRankingScore(0);
-                liveRoomEntity.getRankingListData().setRankingNum(0);
-                liveRoomEntity.getRankingListData().setRankingName("");
-
-            } else {
-                Map<String, Object> mapRankingListData = (Map<String, Object>) mapData.get("rankingListData");
-                Map<String, Object> mapBizData = (Map<String, Object>) mapRankingListData.get("bizData");
-
-                liveRoomEntity.getRankingListData().setRankingScore((int)NumberUtils.valueOf(NumberUtils.parseDouble(HFStringUtils.valueOf(mapBizData.get("score")))).doubleValue());
-                liveRoomEntity.getRankingListData().setRankingNum(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("rankNum")))));
-                liveRoomEntity.getRankingListData().setRankingName(HFStringUtils.valueOf(mapBizData.get("name")));
-            }
-
-            // 小时榜
-            liveRoomEntity.setHasHourRankingListEntry(
-                    mapData.containsKey("hasRankingListEntry") ? NumberUtils.valueOf(NumberUtils.parseBoolean(HFStringUtils.valueOf(mapData.get("hasRankingListEntry")))) : false);
-            if (!liveRoomEntity.isHasHourRankingListEntry()) {
-                liveRoomEntity.getHourRankingListData().setRankingScore(0);
-                liveRoomEntity.getHourRankingListData().setRankingNum(0);
-                liveRoomEntity.getHourRankingListData().setRankingName("");
-
-            } else {
-                Map<String, Object> mapRankingListData = (Map<String, Object>) mapData.get("hourRankingListData");
-                Map<String, Object> mapBizData = (Map<String, Object>) mapRankingListData.get("bizData");
-
-                liveRoomEntity.getHourRankingListData().setRankingScore((int)NumberUtils.valueOf(NumberUtils.parseDouble(HFStringUtils.valueOf(mapBizData.get("score")))).doubleValue());
-                liveRoomEntity.getHourRankingListData().setRankingNum(NumberUtils.valueOf(NumberUtils.parseInt(HFStringUtils.valueOf(mapBizData.get("rankNum")))));
-                liveRoomEntity.getHourRankingListData().setRankingName(HFStringUtils.valueOf(mapBizData.get("name")));
-            }
-
             Map<String, Object> mapHierachyData = (Map<String, Object>) mapData.get("hierarchyData");
             liveRoomEntity.getHierarchyData().setScopeId(mapHierachyData == null ? "-1" : HFStringUtils.valueOf(mapHierachyData.get("scopeId")));
             liveRoomEntity.getHierarchyData().setSubScopeId(mapHierachyData == null ? "-1" : HFStringUtils.valueOf(mapHierachyData.get("subScopeId")));
@@ -973,7 +849,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("3.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -1374,7 +1250,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -1469,7 +1345,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData("{}");
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -1575,7 +1451,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -1701,7 +1577,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -1828,7 +1704,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -2106,7 +1982,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("3.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -2423,7 +2299,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("6.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -2564,7 +2440,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Map<String, String> postParams = new HashMap<>();
             postParams.put("data", jsonText);
@@ -2778,7 +2654,7 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()

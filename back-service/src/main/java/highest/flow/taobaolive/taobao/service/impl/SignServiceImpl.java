@@ -1,6 +1,7 @@
 package highest.flow.taobaolive.taobao.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import highest.flow.taobaolive.common.config.Config;
 import highest.flow.taobaolive.common.http.HttpHelper;
 import highest.flow.taobaolive.common.http.SiteConfig;
 import highest.flow.taobaolive.common.http.Request;
@@ -41,7 +42,7 @@ public class SignServiceImpl implements SignService {
      * @param xHeader
      * @return
      */
-    private String xsignOnMina(final XHeader xHeader) {
+    private boolean xsignOnMina(final XHeader xHeader) {
         try {
             Map<String, String> map = new HashMap<>();
             map.put("utdid", xHeader.getUtdid());
@@ -76,13 +77,13 @@ public class SignServiceImpl implements SignService {
                     new Request("POST", url, ResponseType.TEXT)
                             .setParameters(postParams));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                return null;
+                return false;
             }
 
             String respText = response.getResult();
 
             if (respText == null) {
-                return null;
+                return false;
             }
 
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
@@ -99,15 +100,21 @@ public class SignServiceImpl implements SignService {
 
             xsign = StringUtils.strip(xsign, "\"\r\n");
 
-            if (xsign.startsWith("ab2")) {
-                return xsign;
+            if (HFStringUtils.isNullOrEmpty(xsign) || HFStringUtils.isNullOrEmpty(miniWua)) {
+                return false;
             }
-            return null;
+
+            xHeader.setXSign(xsign);
+            xHeader.setXSgext(sgext);
+            xHeader.setXUmt(umt);
+            xHeader.setXMiniWua(miniWua);
+
+            return true;
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return null;
+        return false;
     }
 
     /**
@@ -115,7 +122,7 @@ public class SignServiceImpl implements SignService {
      * @param xHeader
      * @return
      */
-    private String xsignOnHttp(final XHeader xHeader) {
+    private boolean xsignOnHttp(final XHeader xHeader) {
         try {
             Map<String, String> map = new HashMap<>();
             map.put("utdid", xHeader.getUtdid());
@@ -145,13 +152,13 @@ public class SignServiceImpl implements SignService {
                             .addHeader("Content-Type", "application/json"),
                     new Request("GET", url, ResponseType.TEXT));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                return null;
+                return false;
             }
 
             String respText = response.getResult();
 
             if (respText == null) {
-                return null;
+                return false;
             }
 
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
@@ -168,26 +175,39 @@ public class SignServiceImpl implements SignService {
 
             xsign = StringUtils.strip(xsign, "\"\r\n");
 
-            if (xsign.startsWith("ab2")) {
-                return xsign;
+            if (!HFStringUtils.isNullOrEmpty(xsign) || !HFStringUtils.isNullOrEmpty(miniWua)) {
+                return false;
             }
-            return null;
+
+            xHeader.setXSign(xsign);
+            xHeader.setXSgext(sgext);
+            xHeader.setXUmt(umt);
+            xHeader.setXMiniWua(miniWua);
+
+            return true;
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return null;
+        return false;
     }
 
     @Override
-    public String xsign(XHeader xHeader) {
-        if (signMethod.equalsIgnoreCase("http")) {
-            return xsignOnHttp(xHeader);
-        } else if (signMethod.equalsIgnoreCase("mina")) {
-            return xsignOnMina(xHeader);
-        } else {
-            return null;
+    public boolean xsign(XHeader xHeader) {
+        for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
+            if (signMethod.equalsIgnoreCase("http")) {
+                if (xsignOnHttp(xHeader)) {
+                    return true;
+                }
+            } else if (signMethod.equalsIgnoreCase("mina")) {
+                if (xsignOnMina(xHeader)) {
+                    return true;
+                }
+            } else {
+                return false;
+            }
         }
+        return false;
     }
 
     @Override

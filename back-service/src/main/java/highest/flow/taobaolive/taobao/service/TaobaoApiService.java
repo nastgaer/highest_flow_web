@@ -138,14 +138,6 @@ public interface TaobaoApiService {
     public R getLiveEntry(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
 
     /**
-     * 查询直播间赛道和当前助力值
-     * @param liveRoomEntity
-     * @param taobaoAccountEntity
-     * @return
-     */
-    public R getLiveEntryWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity);
-
-    /**
      * 查询直播间的小时榜赛道和当前助力值
      * @param liveRoomEntity
      * @param taobaoAccountEntity

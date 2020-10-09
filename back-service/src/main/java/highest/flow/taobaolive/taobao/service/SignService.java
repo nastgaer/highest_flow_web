@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public interface SignService {
 
-    public String xsign(XHeader xHeader);
+    public boolean xsign(XHeader xHeader);
 
     public String h5sign(H5Header h5Header, String data);
 }

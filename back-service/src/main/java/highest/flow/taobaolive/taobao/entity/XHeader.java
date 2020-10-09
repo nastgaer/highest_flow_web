@@ -5,6 +5,7 @@ import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import lombok.Data;
 
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,12 +78,12 @@ public class XHeader {
         map.put("x-appkey", appkey);
         map.put("x-t", String.valueOf(getShortTimestamp()));
         map.put("x-pv", pv);
-        map.put("x-sign", xSign);
+        map.put("x-sign", URLEncoder.encode(xSign));
         map.put("x-features", String.valueOf(features));
 //        map.put("x-location", getLocation());
-        map.put("x-ttid", getTtid());
+        map.put("x-ttid", URLEncoder.encode(getTtid()));
         if (!HFStringUtils.isNullOrEmpty(utdid)) {
-            map.put("x-utdid", utdid);
+            map.put("x-utdid", URLEncoder.encode(utdid));
         }
         if (!HFStringUtils.isNullOrEmpty(devid)) {
             map.put("x-devid", devid);
@@ -94,13 +95,13 @@ public class XHeader {
             map.put("x-sid", sid);
         }
         if (!HFStringUtils.isNullOrEmpty(xSgext)) {
-            map.put("x-sgext", xSgext);
+            map.put("x-sgext", URLEncoder.encode(xSgext));
         }
 //        if (!HFStringUtils.isNullOrEmpty(xUmt)) {
-//            map.put("x-umt", xUmt);
+//            map.put("x-umt", URLEncoder.encode(xUmt));
 //        }
         if (!HFStringUtils.isNullOrEmpty(xMiniWua)) {
-            map.put("x-mini-wua", xMiniWua);
+            map.put("x-mini-wua", URLEncoder.encode(xMiniWua));
         }
         return map;
     }

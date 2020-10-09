@@ -143,7 +143,7 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -222,7 +222,7 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -278,7 +278,7 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("2.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
@@ -392,11 +392,6 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
 
     @Override
     public R getLiveEntry(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
-        return null;
-    }
-
-    @Override
-    public R getLiveEntryWeb(LiveRoomEntity liveRoomEntity, TaobaoAccountEntity taobaoAccountEntity) {
         return null;
     }
 
@@ -537,7 +532,7 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             int score = liveRoomEntity.getHourRankingListData().getRankingScore();
             score += rankingService.getRankingUnitScore(RankingScore.Follow);
@@ -585,7 +580,7 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             int score = liveRoomEntity.getHourRankingListData().getRankingScore();
             score += 1; // rankingService.getRankingUnitScore(RankingScore.Stay);
@@ -634,7 +629,7 @@ public class TaobaoApiDemoServiceImpl implements TaobaoApiService {
             xHeader.setSubUrl(subUrl);
             xHeader.setUrlVer("1.0");
             xHeader.setData(jsonText);
-            xHeader.setXsign(signService.xsign(xHeader));
+            signService.xsign(xHeader);
 
             int score = liveRoomEntity.getHourRankingListData().getRankingScore();
             score += rankingService.getRankingUnitScore(RankingScore.Buy);
