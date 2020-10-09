@@ -11,9 +11,9 @@
         </expiry>
 
         <resources>
-            <heap unit="entries">3000</heap>
-            <offheap unit="MB">100</offheap>
-            <disk persistent="true" unit="MB">500</disk>
+            <heap unit="entries">10000</heap>
+            <offheap unit="MB">1000</offheap>
+            <disk persistent="true" unit="MB">3000</disk>
         </resources>
     </cache>
 
