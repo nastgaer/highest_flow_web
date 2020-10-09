@@ -118,7 +118,7 @@ public class MinaService {
         acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, IDLETIMEOUT);
 
         try {
-            acceptor.bind(new InetSocketAddress(9228));
+            acceptor.bind(new InetSocketAddress(8228));
 
         } catch (Exception e) {
             e.printStackTrace();

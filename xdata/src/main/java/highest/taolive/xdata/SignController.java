@@ -32,8 +32,13 @@ public class SignController {
     @Autowired
     private MinaService minaService;
 
-    @PostMapping("/test")
+    @GetMapping("/test")
     public R test() {
+        return R.ok();
+    }
+
+    @PostMapping("/test")
+    public R test1(@RequestParam("content") String content) {
         return R.ok();
     }
 
@@ -46,6 +51,7 @@ public class SignController {
             }
 
             String plain = cryptoService.decrypt(data);
+
 
             ObjectMapper objectMapper = new ObjectMapper();
             XHeader xHeader = objectMapper.readValue(plain, XHeader.class);
@@ -496,5 +502,38 @@ public class SignController {
             ex.printStackTrace();
         }
         return R.error("跳转失败");
+    }
+
+    @GetMapping("/get-content")
+    public R getContent() {
+        try {
+            Packet packet = new Packet();
+            packet.setProtocol("get-content");
+            packet.setObj(null);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(packet);
+
+            minaService.sendMessage(jsonText);
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("获取内容");
+    }
+
+    @PostMapping("/upload-request")
+    public R uploadRequest(@RequestParam("content") String content) {
+        try {
+            System.out.println("request=" + content);
+
+            return R.ok();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("上传请求内容失败");
     }
 }
