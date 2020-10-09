@@ -100,7 +100,7 @@ public class MinaService {
     }
 
 
-    public static void start() {
+    public static void start(int port) {
         IoAcceptor acceptor = new NioSocketAcceptor();
         //添加日志过滤器
         acceptor.getFilterChain().addLast("logger", new LoggingFilter());
@@ -118,7 +118,7 @@ public class MinaService {
         acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, IDLETIMEOUT);
 
         try {
-            acceptor.bind(new InetSocketAddress(8228));
+            acceptor.bind(new InetSocketAddress(port));
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -18,6 +18,7 @@ import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +50,13 @@ public class TestXsignApplication implements ApplicationRunner {
     @Value("${sign.mode:xposed}")
     private String signMode = "";
 
-    private OkHttpClient client = null;
+    @Value("${http.mode:httpclient")
+    private String httpMode = "";
+
+    @Value("${http.async:false}")
+    private boolean async = false;
+
+    private static OkHttpClient client = null;
 
     private AtomicInteger success = new AtomicInteger(0), fail = new AtomicInteger(0);
 
@@ -113,43 +120,65 @@ public class TestXsignApplication implements ApplicationRunner {
         System.out.println("总共耗时：" + times + "毫秒");
     }
 
+    abstract class XSignCallback {
 
-    public void testXData(int count) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("utdid", "");
-        map.put("uid", "");
-        map.put("appkey", "25443018");
-        map.put("sid", "");
-        map.put("ttid", "10005533@taobaolive_android_1.4.0");
-        map.put("pv", "6.2");
-        map.put("devid", "");
-        map.put("location1", "");
-        map.put("location2", "");
-        map.put("features", "27");
-        map.put("subUrl", "mtop.taobao.sharepassword.querypassword");
-        map.put("urlVer", "1.0");
-        map.put("timestamp", 1599203806);
-        map.put("data", "{\"passwordContent\":\"￥YIJNcWAbEW3￥\"}");
+        abstract void onFailure();
 
-        long startTime = System.currentTimeMillis();
+        abstract void onSuccess(String respText);
 
-        System.out.println("TOTAL：" + count);
-        for (int idx = 0; idx < count; idx++) {
+        private int index = 0;
 
-            String result = callXsign(map);
-            if (StringUtils.isNotBlank(result)) {
-                System.out.println("第" + (idx + 1) + " 成功");
-                success.incrementAndGet();
-            } else {
-                System.out.println("第" + (idx + 1) + " 失败: " + result);
-                fail.addAndGet(1);
-            }
+        public XSignCallback(int index) {
+            this.index = index;
         }
 
-        System.out.println("TOTAL: " + count + ", SUCCESS: " + success + ", FAIL: " + fail);
+        public int getIndex() {
+            return index;
+        }
+    }
 
-        long times = System.currentTimeMillis() - startTime;
-        System.out.println("总共耗时：" + times + "毫秒");
+    private void asyncCallXsign(Map<String, Object> map, XSignCallback callback) {
+        if (httpMode.compareToIgnoreCase("httpclient") == 0) {
+            return;
+        }
+
+        CryptoHelper cryptoHelper = new CryptoHelper(method, prefix, suffix, encryptKey);
+
+        String url = signUrl;
+
+        String jsonText = JSON.toJSONString(map);
+        String encoded = cryptoHelper.encrypt(jsonText);
+
+        RequestBody requestBody = new FormBody.Builder()
+                .add("data", encoded)
+                .add("sign", cryptoHelper.sign(encoded))
+                .build();
+
+        okhttp3.Request request = new okhttp3.Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        if (client == null) {
+            OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                    .connectTimeout(45000, TimeUnit.SECONDS)
+                    .readTimeout(45000, TimeUnit.SECONDS);
+            client = builder.build();
+        }
+
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure();
+            }
+
+            @Override
+            public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                String respText = response.body().string();
+                callback.onSuccess(respText);
+            }
+        });
     }
 
     private String callXsign(Map<String, Object> map) {
@@ -162,42 +191,50 @@ public class TestXsignApplication implements ApplicationRunner {
                 String jsonText = JSON.toJSONString(map);
                 String encoded = cryptoHelper.encrypt(jsonText);
 
-//                Map<String, String> postParams = new HashMap<>();
-//                postParams.put("data", encoded);
-//                postParams.put("sign", cryptoHelper.sign(encoded));
+                String respText = null;
 
-//                Response<String> response = HttpHelper.execute(
-//                        new SiteConfig()
-//                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
-//                                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
-//                        new Request("POST", url, ResponseType.TEXT)
-//                                .setParameters(postParams));
-//                if (response.getStatusCode() != HttpStatus.SC_OK) {
-//                    return null;
-//                }
-//
-//                String respText = response.getResult();
+                if (httpMode.compareToIgnoreCase("httpclient") == 0) {
+                    Map<String, String> postParams = new HashMap<>();
+                    postParams.put("data", encoded);
+                    postParams.put("sign", cryptoHelper.sign(encoded));
 
-//                RequestBody requestBody = new MultipartBody.Builder()
-//                        .setType(MultipartBody.FORM)
-//                        .addFormDataPart("data", encoded)
-//                        .addFormDataPart("sign", cryptoHelper.sign(encoded))
-//                        .build();
+                    Response<String> response = HttpHelper.execute(
+                            new SiteConfig()
+                                    .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+                                    .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
+                            new Request("POST", url, ResponseType.TEXT)
+                                    .setParameters(postParams));
+                    if (response.getStatusCode() != HttpStatus.SC_OK) {
+                        return null;
+                    }
 
-                RequestBody requestBody = new FormBody.Builder()
-                        .add("data", encoded)
-                        .add("sign", cryptoHelper.sign(encoded))
-                        .build();
+                    respText = response.getResult();
 
-                okhttp3.Request request = new okhttp3.Request.Builder()
-                        .url(url)
-                        .post(requestBody)
-                        .build();
+                } else { // use okhttp
+                    RequestBody requestBody = new FormBody.Builder()
+                            .add("data", encoded)
+                            .add("sign", cryptoHelper.sign(encoded))
+                            .build();
 
-                Call call = client.newCall(request);
-                okhttp3.Response response = call.execute();
+                    okhttp3.Request request = new okhttp3.Request.Builder()
+                            .url(url)
+                            .post(requestBody)
+                            .build();
 
-                String respText = response.body().string();
+                    if (client == null) {
+                        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                                .connectTimeout(45000, TimeUnit.SECONDS)
+                                .readTimeout(45000, TimeUnit.SECONDS);
+                        client = builder.build();
+                    }
+
+                    Call call = client.newCall(request);
+                    okhttp3.Response response = call.execute();
+
+                    respText = response.body().string();
+
+//                    response.body().close();
+                }
 
                 if (respText == null) {
                     return null;
@@ -217,36 +254,50 @@ public class TestXsignApplication implements ApplicationRunner {
 
                 xsign = StringUtils.strip(xsign, "\"\r\n");
 
-                if (xsign.startsWith("ab2")) {
+                if (StringUtils.isNotEmpty(xsign) && StringUtils.isNotEmpty(miniWua)) {
                     return xsign;
                 }
 
-            } else if (signMode.toLowerCase().compareTo("xposed2") == 0) {
+            } else if (signMode.toLowerCase().compareTo("xposed2") == 0 || signMode.toLowerCase().compareTo("frida") == 0) {
                 String url = signUrl + "?";
 
                 for (String key : map.keySet()) {
                     url += key + "=" + URLEncoder.encode(String.valueOf(map.get(key))) + "&";
                 }
 
-//                Response<String> response = HttpHelper.execute(
-//                        new SiteConfig()
-//                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
-//                                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
-//                        new Request("GET", url, ResponseType.TEXT));
-//                if (response.getStatusCode() != HttpStatus.SC_OK) {
-//                    return null;
-//                }
-//
-//                String respText = response.getResult();
+                String respText = null;
 
-                okhttp3.Request request = new okhttp3.Request.Builder()
-                        .url(url)
-                        .build();
+                if (httpMode.compareToIgnoreCase("httpclient") == 0) {
+                    Response<String> response = HttpHelper.execute(
+                            new SiteConfig()
+                                    .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
+                                    .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
+                            new Request("GET", url, ResponseType.TEXT));
+                    if (response.getStatusCode() != HttpStatus.SC_OK) {
+                        return null;
+                    }
 
-                Call call = client.newCall(request);
-                okhttp3.Response response = call.execute();
+                    respText = response.getResult();
 
-                String respText = response.body().string();
+                } else { // use okhttp
+                    okhttp3.Request request = new okhttp3.Request.Builder()
+                            .url(url)
+                            .build();
+
+                    if (client == null) {
+                        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                                .connectTimeout(45000, TimeUnit.SECONDS)
+                                .readTimeout(45000, TimeUnit.SECONDS);
+                        client = builder.build();
+                    }
+
+                    Call call = client.newCall(request);
+                    okhttp3.Response response = call.execute();
+
+                    respText = response.body().string();
+
+//                    response.body().close();
+                }
 
                 if (respText == null) {
                     return null;
@@ -266,53 +317,10 @@ public class TestXsignApplication implements ApplicationRunner {
 
                 xsign = StringUtils.strip(xsign, "\"\r\n");
 
-                if (xsign.startsWith("ab2")) {
+                if (StringUtils.isNotEmpty(xsign) && StringUtils.isNotEmpty(miniWua)) {
                     return xsign;
                 }
 
-            } else if (signMode.toLowerCase().compareTo("frida") == 0) {
-                String url = signUrl + "?";
-
-                for (String key : map.keySet()) {
-                    url += key + "=" + URLEncoder.encode(String.valueOf(map.get(key))) + "&";
-                }
-
-//                Response<String> response = HttpHelper.execute(
-//                        new SiteConfig()
-//                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
-//                                .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
-//                        new Request("GET", url, ResponseType.TEXT));
-//                if (response.getStatusCode() != HttpStatus.SC_OK) {
-//                    return null;
-//                }
-//
-//                String respText = response.getResult();
-
-                okhttp3.Request request = new okhttp3.Request.Builder()
-                        .url(url)
-                        .build();
-
-                Call call = client.newCall(request);
-                okhttp3.Response response = call.execute();
-
-                String respText = response.body().string();
-
-                if (respText == null) {
-                    return null;
-                }
-
-                JsonParser jsonParser = JsonParserFactory.getJsonParser();
-                Map<String, Object> mapResp = jsonParser.parseMap(respText);
-
-                Map<String, Object> mapData = (Map) mapResp.get("data");
-
-                String xsign = mapData == null || !mapData.containsKey("x-sign") ? "" : String.valueOf(mapData.get("x-sign"));
-
-                xsign = StringUtils.strip(xsign, "\"\r\n");
-
-                if (xsign.startsWith("ab2")) {
-                    return xsign;
-                }
             }
 
         } catch (Exception ex) {
@@ -339,32 +347,93 @@ public class TestXsignApplication implements ApplicationRunner {
             threadPoolExecutor.setThreadNamePrefix("ranking-");
             threadPoolExecutor.initialize();
 
-            OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                    .connectTimeout(45000, TimeUnit.SECONDS)
-                    .readTimeout(45000, TimeUnit.SECONDS);
-            client = builder.build();
-
             long startTime = System.currentTimeMillis();
 
-            CountDownLatch countDownLatch = new CountDownLatch(threadsCount);
+            CountDownLatch countDownLatch = new CountDownLatch(threadsCount * repeatCount);
 
             for (int thread = 0; thread < threadsCount; thread++) {
                 threadPoolExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
-//                            for (int idx = 0; idx < repeatCount; idx++) {
-//                                Response<String> response = HttpHelper.execute(
-//                                        new SiteConfig()
-//                                                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
-//                                                .addHeader("Content-Type", "application/x-www-form-urlencoded"),
-//                                        new Request("GET", "http://localhost:9999/xdata", ResponseType.TEXT));
-//                            }
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("utdid", "");
+                            map.put("uid", "");
+                            map.put("appkey", "25443018");
+                            map.put("sid", "");
+                            map.put("ttid", "10005533@taobaolive_android_1.8.4");
+                            map.put("pv", "6.3");
+                            map.put("devid", "");
+                            map.put("location1", "");
+                            map.put("location2", "");
+                            map.put("features", "27");
+                            map.put("subUrl", "mtop.taobao.sharepassword.querypassword");
+                            map.put("urlVer", "1.0");
+                            map.put("timestamp", 1599203806);
+                            map.put("data", "{\"passwordContent\":\"￥YIJNcWAbEW3￥\"}");
 
-                            testXData(repeatCount);
+                            if (async) {
+                                for (int idx = 0; idx < repeatCount; idx++) {
+                                    XSignCallback callback = new XSignCallback(idx) {
+
+                                        @Override
+                                        public void onFailure() {
+                                            System.out.println("第" + (this.getIndex() + 1) + " 失败");
+                                            fail.addAndGet(1);
+                                            countDownLatch.countDown();
+                                        }
+
+                                        @Override
+                                        public void onSuccess(String respText) {
+                                            if (StringUtils.isEmpty(respText)) {
+                                                onFailure();
+                                                return;
+                                            }
+
+                                            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+                                            Map<String, Object> mapResp = jsonParser.parseMap(respText);
+
+                                            Map<String, Object> mapData = (Map) mapResp.get("data");
+
+                                            String version = mapData == null || !mapData.containsKey("version") ? "" : String.valueOf(mapData.get("version"));
+                                            String xsign = mapData == null || !mapData.containsKey("xsign") ? "" : String.valueOf(mapData.get("xsign"));
+                                            String wua = mapData == null || !mapData.containsKey("wua") ? "" : String.valueOf(mapData.get("wua"));
+                                            String sgext = mapData == null || !mapData.containsKey("x-sgext") ? "" : String.valueOf(mapData.get("x-sgext"));
+                                            String miniWua = mapData == null || !mapData.containsKey("x-mini-wua") ? "" : String.valueOf(mapData.get("x-mini-wua"));
+                                            String umt = mapData == null || !mapData.containsKey("x-umt") ? "" : String.valueOf(mapData.get("x-umt"));
+
+                                            xsign = StringUtils.strip(xsign, "\"\r\n");
+
+                                            if (StringUtils.isNotEmpty(xsign) && StringUtils.isNotEmpty(miniWua)) {
+                                                System.out.println("第" + (this.getIndex() + 1) + " 成功");
+                                                success.incrementAndGet();
+                                            } else {
+                                                System.out.println("第" + (this.getIndex() + 1) + " 失败");
+                                                fail.addAndGet(1);
+                                            }
+                                            countDownLatch.countDown();
+                                        }
+                                    };
+
+                                    asyncCallXsign(map, callback);
+                                }
+
+                            } else {
+                                for (int idx = 0; idx < repeatCount; idx++) {
+                                    String result = callXsign(map);
+                                    if (StringUtils.isNotBlank(result)) {
+                                        System.out.println("第" + (idx + 1) + " 成功");
+                                        success.incrementAndGet();
+                                    } else {
+                                        System.out.println("第" + (idx + 1) + " 失败: " + result);
+                                        fail.addAndGet(1);
+                                    }
+
+                                    countDownLatch.countDown();
+                                }
+                            }
 
                         } finally {
-                            countDownLatch.countDown();
                         }
                     }
                 });

@@ -10,7 +10,7 @@
     </parent>
     <groupId>highest.flow.taolive</groupId>
     <artifactId>test-xsign</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
     <name>test-xsign</name>
     <description>测试代码</description>
