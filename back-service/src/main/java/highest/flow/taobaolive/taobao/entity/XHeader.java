@@ -5,7 +5,6 @@ import highest.flow.taobaolive.common.utils.CommonUtils;
 import highest.flow.taobaolive.common.utils.HFStringUtils;
 import lombok.Data;
 
-import java.net.URLEncoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,10 +15,10 @@ public class XHeader {
     private String utdid = "";
     private String uid = "";
     private String appkey = "25443018";
-    private String pv = "6.2";
+    private String pv = "6.3"; // "6.2";
     private long timestamp = 0;
     private String sid = "";
-    private String ttid = "10005533@taobaolive_android_1.4.0";
+    private String ttid = "10005533@taobaolive_android_1.8.4"; // "10005533@taobaolive_android_1.4.0";
     private String devid = "";
     private String location1 = "1568.459875";
     private String location2 = "454.451236";
@@ -28,7 +27,13 @@ public class XHeader {
     private String urlVer = "";
     private String data = "";
     @JsonIgnore
-    private String xsign = "";
+    private String xSign = "";
+    @JsonIgnore
+    private String xSgext = "";
+    @JsonIgnore
+    private String xUmt = "";
+    @JsonIgnore
+    private String xMiniWua = "";
 
     public XHeader() {
     }
@@ -72,7 +77,7 @@ public class XHeader {
         map.put("x-appkey", appkey);
         map.put("x-t", String.valueOf(getShortTimestamp()));
         map.put("x-pv", pv);
-        map.put("x-sign", xsign);
+        map.put("x-sign", xSign);
         map.put("x-features", String.valueOf(features));
 //        map.put("x-location", getLocation());
         map.put("x-ttid", getTtid());
@@ -87,6 +92,15 @@ public class XHeader {
         }
         if (!HFStringUtils.isNullOrEmpty(uid)) {
             map.put("x-sid", sid);
+        }
+        if (!HFStringUtils.isNullOrEmpty(xSgext)) {
+            map.put("x-sgext", xSgext);
+        }
+//        if (!HFStringUtils.isNullOrEmpty(xUmt)) {
+//            map.put("x-umt", xUmt);
+//        }
+        if (!HFStringUtils.isNullOrEmpty(xMiniWua)) {
+            map.put("x-mini-wua", xMiniWua);
         }
         return map;
     }
