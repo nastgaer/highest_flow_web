@@ -328,7 +328,7 @@ public class AssistRankingTask implements ITask {
                 }
 
                 // 初始化
-//                taobaoLiveApiService.getH5Token(activeAccount);
+                taobaoLiveApiService.getH5Token(activeAccount);
 
                 for (int retry = 0; retry < Config.MAX_RETRY; retry++) {
                     R r = taobaoLiveApiService.getIntimacyDetail(liveRoomEntity, activeAccount);

@@ -175,7 +175,7 @@ public class SignServiceImpl implements SignService {
 
             xsign = StringUtils.strip(xsign, "\"\r\n");
 
-            if (!HFStringUtils.isNullOrEmpty(xsign) || !HFStringUtils.isNullOrEmpty(miniWua)) {
+            if (HFStringUtils.isNullOrEmpty(xsign) || HFStringUtils.isNullOrEmpty(miniWua)) {
                 return false;
             }
 

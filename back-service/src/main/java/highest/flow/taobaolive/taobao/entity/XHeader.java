@@ -82,8 +82,10 @@ public class XHeader {
         map.put("x-features", String.valueOf(features));
 //        map.put("x-location", getLocation());
         map.put("x-ttid", URLEncoder.encode(getTtid()));
+//        map.put("x-ttid", getTtid());
         if (!HFStringUtils.isNullOrEmpty(utdid)) {
             map.put("x-utdid", URLEncoder.encode(utdid));
+//            map.put("x-utdid", utdid);
         }
         if (!HFStringUtils.isNullOrEmpty(devid)) {
             map.put("x-devid", devid);
@@ -96,12 +98,14 @@ public class XHeader {
         }
         if (!HFStringUtils.isNullOrEmpty(xSgext)) {
             map.put("x-sgext", URLEncoder.encode(xSgext));
+//            map.put("x-sgext", xSgext);
         }
 //        if (!HFStringUtils.isNullOrEmpty(xUmt)) {
 //            map.put("x-umt", URLEncoder.encode(xUmt));
 //        }
         if (!HFStringUtils.isNullOrEmpty(xMiniWua)) {
             map.put("x-mini-wua", URLEncoder.encode(xMiniWua));
+//            map.put("x-mini-wua", xMiniWua);
         }
         return map;
     }
