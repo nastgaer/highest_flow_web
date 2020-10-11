@@ -1,24 +1,18 @@
 package highest.flow.taobaolive.taobao.provider;
 
+import highest.flow.taobaolive.common.cache.MyCache;
 import highest.flow.taobaolive.sys.entity.SysMember;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Component
 public class LiveCacheManager {
 
-    @Autowired
-    private CacheManager cacheManager;
-
     private String generateRankingKey(SysMember sysMember, String liveId, Date date) {
-        String key = String.valueOf(sysMember.getId()) + "_" + liveId + "_" + new SimpleDateFormat("yyyyMMdd").format(new Date());
+        String key = /*String.valueOf(sysMember.getId()) + "_" + */liveId + "_" + new SimpleDateFormat("yyyyMMdd").format(new Date());
         return key;
     }
 
@@ -26,9 +20,7 @@ public class LiveCacheManager {
         try {
             String key = this.generateRankingKey(sysMember, liveId, date);
 
-            Cache cache = this.cacheManager.getCache("assistRankUids");
-            Cache.ValueWrapper valueWrapper = cache.get(key);
-            return valueWrapper == null ? null : (List<String>) valueWrapper.get();
+            return (List<String>) MyCache.getInstance().getCache(key);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -40,8 +32,7 @@ public class LiveCacheManager {
         try {
             String key = this.generateRankingKey(sysMember, liveId, date);
 
-            Cache cache = this.cacheManager.getCache("assistRankUids");
-            cache.put(key, value);
+            MyCache.getInstance().setCache(key, value);
 
         } catch (Exception ex) {
             ex.printStackTrace();

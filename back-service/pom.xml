@@ -10,7 +10,7 @@
     </parent>
     <groupId>highest.flow</groupId>
     <artifactId>back-service</artifactId>
-    <version>1.0.7</version>
+    <version>1.0.8</version>
 
     <packaging>war</packaging>
     <name>back-service</name>
@@ -252,14 +252,12 @@
 
         <!--Ehcache-->
         <dependency>
-            <groupId>org.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>3.8.1</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cache-api</artifactId>
-            <version>1.1.1</version>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
         </dependency>
 
         <dependency>

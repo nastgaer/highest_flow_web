@@ -50,7 +50,7 @@ public class TestXsignApplication implements ApplicationRunner {
     @Value("${sign.mode:xposed}")
     private String signMode = "";
 
-    @Value("${http.mode:httpclient")
+    @Value("${http.mode:httpclient}")
     private String httpMode = "";
 
     @Value("${http.async:false}")

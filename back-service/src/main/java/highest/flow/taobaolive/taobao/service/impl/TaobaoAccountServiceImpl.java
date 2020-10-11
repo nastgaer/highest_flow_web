@@ -168,7 +168,11 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
         for (int idx = 0; idx < cachedTaobaoAccountEntities.size(); idx++) {
             TaobaoAccountEntity taobaoAccountEntity = cachedTaobaoAccountEntities.get(idx);
             if (taobaoAccountEntity.getUid().compareTo(cacheAccountEntity.getUid()) == 0) {
-                cachedTaobaoAccountEntities.set(idx, taobaoAccountEntity);
+                if (taobaoAccountEntity.getState() != TaobaoAccountState.Normal.getState()) {
+                    cachedTaobaoAccountEntities.remove(idx);
+                } else {
+                    cachedTaobaoAccountEntities.set(idx, taobaoAccountEntity);
+                }
                 found = true;
                 break;
             }
