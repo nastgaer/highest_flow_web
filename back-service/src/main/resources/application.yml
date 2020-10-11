@@ -83,8 +83,8 @@ sign:
   prefix: gaoji
   suffix: yinliu
   # communication method to calculate xsign between backservice and xdata module: "mina" or "http"
-  method: http
-  url: http://localhost:9999/xdata2
+  method: mina
+  url: http://localhost:9999/xdata
   # http, http://localhost:9999/xdata2
   # mina, http://localhost:9999/xdata
 

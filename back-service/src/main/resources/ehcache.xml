@@ -37,7 +37,7 @@
     <cache name="assistRankUids"
            maxElementsInMemory="1" eternal="false"
            timeToIdleSeconds="86400" timeToLiveSeconds="86400"
-           overflowToDisk="true" diskSpoolBufferSizeMB="1000" maxElementsOnDisk="100000"
+           overflowToDisk="true" diskSpoolBufferSizeMB="5000" maxElementsOnDisk="100000"
            diskPersistent="true" memoryStoreEvictionPolicy="LRU">
         <cacheEventListenerFactory
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory" />
