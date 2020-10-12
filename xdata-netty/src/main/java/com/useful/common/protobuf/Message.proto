@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option java_package = "com.useful.common.protobuf";
+option java_outer_classname = "Message";
+import "com/useful/common/protobuf/Command.proto";
+
+message MessageBase {
+    /**
+     * 命令ID
+     */
+    int64 messageId = 1;
+    /**
+     * 终端ID
+     */
+    string clientId = 2;
+    /**
+     * 命令类型
+     */
+    CommandType commandType = 3;
+    /**
+     * 数据, JSON格式
+     */
+    string data = 4;
+}

@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option java_package = "com.useful.common.protobuf";
+option java_outer_classname = "Command";
+
+/**
+ * 指令类型
+ */
+enum CommandType {
+    /**
+     * 验证
+     */
+    AUTH = 0;
+    /**
+     * 验证返回
+     */
+    AUTH_BACK = 1;
+    /**
+     * ping
+     */
+    PING = 2;
+    /**
+     * pong
+     */
+    PONG = 3;
+
+    /**
+     * echo
+     */
+    ECHO = 4;
+    /**
+     * echo返回
+     */
+    ECHO_BACK = 5;
+
+    /**
+     * REQUEST
+     */
+    REQUEST = 6;
+    /**
+     * RESPONSE
+     */
+    RESPONSE = 7;
+}
