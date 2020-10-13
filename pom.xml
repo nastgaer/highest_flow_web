@@ -13,6 +13,9 @@
 		<module>back-service</module>
         <module>test-xsign</module>
         <module>xdata</module>
+        <module>xdata-charlie</module>
+        <!--<module>xdata-netty</module>-->
+        <module>xdata-tornado</module>
     </modules>
 
 </project>

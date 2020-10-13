@@ -94,6 +94,12 @@ public class ServerAuthHandler extends ChannelInboundHandlerAdapter {
         ReferenceCountUtil.release(msg);
     }
 
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        super.channelReadComplete(ctx);
+        ctx.flush();
+    }
+
     private Message.MessageBase createMessage(String clientId, Command.CommandType commandType, String data) {
         return Message.MessageBase.newBuilder()
                 .setClientId(clientId)

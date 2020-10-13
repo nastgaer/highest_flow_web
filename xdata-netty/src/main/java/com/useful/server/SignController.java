@@ -9,6 +9,7 @@ import com.useful.server.session.SessionManager;
 import com.useful.server.sync.PromiseFuture;
 import com.useful.server.sync.WaitingPool;
 import com.useful.server.typeServer.TCPServer;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -198,7 +199,7 @@ public class SignController {
                         .put("x-sgext", sgext)
                         .put("x-umt", umt);
 
-            } catch (TimeoutException ex) {
+            } catch (Exception ex) {
                 return R.error("xsign验证失败");
             }
 

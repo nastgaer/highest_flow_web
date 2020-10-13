@@ -1,0 +1,1 @@
+java -jar xdata-tornado.jar conf
