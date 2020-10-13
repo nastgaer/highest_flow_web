@@ -59,6 +59,8 @@ public class AssistRankingTask implements ITask {
     @Autowired
     private Executor rankingExecutor;
 
+    private int unitScoreFollow = 0, unitScoreBuy = 0, unitScoreStay = 0;
+
     private CountDownLatch countDownLatch = null;
 
     private Thread monitorThread = null;
@@ -161,10 +163,12 @@ public class AssistRankingTask implements ITask {
             monitorThread = new Thread(new MonitorWorker(rankingEntity, liveRoomEntity, activeAccountEntity));
             monitorThread.start();
 
-            int unitScore = rankingEntity.isHasDoubleBuy() ? this.rankingService.getRankingUnitScore(RankingScore.DoubleBuy) :
+            unitScoreBuy = rankingEntity.isHasDoubleBuy() ? this.rankingService.getRankingUnitScore(RankingScore.DoubleBuy) :
                     (rankingEntity.isHasBuy() ? this.rankingService.getRankingUnitScore(RankingScore.Buy) : 0);
-            unitScore += rankingEntity.isHasFollow() ? this.rankingService.getRankingUnitScore(RankingScore.Follow) : 0;
-            unitScore += rankingEntity.isHasStay() ? this.rankingService.getRankingUnitScore(RankingScore.Stay) : 0;
+            unitScoreFollow = rankingEntity.isHasFollow() ? this.rankingService.getRankingUnitScore(RankingScore.Follow) : 0;
+            unitScoreStay = rankingEntity.isHasStay() ? this.rankingService.getRankingUnitScore(RankingScore.Stay) : 0;
+
+            int unitScore = unitScoreFollow + unitScoreBuy + unitScoreStay;
 
             int leftScore = rankingEntity.getTargetScore();
             int startIndex = 0, endScore = 0;
@@ -172,7 +176,7 @@ public class AssistRankingTask implements ITask {
             ConcurrentLinkedQueue<TaobaoAccountEntity> concurrentLinkedQueue = new ConcurrentLinkedQueue<>();
 
             // 直到达到目标
-            while (leftScore > 0 && this.isRunning(rankingEntity)) {
+            while (leftScore > 0 && this.isRunning(rankingEntity) && unitScore > 0) {
                 int totalCount = leftScore / unitScore + 1;
 
                 if (startIndex >= taobaoAccountEntities.size()) {
@@ -338,7 +342,7 @@ public class AssistRankingTask implements ITask {
                     logger.error(activeAccount.getNick() + ": getIntimacyDetail" + r.getMsg());
                 }
 
-                if (rankingEntity.isHasFollow())
+                if (rankingEntity.isHasFollow() && unitScoreFollow > 0)
                 {
                     // 关注
                     R r = taobaoLiveApiService.taskFollow(liveRoomEntity, activeAccount);
@@ -366,7 +370,7 @@ public class AssistRankingTask implements ITask {
                     return;
                 }
 
-                if (rankingEntity.isHasBuy())
+                if (rankingEntity.isHasBuy() && unitScoreBuy > 0)
                 {
                     // 购买
                     List<ProductEntity> productEntities = liveRoomEntity.getProducts();
@@ -397,7 +401,7 @@ public class AssistRankingTask implements ITask {
                     return;
                 }
 
-                if (rankingEntity.isHasStay())
+                if (rankingEntity.isHasStay() && unitScoreStay > 0)
                 {
                     // 观看停留
                     for (int time = 60; time <= 3600; time += 60) {
