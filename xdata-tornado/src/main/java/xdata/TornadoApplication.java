@@ -54,7 +54,7 @@ public class TornadoApplication {
                     try {
                         logger.info("SUCCESS = " + success.get() + ", FAILED = " + failed.get());
 
-                        Thread.sleep(1000);
+                        Thread.sleep(10 * 1000);
 
                     } catch (Exception ex) {
                         ex.printStackTrace();

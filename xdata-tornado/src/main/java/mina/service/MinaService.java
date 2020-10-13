@@ -46,7 +46,7 @@ public class MinaService {
                     } else {
                         logger.info("正常设备数：" + sessiones.size());
                     }
-                    Thread.sleep(1000);
+                    Thread.sleep(5 * 1000);
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -190,8 +190,7 @@ public class MinaService {
             String str = message.toString();
             Date date = new Date();
             session.write(date.toString());
-            logger.info("接收到的数据：" + str);
-
+//            logger.info("接收到的数据：" + str);
         }
 
         @Override

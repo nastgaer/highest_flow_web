@@ -27,9 +27,9 @@ public class XdataRequestHandler extends RequestHandlerInterface {
         try {
             Map<String, String> param = request.getQueryPairs();
 
-            logger.info(">> " + JSON.toJSONString(param));
+//            logger.info(">> " + JSON.toJSONString(param));
             R r = onXdata(param);
-            logger.info("<< " + JSON.toJSONString(r));
+//            logger.info("<< " + JSON.toJSONString(r));
             String jsonText = JSON.toJSONString(r);
 
             response.sendStatus(HTTP.OK);
