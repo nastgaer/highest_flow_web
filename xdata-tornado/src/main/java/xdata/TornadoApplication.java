@@ -9,13 +9,14 @@ import tornado.Tornado;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class TornadoApplication {
 
     public static org.slf4j.Logger logger = LoggerFactory.getLogger(TornadoApplication.class);
 
-    public static AtomicInteger success = new AtomicInteger();
-    public static AtomicInteger failed = new AtomicInteger();
+    public static AtomicLong success = new AtomicLong();
+    public static AtomicLong failed = new AtomicLong();
 
     /**
      * Bootup the server from the console interface. This is very simple - it
