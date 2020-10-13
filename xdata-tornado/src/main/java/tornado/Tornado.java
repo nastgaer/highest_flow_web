@@ -41,9 +41,8 @@ public class Tornado {
 	 * 
 	 * @see #start()
 	 */
-	public Tornado(String[] args) {
-		final OptionParser parser = new OptionParser("c:");
-		commandLineOptions = parser.parse(args);
+	public Tornado(OptionSet commandLineOptions) {
+		this.commandLineOptions = commandLineOptions;
 		RequestHandler = new HashMap<String, RequestHandlerFactory>();
 	}
 

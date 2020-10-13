@@ -1,1 +1,1 @@
-java -jar xdata-tornado.jar conf
+java -jar xdata-tornado.jar -cconf -p7227

@@ -91,10 +91,13 @@ public class TestXsignApplication implements ApplicationRunner {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(3000)
+                            .setMaxConnPerRoute(1000)
                             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
                     new Request("GET", url, ResponseType.TEXT));
             if (response.getStatusCode() != HttpStatus.SC_OK) {
+                System.out.println("ERROR OCCURRED: " + response.getStatusCode());
                 break;
             }
 
@@ -200,11 +203,14 @@ public class TestXsignApplication implements ApplicationRunner {
 
                     Response<String> response = HttpHelper.execute(
                             new SiteConfig()
+                                    .setMaxConnTotal(3000)
+                                    .setMaxConnPerRoute(1000)
                                     .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                                     .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
                             new Request("POST", url, ResponseType.TEXT)
                                     .setParameters(postParams));
                     if (response.getStatusCode() != HttpStatus.SC_OK) {
+                        System.out.println("ERROR OCCURRED: " + response.getStatusCode());
                         return null;
                     }
 
@@ -237,6 +243,7 @@ public class TestXsignApplication implements ApplicationRunner {
                 }
 
                 if (respText == null) {
+                    System.out.println("NULL RESPONSE");
                     return null;
                 }
 
@@ -270,10 +277,13 @@ public class TestXsignApplication implements ApplicationRunner {
                 if (httpMode.compareToIgnoreCase("httpclient") == 0) {
                     Response<String> response = HttpHelper.execute(
                             new SiteConfig()
+                                    .setMaxConnTotal(3000)
+                                    .setMaxConnPerRoute(1000)
                                     .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                                     .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
                             new Request("GET", url, ResponseType.TEXT));
                     if (response.getStatusCode() != HttpStatus.SC_OK) {
+                        System.out.println("ERROR OCCURRED: " + response.getStatusCode());
                         return null;
                     }
 
@@ -300,6 +310,7 @@ public class TestXsignApplication implements ApplicationRunner {
                 }
 
                 if (respText == null) {
+                    System.out.println("NULL RESPONSE");
                     return null;
                 }
 

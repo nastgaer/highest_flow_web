@@ -39,16 +39,16 @@ public class R {
     }
 
     public static R error() {
-        return error(ErrorCodes.FAILED, "未知异常，请联系管理员");
+        return error(ErrorCodes.INTERNAL_ERROR, "未知异常，请联系管理员");
     }
 
     public static R error(String msg) {
-        return error(ErrorCodes.FAILED, msg);
+        return error(ErrorCodes.INTERNAL_ERROR, msg);
     }
 
     public static R ok(String msg) {
         R r = new R();
-        r.put("msg", msg);
+        r.setMsg(msg);
         return r;
     }
 

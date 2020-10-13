@@ -8,11 +8,11 @@ import tornado.HTTP;
 import tornado.HTTPException;
 import tornado.Request;
 import tornado.Response;
+import xdata.TornadoApplication;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class XdataRequestHandler extends RequestHandlerInterface {
 
@@ -40,8 +40,27 @@ public class XdataRequestHandler extends RequestHandlerInterface {
 
             response.out.write(jsonText);
 
+            if (r.getCode() == ErrorCodes.SUCCESS) {
+                TornadoApplication.success.incrementAndGet();
+            } else {
+                TornadoApplication.failed.incrementAndGet();
+            }
+
         } catch (Exception ex) {
             ex.printStackTrace();
+
+            R r = R.error(ex.toString());
+            String jsonText = JSON.toJSONString(r);
+
+            response.sendStatus(HTTP.OK);
+            response.sendBasicHeaders();
+            response.sendHeaderEntry("Content-Length: " + jsonText.length());
+            response.sendHeaderEntry("Content-Type: application/json; charset=UTF-8");
+            response.finishHeaders();
+
+            response.out.write(jsonText);
+
+            TornadoApplication.failed.incrementAndGet();
         }
     }
 

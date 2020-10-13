@@ -7,6 +7,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.entity.ContentType;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,6 +84,7 @@ public class PlainTextResponse extends Response<String> {
 
     @Override
     protected void closeHttpResponse(CloseableHttpResponse httpResponse) throws Throwable {
+        EntityUtils.consumeQuietly(httpResponse.getEntity());
         httpResponse.close();
     }
 }

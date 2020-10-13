@@ -52,7 +52,7 @@ public class R {
 
     public static R ok(String msg) {
         R r = new R();
-        r.put("msg", msg);
+        r.setMsg(msg);
         return r;
     }
 

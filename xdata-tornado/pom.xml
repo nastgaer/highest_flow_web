@@ -81,7 +81,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
-                            <mainClass>Application</mainClass>
+                            <mainClass>xdata.TornadoApplication</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

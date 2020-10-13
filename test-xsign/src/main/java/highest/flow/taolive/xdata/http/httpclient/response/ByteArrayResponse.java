@@ -2,6 +2,7 @@ package highest.flow.taolive.xdata.http.httpclient.response;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.util.EntityUtils;
 
 /**
  * 字节数组类型响应
@@ -15,6 +16,7 @@ public class ByteArrayResponse extends Response<byte[]> {
 
     @Override
     protected void closeHttpResponse(CloseableHttpResponse httpResponse) throws Throwable {
+        EntityUtils.consumeQuietly(httpResponse.getEntity());
         httpResponse.close();
     }
 }
