@@ -91,7 +91,7 @@ public class TestXsignApplication implements ApplicationRunner {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
-                            .setMaxConnTotal(3000)
+                            .setMaxConnTotal(6000)
                             .setMaxConnPerRoute(1000)
                             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
@@ -203,7 +203,7 @@ public class TestXsignApplication implements ApplicationRunner {
 
                     Response<String> response = HttpHelper.execute(
                             new SiteConfig()
-                                    .setMaxConnTotal(3000)
+                                    .setMaxConnTotal(6000)
                                     .setMaxConnPerRoute(1000)
                                     .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                                     .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),
@@ -277,7 +277,7 @@ public class TestXsignApplication implements ApplicationRunner {
                 if (httpMode.compareToIgnoreCase("httpclient") == 0) {
                     Response<String> response = HttpHelper.execute(
                             new SiteConfig()
-                                    .setMaxConnTotal(3000)
+                                    .setMaxConnTotal(6000)
                                     .setMaxConnPerRoute(1000)
                                     .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                                     .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"),

@@ -37,6 +37,12 @@ public class SignServiceImpl implements SignService {
     @Value("${sign.method:mina}")
     private String signMethod;
 
+    @Value("${connection.maximum}")
+    private int maxConns;
+
+    @Value("${connection.maxPerRoute}")
+    private int maxConnsPerRoute;
+
     /**
      * communicate using mina tcp between backservice and xdata service
      * @param xHeader
@@ -72,6 +78,8 @@ public class SignServiceImpl implements SignService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
                     new Request("POST", url, ResponseType.TEXT)
@@ -148,6 +156,8 @@ public class SignServiceImpl implements SignService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                             .addHeader("Content-Type", "application/json"),
                     new Request("GET", url, ResponseType.TEXT));

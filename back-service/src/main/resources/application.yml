@@ -64,6 +64,12 @@ threadpool:
   max-pool-size: 9000
   queue-capacity: 3000
 
+connection:
+  # 连接池最大连接数
+  maximum: 6000
+  # 每个路由最大连接数
+  maxPerRoute: 1000
+
 ranking:
   # 每个直播间的最大线程数
   unit-pool-size: 300
@@ -83,10 +89,8 @@ sign:
   prefix: gaoji
   suffix: yinliu
   # communication method to calculate xsign between backservice and xdata module: "mina" or "http"
-  method: mina
-  url: http://localhost:9999/xdata
-  # http, http://localhost:9999/xdata2
-  # mina, http://localhost:9999/xdata
+  method: http
+  url: http://localhost:9090/xdata
 
 secure:
   key: 1234!@#$
@@ -95,7 +99,7 @@ license:
   key: 1234!@#$
 
 taobaolive:
-  simulate: true
+  simulate: false
 
 http:
   inspect: false

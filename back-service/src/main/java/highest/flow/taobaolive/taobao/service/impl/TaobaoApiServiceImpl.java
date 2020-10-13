@@ -29,6 +29,7 @@ import org.apache.http.impl.cookie.BasicClientCookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,12 @@ import java.util.*;
 public class TaobaoApiServiceImpl implements TaobaoApiService {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Value("${connection.maximum}")
+    private int maxConns;
+
+    @Value("${connection.maxPerRoute}")
+    private int maxConnsPerRoute;
 
     @Autowired
     private SignService signService;
@@ -68,6 +75,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .addHeaders(xHeader.getHeaders()),
                     new Request("GET", url, ResponseType.TEXT),
@@ -114,6 +123,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
@@ -193,6 +204,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
@@ -258,6 +271,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8"),
                     new Request("GET", url, ResponseType.TEXT),
@@ -342,6 +357,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
@@ -436,6 +453,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
                             .addHeader("Referer", url),
                     new Request("GET", url, ResponseType.TEXT),
@@ -531,6 +550,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
@@ -662,6 +683,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
                             .setAccept("text/html, application/xhtml+xml, */*"),
                     new Request("GET", url, ResponseType.TEXT),
@@ -799,6 +822,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
@@ -853,6 +878,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
@@ -993,6 +1020,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                             .addHeader("Referer", refererUrl),
                     new Request("GET", url, ResponseType.TEXT),
@@ -1114,6 +1143,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -1161,6 +1192,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -1208,6 +1241,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -1238,12 +1273,12 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
         try {
             Map<String, Object> jsonParams = new HashMap<>();
             jsonParams.put("liveId", liveRoomEntity.getLiveId());
-            jsonParams.put("anchorId", liveRoomEntity.getAccountId());
+            jsonParams.put("accountId", liveRoomEntity.getAccountId());
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonText = objectMapper.writeValueAsString(jsonParams);
 
-            String subUrl = "mtop.taobao.iliad.task.hierarchy.detail";
+            String subUrl = "mtop.mediaplatform.hierarchy.detail";
             String url = "https://acs.m.taobao.com/gw/" + subUrl + "/1.0/?data=" + URLEncoder.encode(jsonText);
 
             XHeader xHeader = new XHeader(taobaoAccountEntity);
@@ -1254,10 +1289,13 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
-                    new Request("GET", url, ResponseType.TEXT));
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -1310,6 +1348,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -1349,10 +1389,13 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
-                    new Request("GET", url, ResponseType.TEXT));
+                    new Request("GET", url, ResponseType.TEXT),
+                    new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
 
             if (response.getStatusCode() != HttpStatus.SC_OK) {
                 return R.error();
@@ -1397,6 +1440,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -1455,6 +1500,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
@@ -1523,6 +1570,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -1581,6 +1630,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
@@ -1649,6 +1700,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -1708,6 +1761,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .setContentType("application/x-www-form-urlencoded;charset=UTF-8")
                             .addHeaders(xHeader.getHeaders()),
@@ -1777,6 +1832,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -1809,6 +1866,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("SM-J120F(Android/5.1.1) AliApp(TAOBAOLIVEAPP/1.8.4) Weex/0.26.4.9 480x800")
                             .setAccept("*/*")
                             .addHeader("X-Requested-With", "com.taobao.live")
@@ -1838,6 +1897,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (Linux; U; Android 5.1.1; zh-CN; SM-J120F Build/LMY47X) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/69.0.3497.100 UWS/3.22.0.26 Mobile Safari/537.36 AliApp(TAOBAOLIVEAPP/1.8.4) UCBS/2.11.1.1 TTID/10005533@taobaolive_android_1.8.4 WindVane/8.5.0")
                             .setAccept("*/*")
                             .addHeader("X-Requested-With", "com.taobao.live")
@@ -1913,6 +1974,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                             .addHeader("Referer", refererUrl)
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
@@ -1986,6 +2049,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .addHeaders(xHeader.getHeaders()),
                     new Request("GET", url, ResponseType.TEXT),
@@ -2044,6 +2109,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                             .addHeader("Referer", refererUrl)
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
@@ -2083,6 +2150,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                             .addHeader("Referer", refererUrl)
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
@@ -2122,6 +2191,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                             .addHeader("Referer", refererUrl)
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
@@ -2161,6 +2232,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                             .addHeader("Referer", refererUrl)
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
@@ -2228,6 +2301,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                             .addHeader("Referer", refererUrl)
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
@@ -2303,6 +2378,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .addHeaders(xHeader.getHeaders()),
                     new Request("GET", url, ResponseType.TEXT),
@@ -2364,6 +2441,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -2447,6 +2526,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("MTOPSDK%2F3.1.1.7+%28Android%3B5.1.1%3Bsamsung%3BSM-J120F%29")
                             .addHeaders(xHeader.getHeaders())
                             .addHeader("Content-Type", "application/x-www-form-urlencoded"),
@@ -2514,6 +2595,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
                             .addHeader("Referer", url)
                             .setContentType("application/x-www-form-urlencoded"),
@@ -2565,6 +2648,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
                             .setAccept("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
                             .addHeader("Accept-Language", "zh-CN,en-US;q=0.9")
@@ -2607,6 +2692,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
                             .setContentType("application/x-www-form-urlencoded"),
                     new Request("POST", url, ResponseType.TEXT)
@@ -2658,6 +2745,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)")
                             .setContentType("application/x-www-form-urlencoded")
                             .addHeaders(xHeader.getHeaders()),
@@ -2761,6 +2850,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
             String url = "http://zb.dcdnz.com/api/notify/umtid.php?action=select";
             Response<String> response = HttpHelper.execute(
                 new SiteConfig()
+                        .setMaxConnTotal(maxConns)
+                        .setMaxConnPerRoute(maxConnsPerRoute)
                     .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                 new Request("GET", url, ResponseType.TEXT));
 
@@ -2813,6 +2904,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                 new SiteConfig()
+                        .setMaxConnTotal(maxConns)
+                        .setMaxConnPerRoute(maxConnsPerRoute)
                     .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                 new Request("GET", url, ResponseType.TEXT),
                 new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -2874,6 +2967,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2)"),
                     new Request("GET", url, ResponseType.TEXT),
                     new DefaultCookieStorePool(taobaoAccountEntity.getCookieStore()));
@@ -2917,6 +3012,8 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
             Response<String> response = HttpHelper.execute(
                     new SiteConfig()
+                            .setMaxConnTotal(maxConns)
+                            .setMaxConnPerRoute(maxConnsPerRoute)
                             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36")
                             .addHeader("Referer", "https://liveplatform.taobao.com/live/addLive.htm"),
                     new Request("POST", url, ResponseType.TEXT)
