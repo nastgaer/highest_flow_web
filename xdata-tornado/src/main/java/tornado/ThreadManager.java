@@ -40,7 +40,7 @@ public class ThreadManager implements Runnable {
 			final int minIdleThreads = Tornado.getConfig().getMinIdleThreads();
 			final int maxIdleThreads = Tornado.getConfig().getMaxIdleThreads();
 			final int maxThreads = Tornado.getConfig().getMaxThreads();
-			Tornado.logger.debug(idleThreads + " idle; " + threadPool.getBusyThreads() + " busy; " + maxThreads
+			Tornado.logger.info(idleThreads + " idle; " + threadPool.getBusyThreads() + " busy; " + maxThreads
 					+ " maximum number of threads.");
 
 			if (threadPool.getNumThreads() > maxThreads) {
