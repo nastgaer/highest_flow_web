@@ -11,6 +11,7 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;
 import org.apache.mina.filter.keepalive.KeepAliveFilter;
 import org.apache.mina.filter.keepalive.KeepAliveMessageFactory;
+import org.apache.mina.filter.logging.LogLevel;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
@@ -100,7 +101,15 @@ public class MinaService {
     public static void start(int port) {
         IoAcceptor acceptor = new NioSocketAcceptor();
         //添加日志过滤器
-//        acceptor.getFilterChain().addLast("logger", new LoggingFilter());
+        LoggingFilter loggingFilter = new LoggingFilter();
+        loggingFilter.setMessageSentLogLevel(LogLevel.NONE);
+        loggingFilter.setMessageReceivedLogLevel(LogLevel.NONE);
+        loggingFilter.setExceptionCaughtLogLevel(LogLevel.DEBUG);
+        loggingFilter.setSessionClosedLogLevel(LogLevel.DEBUG);
+        loggingFilter.setSessionCreatedLogLevel(LogLevel.DEBUG);
+        loggingFilter.setSessionOpenedLogLevel(LogLevel.DEBUG);
+
+        acceptor.getFilterChain().addLast("logger", loggingFilter);
         acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ObjectSerializationCodecFactory()));
 
         KeepAliveMessageFactory heartBeatFactory = new KeepAliveMessageFactoryImpl();

@@ -25,6 +25,8 @@ public class TornadoApplication {
      * @see #Tornado(String[])
      */
     public static void main(String[] args) {
+        Log4jConfiguration.configure("xdata.log");
+
         int defaultPort = 7227;
         int minaPort = defaultPort;
 
