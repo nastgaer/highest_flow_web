@@ -1,5 +1,6 @@
 package highest.flow.taolive.xdata.http;
 
+import highest.flow.taolive.xdata.utils.DateUtils;
 import highest.flow.taolive.xdata.utils.HFStringUtils;
 import org.apache.http.cookie.*;
 import org.apache.http.impl.cookie.BasicClientCookie;
@@ -163,16 +164,8 @@ public class CookieHelper {
                     String paramValue = rawCookieParamNameAndValue[1].trim();
 
                     if (paramName.equalsIgnoreCase("expires")) {
-                        if (paramValue.indexOf("GMT") >= 0) {
-                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy HH:mm:ss", Locale.ENGLISH);
-                            LocalDateTime localDateTime = LocalDateTime.parse(paramValue.replace(" GMT", ""), formatter);
-
-                            Date expiryDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-                            cookie.setExpiryDate(expiryDate);
-                        } else {
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            Date expiryDate = sdf.parse(paramValue);
-                            // Date expiryDate = DateFormat.getDateTimeInstance().parse(paramValue);
+                        Date expiryDate = DateUtils.parseDateStr(paramValue);
+                        if (expiryDate != null) {
                             cookie.setExpiryDate(expiryDate);
                         }
                     } else if (paramName.equalsIgnoreCase("max-age")) {

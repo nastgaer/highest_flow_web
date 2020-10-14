@@ -103,7 +103,7 @@ public class MinaService {
     public static void start(int port) {
         IoAcceptor acceptor = new NioSocketAcceptor();
         //添加日志过滤器
-        acceptor.getFilterChain().addLast("logger", new LoggingFilter());
+//        acceptor.getFilterChain().addLast("logger", new LoggingFilter());
         acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ObjectSerializationCodecFactory()));
 
         KeepAliveMessageFactory heartBeatFactory = new KeepAliveMessageFactoryImpl();
@@ -193,8 +193,7 @@ public class MinaService {
             String str = message.toString();
             Date date = new Date();
             session.write(date.toString());
-            logger.info("接收到的数据：" + str);
-
+//            logger.info("接收到的数据：" + str);
         }
 
         @Override
@@ -207,6 +206,14 @@ public class MinaService {
         public void sessionClosed(IoSession session) throws Exception {
             super.sessionClosed(session);
             sessiones.remove(session);
+        }
+
+        @Override
+        public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+            super.exceptionCaught(session, cause);
+            if (session.isConnected()) {
+                session.closeNow();
+            }
         }
     }
 }

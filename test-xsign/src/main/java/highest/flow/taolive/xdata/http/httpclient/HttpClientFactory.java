@@ -15,6 +15,9 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.config.*;
+import org.apache.http.conn.HttpConnectionFactory;
+import org.apache.http.conn.SchemePortResolver;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.cookie.CookieSpecProvider;
@@ -22,6 +25,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.StandardHttpRequestRetryHandler;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLInitializationException;
 
@@ -39,6 +43,9 @@ import java.util.concurrent.TimeUnit;
  * Created by brucezee on 2017/1/6.
  */
 public class HttpClientFactory {
+
+    private HttpClientConnectionMonitorThread monitorThread; // http连接管理线程
+
     public static HttpClientFactory create() {
         return new HttpClientFactory();
     }
@@ -60,10 +67,27 @@ public class HttpClientFactory {
         httpClientBuilder.setSSLContext(createSSLContext());
         httpClientBuilder.setSSLHostnameVerifier(createSSLHostnameVerifier());
 
-        httpClientBuilder.setDefaultConnectionConfig(createConnectionConfig(siteConfig));
-        httpClientBuilder.setDefaultSocketConfig(createSocketConfig(siteConfig));
+        ConnectionConfig connectionConfig = createConnectionConfig(siteConfig);
+        httpClientBuilder.setDefaultConnectionConfig(connectionConfig);
+        SocketConfig socketConfig = createSocketConfig(siteConfig);
+        httpClientBuilder.setDefaultSocketConfig(socketConfig);
         httpClientBuilder.setDefaultCookieSpecRegistry(createCookieSpecRegistry());
         httpClientBuilder.setDefaultCookieStore(createCookieStore());
+
+        PoolingHttpClientConnectionManager poolingmgr = new PoolingHttpClientConnectionManager(siteConfig.getConnTimeToLiveMillis(), TimeUnit.MILLISECONDS);
+        poolingmgr.setDefaultSocketConfig(socketConfig);
+        poolingmgr.setDefaultConnectionConfig(connectionConfig);
+
+        if (siteConfig.getMaxConnTotal() > 0) {
+            poolingmgr.setMaxTotal(siteConfig.getMaxConnTotal());
+        }
+        if (siteConfig.getMaxConnPerRoute() > 0) {
+            poolingmgr.setDefaultMaxPerRoute(siteConfig.getMaxConnPerRoute());
+        }
+
+        monitorThread = new HttpClientConnectionMonitorThread(poolingmgr);
+
+        httpClientBuilder.setConnectionManager(poolingmgr);
 
         return httpClientBuilder;
     }

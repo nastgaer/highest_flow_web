@@ -1,5 +1,6 @@
 package highest.flow.taolive.xdata.http.httpclient;
 
+import com.alibaba.fastjson.JSON;
 import highest.flow.taolive.xdata.http.Request;
 import highest.flow.taolive.xdata.http.SiteConfig;
 import highest.flow.taolive.xdata.http.cookie.CookieStorePool;
@@ -7,26 +8,39 @@ import highest.flow.taolive.xdata.http.httpclient.response.Response;
 import highest.flow.taolive.xdata.http.httpclient.response.ResponseFactory;
 import highest.flow.taolive.xdata.http.proxy.HttpProxy;
 import highest.flow.taolive.xdata.http.proxy.HttpProxyPool;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 请求执行器
  * Created by brucezee on 2017/1/6.
  */
 public class HttpClientExecutor {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     private HttpClientPool httpClientPool;
     private HttpProxyPool httpProxyPool;
     private CookieStorePool cookieStorePool;
@@ -67,6 +81,41 @@ public class HttpClientExecutor {
         response.handleHttpResponse(httpResponse, executeException);
 
         return response;
+    }
+
+    private void beforeExecuteRequest(HttpUriRequest request) {
+        try {
+            logger.debug("<<< Before Http Request");
+            logger.debug("URL: " + request.getURI().toString());
+            logger.debug("Method: " + request.getMethod());
+
+            Map<String, String> mapHeaders = new HashMap<>();
+            for (Header header : request.getAllHeaders()) {
+                mapHeaders.put(header.getName(), header.getValue());
+            }
+
+            logger.debug("Headers: " + JSON.toJSONString(mapHeaders));
+
+            if (request instanceof HttpEntityEnclosingRequestBase) {
+                HttpEntity httpEntity = ((HttpEntityEnclosingRequestBase)request).getEntity();
+                String content = IOUtils.toString(httpEntity.getContent(), StandardCharsets.UTF_8.name());
+                logger.debug("Content: " + content);
+            }
+
+            logger.debug(">>> Before Http Request");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void afterExecuteRequest(Response response) {
+        try {
+            logger.debug(response.getResult().toString());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private HttpProxy getHttpProxyFromPool() {

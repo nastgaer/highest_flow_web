@@ -13,7 +13,7 @@ public class HttpHelper {
     private static HttpClientPool httpClientPool;
 
     static {
-        HttpHelper.httpClientPool = new DefaultHttpClientPool(new HttpClientFactory());
+        HttpHelper.httpClientPool = new DefaultHttpClientPool(HttpClientFactory.create());
     }
 
     public static <T> Response<T> execute(SiteConfig siteConfig, Request request) {
