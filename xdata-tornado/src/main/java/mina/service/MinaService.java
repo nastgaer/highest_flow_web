@@ -100,7 +100,7 @@ public class MinaService {
     public static void start(int port) {
         IoAcceptor acceptor = new NioSocketAcceptor();
         //添加日志过滤器
-        acceptor.getFilterChain().addLast("logger", new LoggingFilter());
+//        acceptor.getFilterChain().addLast("logger", new LoggingFilter());
         acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ObjectSerializationCodecFactory()));
 
         KeepAliveMessageFactory heartBeatFactory = new KeepAliveMessageFactoryImpl();
