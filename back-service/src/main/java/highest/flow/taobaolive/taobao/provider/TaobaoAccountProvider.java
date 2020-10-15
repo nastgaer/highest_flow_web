@@ -22,6 +22,8 @@ public class TaobaoAccountProvider {
     @Value("${autologin.slave.auto-update:300}")
     private int autoUpdatePeriod;
 
+    private Date lastUpdated = new Date();
+
     public void initialize() {
         try {
             // 该函数经常用，所以打开第一时间获取掉
@@ -42,6 +44,9 @@ public class TaobaoAccountProvider {
             while (true) {
                 try {
                     Date updated = taobaoAccountService.getLastUpdated();
+                    if (updated == null) {
+                        updated = new Date();
+                    }
 
                     // 隔5分钟更新一次
                     int count = taobaoAccountService.reloadUpdatedAccounts(updated);

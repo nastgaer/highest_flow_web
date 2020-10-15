@@ -21,6 +21,8 @@ import highest.flow.taobaolive.taobao.service.TaobaoAccountService;
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,8 @@ import java.util.*;
 
 @Service("taobaoAccountService")
 public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, TaobaoAccountEntity> implements TaobaoAccountService {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private TaobaoAccountLogService taobaoAccountLogService;
@@ -160,25 +164,27 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
     }
 
     @Override
-    public synchronized void cacheAccount(TaobaoAccountEntity cacheAccountEntity) {
+    public synchronized void cacheAccount(TaobaoAccountEntity newAccountEntity) {
         if (cachedTaobaoAccountEntities == null) {
             cachedTaobaoAccountEntities = new ArrayList<>();
         }
         boolean found = false;
         for (int idx = 0; idx < cachedTaobaoAccountEntities.size(); idx++) {
-            TaobaoAccountEntity taobaoAccountEntity = cachedTaobaoAccountEntities.get(idx);
-            if (taobaoAccountEntity.getUid().compareTo(cacheAccountEntity.getUid()) == 0) {
-                if (taobaoAccountEntity.getState() != TaobaoAccountState.Normal.getState()) {
+            TaobaoAccountEntity cacheAccountEntity = cachedTaobaoAccountEntities.get(idx);
+            if (cacheAccountEntity.getUid().compareTo(newAccountEntity.getUid()) == 0) {
+                if (cacheAccountEntity.getState() != TaobaoAccountState.Normal.getState()) {
                     cachedTaobaoAccountEntities.remove(idx);
                 } else {
-                    cachedTaobaoAccountEntities.set(idx, taobaoAccountEntity);
+                    cachedTaobaoAccountEntities.set(idx, cacheAccountEntity);
                 }
                 found = true;
                 break;
             }
         }
         if (!found) {
-            cachedTaobaoAccountEntities.add(cacheAccountEntity);
+            if (newAccountEntity.getState() == TaobaoAccountState.Normal.getState()) {
+                cachedTaobaoAccountEntities.add(newAccountEntity);
+            }
         }
     }
 
@@ -199,6 +205,9 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
 
         Date updated = null;
         for (TaobaoAccountEntity taobaoAccountEntity : cachedTaobaoAccountEntities) {
+            if (taobaoAccountEntity.getState() != TaobaoAccountState.Normal.getState()) {
+                continue;
+            }
             if (updated == null) {
                 updated = taobaoAccountEntity.getUpdatedTime();
             }
@@ -222,8 +231,10 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
                 TaobaoAccountEntity cachedAccountEntity = cachedTaobaoAccountEntities.get(idx);
                 if (taobaoAccountEntity.getUid().compareTo(cachedAccountEntity.getUid()) == 0) {
                     if (taobaoAccountEntity.getState() != TaobaoAccountState.Normal.getState()) {
+                        logger.info("已经更新小号：" + taobaoAccountEntity.getNick() + ", 状态：过期");
                         cachedTaobaoAccountEntities.remove(idx);
                     } else {
+                        logger.info("已经更新小号：" + taobaoAccountEntity.getNick() + ", 状态：正常");
                         cachedTaobaoAccountEntities.set(idx, taobaoAccountEntity);
                     }
                     updatedCount++;
@@ -234,6 +245,7 @@ public class TaobaoAccountServiceImpl extends ServiceImpl<TaobaoAccountDao, Taob
             if (!found) {
                 if (taobaoAccountEntity.getState() == TaobaoAccountState.Normal.getState()) {
                     cachedTaobaoAccountEntities.add(taobaoAccountEntity);
+                    logger.info("已经更新小号：" + taobaoAccountEntity.getNick() + ", 状态：正常");
                 }
                 updatedCount++;
             }

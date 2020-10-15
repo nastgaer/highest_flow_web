@@ -37,6 +37,8 @@ public class MinaService {
 
     private static List<IoSession> sessiones = new CopyOnWriteArrayList<>();
 
+    private static int sessionIndex = 0; // 最后执行请求的session Index
+
     private static Random random = new Random();
 
     private static Runnable monitor = new Runnable() {
@@ -96,14 +98,23 @@ public class MinaService {
         if (sessiones == null || sessiones.size() == 0) {
             return null;
         }
-        return sessiones.get(random.nextInt(sessiones.size()));
+        sessionIndex = (sessionIndex + 1) % sessiones.size();
+        return sessiones.get(sessionIndex);
     }
-
 
     public static void start(int port) {
         IoAcceptor acceptor = new NioSocketAcceptor();
         //添加日志过滤器
-//        acceptor.getFilterChain().addLast("logger", new LoggingFilter());
+        LoggingFilter loggingFilter = new LoggingFilter();
+        loggingFilter.setMessageSentLogLevel(LogLevel.NONE);
+        loggingFilter.setMessageReceivedLogLevel(LogLevel.NONE);
+        loggingFilter.setExceptionCaughtLogLevel(LogLevel.DEBUG);
+        loggingFilter.setSessionClosedLogLevel(LogLevel.DEBUG);
+        loggingFilter.setSessionCreatedLogLevel(LogLevel.DEBUG);
+        loggingFilter.setSessionOpenedLogLevel(LogLevel.DEBUG);
+        loggingFilter.setSessionIdleLogLevel(LogLevel.NONE);
+
+        acceptor.getFilterChain().addLast("logger", loggingFilter);
         acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ObjectSerializationCodecFactory()));
 
         KeepAliveMessageFactory heartBeatFactory = new KeepAliveMessageFactoryImpl();
