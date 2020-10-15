@@ -11,6 +11,7 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;
 import org.apache.mina.filter.keepalive.KeepAliveFilter;
 import org.apache.mina.filter.keepalive.KeepAliveMessageFactory;
+import org.apache.mina.filter.logging.LogLevel;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
