@@ -74,7 +74,7 @@ public class RingBufferSingleProducerFactory2 {
                 ProducerType.SINGLE,
                 waitStrategy);
 
-        disruptor.handleExceptionsWith(new RingBufferSingleProducerFactory.EventExceptionHandler());
+        disruptor.handleExceptionsWith(new EventExceptionHandler());
         disruptor.handleEventsWithWorkerPool(consumers);
 
         disruptor.start();
