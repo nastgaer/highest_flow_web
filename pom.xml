@@ -12,8 +12,9 @@
     <modules>
 		<module>back-service</module>
         <module>test-xsign</module>
+        <module>test-xsign-disruptor</module>
         <module>xdata</module>
-        <module>xdata-charlie</module>
+        <module>xdata-disruptor</module>
         <!--<module>xdata-netty</module>-->
         <module>xdata-tornado</module>
     </modules>

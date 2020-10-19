@@ -1,5 +1,7 @@
 package xdata;
 
+import com.lmax.disruptor.BlockingWaitStrategy;
+import com.lmax.disruptor.BusySpinWaitStrategy;
 import com.lmax.disruptor.YieldingWaitStrategy;
 import disruptor.MessageConsumer;
 import disruptor.MessageConsumerImpl;
@@ -73,7 +75,7 @@ public class XdataDisruptorApplication {
 
         RingBufferSingleProducerFactory.getInstance().initAndStart(
                 1024 * 1024,
-                new YieldingWaitStrategy(),
+                new BusySpinWaitStrategy(), // new YieldingWaitStrategy(),
                 consumers
         );
 

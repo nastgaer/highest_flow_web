@@ -42,7 +42,7 @@ public class HttpConfiguration {
     }
 
     public static final File getMimeTypes() {
-        return new File(getDocumentRoot() + File.pathSeparator + "conf/mime.types");
+        return new File(getDocumentRoot() + File.separator + "conf/mime.types");
     }
 
     public static MIMEDictionary getMime() {

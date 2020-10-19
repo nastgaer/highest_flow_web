@@ -51,7 +51,7 @@ public class RingBufferSingleProducerFactory {
                     }
                 },
                 bufferSize,
-                Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()),
+                Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2),
                 ProducerType.SINGLE,
                 waitStrategy
         );

@@ -46,8 +46,6 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
 //        pipeline.addLast("serverAuthHandler", serverAuthHandler);
 //        pipeline.addLast("logicHandler", logicHandler);
 
-
-
         pipeline.addLast("serverAuthHandler", new ServerAuthHandler(serverListener));
         pipeline.addLast("logicHandler", new LogicHandler(serverListener));
     }
