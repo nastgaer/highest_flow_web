@@ -52,7 +52,7 @@ public class MinaService {
                     } else {
                         logger.info("正常设备数：" + sessiones.size());
                     }
-                    Thread.sleep(60 * 1000);
+                    Thread.sleep(1000);
 
                 } catch (Exception ex) {
                     ex.printStackTrace();

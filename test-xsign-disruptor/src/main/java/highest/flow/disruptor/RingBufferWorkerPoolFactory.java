@@ -25,7 +25,6 @@ public class RingBufferWorkerPoolFactory {
     }
 
     public void initAndStart(ProducerType type, int bufferSize, WaitStrategy waitStrategy, MessageConsumer[] messageConsumers) {
-        //1. 构建ringBuffer对象
         this.ringBuffer = RingBuffer.create(type,
                 new EventFactory<TranslatorData>() {
                     public TranslatorData newInstance() {
@@ -34,6 +33,7 @@ public class RingBufferWorkerPoolFactory {
                 },
                 bufferSize,
                 waitStrategy);
+        //1. 构建ringBuffer对象
         //2.设置序号栅栏
         this.sequenceBarrier = this.ringBuffer.newBarrier();
         //3.设置工作池
