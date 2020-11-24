@@ -536,4 +536,45 @@ public class SignController {
         }
         return R.error("上传请求内容失败");
     }
+
+    @GetMapping("/umid-token")
+    public R getUmidToken() {
+        try {
+            Packet packet = new Packet();
+            packet.setProtocol("umtid");
+            packet.setObj(null);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonText = objectMapper.writeValueAsString(packet);
+
+            String respText = minaService.sendMessage(jsonText);
+
+            if (StringUtils.isNullOrEmpty(respText)) {
+                return R.error("空了");
+            }
+
+            JsonParser jsonParser = JsonParserFactory.getJsonParser();
+            Map<String, Object> map = jsonParser.parseMap(respText);
+
+            int code = (int) map.get("ret");
+            String msg = (String) map.get("msg");
+            if (code != 100) {
+                return R.error(msg);
+            }
+
+            Map<String, Object> mapData = (Map) map.get("data");
+            String umidToken = mapData == null ? "" : (String) mapData.get("umidtoken");
+
+            if (StringUtils.isNullOrEmpty(umidToken)) {
+                return R.error("计算umidToken失败");
+            }
+
+            return R.ok("成功")
+                    .put("umid-token", umidToken);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return R.error("获取内容");
+    }
 }

@@ -10,6 +10,8 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -30,6 +32,17 @@ public class ResourceReader {
             final String text = reader.lines()
                     .collect(Collectors.joining("\n"));
             return text;
+        }
+    }
+
+    public static List<String> getUmidTokens() throws IOException {
+        final InputStream resource = new ClassPathResource("static/UmidTokens.txt").getInputStream();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource))) {
+            List<String> umidTokens = new ArrayList<>();
+            reader.lines().forEach(line -> {
+                umidTokens.add(line);
+            });
+            return umidTokens;
         }
     }
 }
