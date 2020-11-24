@@ -74,7 +74,7 @@ public class RankingTests {
     @Test
     void addLicenseCode() {
         try {
-            int count = 30;
+            int count = 200;
             for (int idx = 0; idx < count; idx++) {
                 String code1 = "lic" + CommonUtils.randomAlphabetic(8);
 

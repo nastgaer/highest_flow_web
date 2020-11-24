@@ -2868,6 +2868,11 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
                 }
             }
 
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        try {
             List<String> umidTokens = ResourceReader.getUmidTokens();
             if (umidTokens == null || umidTokens.size() < 1) {
                 return R.error("生成UmtidToken失败");
@@ -2879,7 +2884,6 @@ public class TaobaoApiServiceImpl implements TaobaoApiService {
 
 //            // TODO
 //            return R.ok().put("umtid", CommonUtils.randomAlphabetic("ax4WpF7jPU0DAEfs1bkDAGEcooO5rmzg".length()));
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }
